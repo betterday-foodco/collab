@@ -126,13 +126,14 @@
   main {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 32px 24px;
+    padding: 28px 24px;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 28px;
   }
   @media (min-width: 900px) {
     main { grid-template-columns: 1.2fr 1fr; }
+    .projects-section { grid-column: 1 / -1; }
     .messages-section { grid-column: 1 / -1; }
   }
   .section h2 {
@@ -169,9 +170,9 @@
   /* Cards */
   .card {
     background: var(--card);
-    border-radius: 12px;
-    padding: 18px 20px;
-    margin-bottom: 14px;
+    border-radius: 10px;
+    padding: 13px 16px;
+    margin-bottom: 10px;
     box-shadow: var(--shadow);
     border-left: 4px solid var(--navy);
     transition: all 0.15s;
@@ -188,13 +189,14 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
   .card-title {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
     color: var(--text);
     flex: 1;
+    line-height: 1.35;
   }
   .card-title a { color: var(--navy); text-decoration: none; }
   .card-title a:hover { text-decoration: underline; }
@@ -257,12 +259,12 @@
   .badge-done { background: #d1fae5; color: #065f46; }
   .badge-blocked { background: #fee2e2; color: #991b1b; }
   .card-meta {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-muted);
-    margin-bottom: 10px;
+    margin-bottom: 6px;
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 10px;
   }
   .card-meta span { display: inline-flex; align-items: center; gap: 4px; }
   .owner-chip {
@@ -270,30 +272,32 @@
     color: var(--navy);
   }
   .card-summary {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text);
-    margin-bottom: 12px;
+    margin-bottom: 6px;
+    line-height: 1.5;
   }
   .card-section {
-    margin-top: 10px;
+    margin-top: 6px;
   }
   .card-section-label {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
   }
   .card-section ul {
     list-style: none;
     padding-left: 0;
   }
   .card-section li {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text);
-    padding: 3px 0 3px 18px;
+    padding: 2px 0 2px 16px;
     position: relative;
+    line-height: 1.45;
   }
   .card-section li::before {
     content: '✓';
@@ -306,12 +310,289 @@
     content: '○';
     color: var(--amber);
   }
+  /* Collapsible "what works / needs review" toggle */
+  .card-toggle {
+    margin-top: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 0;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .card-toggle:hover { color: var(--navy); }
+  .card-toggle .chev {
+    display: inline-block;
+    transition: transform 0.15s;
+  }
+  .card-toggle.open .chev { transform: rotate(90deg); }
+  .card-toggle .pip-works {
+    color: var(--green);
+    font-weight: 700;
+  }
+  .card-toggle .pip-review {
+    color: var(--amber);
+    font-weight: 700;
+  }
+  .card-details { display: none; }
+  .card-details.open { display: block; }
+
+  /* ============== PROJECTS ============== */
+  .project {
+    background: var(--card);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--navy);
+    overflow: hidden;
+  }
+  .project.status-done { border-left-color: var(--green); opacity: 0.8; }
+  .project.status-in_progress { border-left-color: var(--gold); }
+  .project.status-paused { border-left-color: var(--text-muted); }
+  .project-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .project-head:hover { background: #fafbfc; }
+  .project-chev {
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    align-items: center;
+    justify-content: center;
+    color: var(--navy);
+    flex-shrink: 0;
+    transition: transform 0.15s;
+  }
+  .project.open .project-chev { transform: rotate(90deg); }
+  .project-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--navy);
+    flex: 1;
+    line-height: 1.3;
+  }
+  .project-meta-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .project-progress {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+  .project-progress-bar {
+    width: 80px;
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+    position: relative;
+  }
+  .project-progress-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 100%);
+    border-radius: 99px;
+    transition: width 0.3s ease;
+  }
+  .project-body {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 12px 18px 16px 44px;
+  }
+  .project.open .project-body { display: block; }
+  .project-description {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .subtask-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .subtask {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+  }
+  .subtask:hover {
+    background: #f6f8fa;
+    border-color: var(--border);
+  }
+  .subtask.is-blocked {
+    opacity: 0.55;
+  }
+  .subtask-checkbox {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    border: 2px solid var(--border);
+    background: white;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    padding: 0;
+  }
+  .subtask-checkbox:hover {
+    border-color: var(--navy);
+  }
+  .subtask-checkbox.done {
+    background: var(--green);
+    border-color: var(--green);
+    color: white;
+  }
+  .subtask-checkbox.done svg {
+    width: 12px;
+    height: 12px;
+  }
+  .subtask-checkbox.in_progress {
+    border-color: var(--gold);
+    background: #fff8e1;
+  }
+  .subtask-checkbox.in_progress::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+  }
+  .subtask-checkbox.blocked {
+    border-color: var(--red);
+    background: #fef2f2;
+  }
+  .subtask-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .subtask-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 3px;
+  }
+  .subtask.done .subtask-title {
+    text-decoration: line-through;
+    color: var(--text-muted);
+  }
+  .subtask-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 2px 7px;
+    border-radius: 99px;
+    background: var(--bg);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .chip-owner {
+    background: #e8f0f4;
+    color: var(--navy);
+    border-color: #c7dde6;
+  }
+  .chip-pr {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #bfdbfe;
+  }
+  .chip-branch {
+    background: #f3e8ff;
+    color: #6b21a8;
+    border-color: #e9d5ff;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .chip-blocked {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fecaca;
+  }
+  .chip-after {
+    background: #f3f4f6;
+    color: var(--text-muted);
+  }
+  .subtask-notes {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    line-height: 1.45;
+  }
+  .subtask-actions {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .subtask:hover .subtask-actions {
+    opacity: 1;
+  }
+  .subtask-copy {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 6px;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.15s;
+  }
+  .subtask-copy:hover {
+    color: var(--navy);
+    border-color: var(--navy);
+    background: #eef4f7;
+  }
+  .subtask-copy svg { width: 12px; height: 12px; }
+  .subtask-copy.copied {
+    background: var(--navy);
+    color: white;
+    border-color: var(--navy);
+  }
   /* Messages */
   .message {
     background: var(--card);
-    border-radius: 12px;
-    padding: 18px 20px;
-    margin-bottom: 14px;
+    border-radius: 10px;
+    padding: 13px 16px;
+    margin-bottom: 10px;
     box-shadow: var(--shadow);
     border-left: 4px solid var(--gold);
   }
@@ -320,31 +601,31 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     flex-wrap: wrap;
     gap: 8px;
   }
   .message-from {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     color: var(--navy);
   }
   .message-from .arrow { color: var(--text-muted); margin: 0 6px; font-weight: 400; }
   .message-time {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-muted);
   }
   .message-subject {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     color: var(--text);
   }
   .message-body {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text);
     white-space: pre-wrap;
-    line-height: 1.6;
+    line-height: 1.55;
   }
   .unread-dot {
     display: inline-block;
@@ -377,7 +658,7 @@
         <div class="brand-mark">BD</div>
         <div>
           <h1>BetterDay Collab Board</h1>
-          <div class="subtitle">Branches · Tasks · Messages</div>
+          <div class="subtitle">Projects · Branches · Tasks · Messages</div>
         </div>
       </div>
       <div class="meta-info">
@@ -457,13 +738,27 @@ function render() {
     currentFilter === 'all' || t.assigned_to === currentFilter;
   const filterMessages = m =>
     currentFilter === 'all' || m.to === currentFilter || m.from === currentFilter;
+  // For projects: show if owner matches, OR if any subtask is assigned to the filtered person
+  const filterProjects = p => {
+    if (currentFilter === 'all') return true;
+    if (p.owner === currentFilter) return true;
+    return (p.subtasks || []).some(s => s.assigned_to === currentFilter);
+  };
 
+  const projects = (DATA.projects || []).filter(filterProjects);
   const branches = (DATA.branches || []).filter(filterBranches);
   const tasks    = (DATA.tasks || []).filter(filterTasks);
   const messages = (DATA.messages || []).filter(filterMessages)
     .slice().sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
   document.getElementById('app').innerHTML = `
+    <section class="section projects-section">
+      <h2>Projects <span class="count">${projects.length}</span></h2>
+      ${projects.length === 0
+        ? '<div class="empty-state">No projects yet — ask Claude to map one out and add it to the board</div>'
+        : projects.map(renderProject).join('')}
+    </section>
+
     <section class="section branches-section">
       <h2>Branches <span class="count">${branches.length}</span></h2>
       ${branches.length === 0
@@ -489,6 +784,7 @@ function render() {
 
 const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
 const CHECK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+const CHEV_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>';
 
 function copyBtn(type, id) {
   return `<button class="copy-btn" data-copy-type="${escapeHtml(type)}" data-copy-id="${escapeHtml(id)}" title="Copy this ${type} as a Claude-ready prompt">${COPY_ICON}<span class="copy-label">For Claude</span></button>`;
@@ -500,6 +796,9 @@ function renderBranch(b) {
   const titleHtml = b.pr_url
     ? `<a href="${escapeHtml(b.pr_url)}" target="_blank" rel="noopener">${escapeHtml(b.title)}</a>`
     : escapeHtml(b.title);
+  const worksCount = (b.what_works || []).length;
+  const reviewCount = (b.what_needs_review || []).length;
+  const hasDetails = worksCount + reviewCount > 0;
   return `
     <div class="card status-${escapeHtml(b.status)}">
       <div class="card-head">
@@ -516,10 +815,109 @@ function renderBranch(b) {
         ${b.created ? `<span>opened ${escapeHtml(b.created)}</span>` : ''}
       </div>
       <div class="card-summary">${escapeHtml(b.summary || '')}</div>
-      ${works ? `<div class="card-section"><div class="card-section-label">What works</div><ul>${works}</ul></div>` : ''}
-      ${review ? `<div class="card-section review"><div class="card-section-label">Needs review</div><ul>${review}</ul></div>` : ''}
+      ${hasDetails ? `
+        <button class="card-toggle" data-toggle="branch-${escapeHtml(b.id)}">
+          <span class="chev">▸</span>
+          ${worksCount ? `<span><span class="pip-works">✓ ${worksCount}</span> working</span>` : ''}
+          ${reviewCount ? `<span><span class="pip-review">○ ${reviewCount}</span> to review</span>` : ''}
+        </button>
+        <div class="card-details" id="branch-${escapeHtml(b.id)}">
+          ${works ? `<div class="card-section"><div class="card-section-label">What works</div><ul>${works}</ul></div>` : ''}
+          ${review ? `<div class="card-section review"><div class="card-section-label">Needs review</div><ul>${review}</ul></div>` : ''}
+        </div>
+      ` : ''}
     </div>
   `;
+}
+
+// ============= PROJECTS =============
+
+function renderProject(p) {
+  const subs = p.subtasks || [];
+  const total = subs.length;
+  const done = subs.filter(s => s.status === 'done').length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  const isOpen = isProjectOpen(p.id);
+
+  return `
+    <div class="project status-${escapeHtml(p.status)} ${isOpen ? 'open' : ''}" data-project-id="${escapeHtml(p.id)}">
+      <div class="project-head" data-project-toggle="${escapeHtml(p.id)}">
+        <span class="project-chev">${CHEV_ICON}</span>
+        <div class="project-title">${escapeHtml(p.title)}</div>
+        <div class="project-meta-bar">
+          <div class="project-progress">
+            <span>${done} / ${total}</span>
+            <div class="project-progress-bar"><div class="project-progress-fill" style="width: ${pct}%"></div></div>
+          </div>
+          ${p.owner ? `<span class="chip chip-owner">${escapeHtml(p.owner)}</span>` : ''}
+          <span class="badge badge-${escapeHtml(p.status)}">${escapeHtml(p.status)}</span>
+          ${copyBtn('project', p.id)}
+        </div>
+      </div>
+      <div class="project-body">
+        ${p.description ? `<div class="project-description">${escapeHtml(p.description)}</div>` : ''}
+        <div class="subtask-list">
+          ${subs.map(s => renderSubtask(s, p, subs)).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderSubtask(s, project, allSubs) {
+  // Check if any dependency is not done
+  const deps = s.depends_on || [];
+  const blockingDeps = deps.filter(depId => {
+    const dep = allSubs.find(x => x.id === depId);
+    return dep && dep.status !== 'done';
+  });
+  const isBlocked = blockingDeps.length > 0 && s.status !== 'done';
+
+  let cbClass = '';
+  let cbInner = '';
+  if (s.status === 'done') {
+    cbClass = 'done';
+    cbInner = CHECK_ICON;
+  } else if (s.status === 'in_progress') {
+    cbClass = 'in_progress';
+  } else if (isBlocked) {
+    cbClass = 'blocked';
+  }
+
+  return `
+    <div class="subtask ${s.status === 'done' ? 'done' : ''} ${isBlocked ? 'is-blocked' : ''}" data-subtask-id="${escapeHtml(s.id)}">
+      <button class="subtask-checkbox ${cbClass}" data-subtask-toggle="${escapeHtml(s.id)}" title="Click to copy 'mark done' prompt for Claude">${cbInner}</button>
+      <div class="subtask-body">
+        <div class="subtask-title">${escapeHtml(s.title)}</div>
+        <div class="subtask-chips">
+          ${s.assigned_to ? `<span class="chip chip-owner">${escapeHtml(s.assigned_to)}</span>` : ''}
+          ${s.linked_pr ? `<span class="chip chip-pr">PR #${escapeHtml(s.linked_pr)}</span>` : ''}
+          ${s.linked_branch ? `<span class="chip chip-branch">${escapeHtml(s.linked_branch)}</span>` : ''}
+          ${blockingDeps.map(d => `<span class="chip chip-blocked">blocked by ${escapeHtml(d)}</span>`).join('')}
+          ${(deps.length > 0 && blockingDeps.length === 0 && s.status !== 'done') ? `<span class="chip chip-after">after ${deps.map(escapeHtml).join(', ')}</span>` : ''}
+        </div>
+        ${s.notes ? `<div class="subtask-notes">${escapeHtml(s.notes)}</div>` : ''}
+      </div>
+      <div class="subtask-actions">
+        <button class="subtask-copy" data-copy-type="subtask" data-copy-id="${escapeHtml(s.id)}" title="Copy this subtask as a Claude-ready prompt">${COPY_ICON}</button>
+      </div>
+    </div>
+  `;
+}
+
+// Persist project open/closed state in localStorage
+function isProjectOpen(id) {
+  try {
+    const state = JSON.parse(localStorage.getItem('collab-project-open') || '{}');
+    return state[id] !== false; // default open
+  } catch (e) { return true; }
+}
+function setProjectOpen(id, open) {
+  try {
+    const state = JSON.parse(localStorage.getItem('collab-project-open') || '{}');
+    state[id] = open;
+    localStorage.setItem('collab-project-open', JSON.stringify(state));
+  } catch (e) {}
 }
 
 function renderTask(t) {
@@ -638,7 +1036,118 @@ function formatMessageForClaude(m) {
   return lines.join('\n');
 }
 
+function formatProjectForClaude(p) {
+  const subs = p.subtasks || [];
+  const done = subs.filter(s => s.status === 'done').length;
+  const lines = [];
+  lines.push('**Context: Project from BetterDay Collab Board**');
+  lines.push('(https://betterday-foodco.github.io/collab/)');
+  lines.push('');
+  lines.push(`I want your help working on this project end-to-end. Full plan + current state below:`);
+  lines.push('');
+  lines.push(`# ${p.title}`);
+  lines.push('');
+  if (p.description) {
+    lines.push(p.description);
+    lines.push('');
+  }
+  lines.push(`- **Project ID:** ${p.id}`);
+  if (p.owner) lines.push(`- **Owner:** ${p.owner}`);
+  lines.push(`- **Status:** ${p.status}`);
+  lines.push(`- **Progress:** ${done} / ${subs.length} subtasks done`);
+  if (p.created) lines.push(`- **Created:** ${p.created}`);
+  lines.push('');
+  lines.push('## Subtasks');
+  lines.push('');
+  subs.forEach(s => {
+    const checkbox = s.status === 'done' ? '[x]' : (s.status === 'blocked' ? '[!]' : '[ ]');
+    lines.push(`### ${checkbox} ${s.id} — ${s.title}`);
+    const meta = [];
+    if (s.assigned_to) meta.push(`assigned: ${s.assigned_to}`);
+    meta.push(`status: ${s.status}`);
+    if (s.linked_pr) meta.push(`PR #${s.linked_pr}`);
+    if (s.linked_branch) meta.push(`branch \`${s.linked_branch}\``);
+    if (s.depends_on && s.depends_on.length) meta.push(`depends on ${s.depends_on.join(', ')}`);
+    lines.push(`- ${meta.join(' · ')}`);
+    if (s.notes) lines.push(`- ${s.notes}`);
+    lines.push('');
+  });
+  lines.push('---');
+  lines.push('');
+  lines.push("Please review where this stands, identify the next 1–2 subtasks I should work on (respecting dependencies), and help me execute them. If you finish one, remember to update its status on the collab board (`/Users/us/Downloads/betterday-collab/data.json` — follow `HOW_TO_USE.md`).");
+  return lines.join('\n');
+}
+
+function formatSubtaskForClaude(s, parent, allSubs) {
+  const lines = [];
+  lines.push('**Context: Subtask from BetterDay Collab Board**');
+  lines.push('(https://betterday-foodco.github.io/collab/)');
+  lines.push('');
+  lines.push(`- **Parent project:** ${parent.title} (${parent.id})`);
+  lines.push(`- **Subtask:** ${s.title}`);
+  lines.push(`- **ID:** ${s.id}`);
+  lines.push(`- **Status:** ${s.status}`);
+  if (s.assigned_to) lines.push(`- **Assigned to:** ${s.assigned_to}`);
+  if (s.linked_pr) lines.push(`- **Linked PR:** #${s.linked_pr}`);
+  if (s.linked_branch) lines.push(`- **Linked branch:** \`${s.linked_branch}\``);
+  if (s.depends_on && s.depends_on.length) {
+    lines.push(`- **Depends on:** ${s.depends_on.join(', ')}`);
+    s.depends_on.forEach(depId => {
+      const dep = allSubs.find(x => x.id === depId);
+      if (dep) {
+        lines.push(`  - ${depId}: ${dep.title} — ${dep.status}`);
+      }
+    });
+  }
+  if (s.notes) {
+    lines.push('');
+    lines.push('**Notes:**');
+    lines.push(s.notes);
+  }
+  lines.push('');
+  lines.push("Please help me work through this subtask. When you're done, mark it as done on the collab board (edit `/Users/us/Downloads/betterday-collab/data.json` per `HOW_TO_USE.md`).");
+  return lines.join('\n');
+}
+
+function formatMarkSubtaskDoneForClaude(s, parent) {
+  return [
+    `Please mark subtask **${s.id}** ("${s.title}") as **done** on the BetterDay collab board.`,
+    '',
+    `Project: ${parent.title} (${parent.id})`,
+    '',
+    'Steps:',
+    '1. `cd /Users/us/Downloads/betterday-collab && git pull`',
+    '2. Read `data.json`, find the subtask with id `' + s.id + '`, set its `status` to `"done"`',
+    '3. Update `meta.last_updated` to the current ISO 8601 timestamp and `meta.updated_by` to `"Claude (Conner)"`',
+    '4. `git add data.json && git commit -m "update: mark ' + s.id + ' as done" && git push`',
+    '5. Confirm to me what changed.',
+  ].join('\n');
+}
+
 // ---------- Click handler: copy button ----------
+
+function findSubtaskWithProject(id) {
+  for (const p of (DATA.projects || [])) {
+    const s = (p.subtasks || []).find(x => x.id === id);
+    if (s) return { subtask: s, project: p, allSubs: p.subtasks || [] };
+  }
+  return null;
+}
+
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (err) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+}
 
 async function handleCopyClick(btn) {
   const type = btn.dataset.copyType;
@@ -653,33 +1162,69 @@ async function handleCopyClick(btn) {
   } else if (type === 'message') {
     const m = (DATA.messages || []).find(x => x.id === id);
     if (m) text = formatMessageForClaude(m);
+  } else if (type === 'project') {
+    const p = (DATA.projects || []).find(x => x.id === id);
+    if (p) text = formatProjectForClaude(p);
+  } else if (type === 'subtask') {
+    const found = findSubtaskWithProject(id);
+    if (found) text = formatSubtaskForClaude(found.subtask, found.project, found.allSubs);
   }
   if (!text) return;
-  try {
-    await navigator.clipboard.writeText(text);
-  } catch (err) {
-    // Fallback for older browsers / non-secure contexts
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
-    try { document.execCommand('copy'); } catch (e) {}
-    document.body.removeChild(ta);
+  await copyText(text);
+  // Visual feedback
+  if (btn.classList.contains('copy-btn')) {
+    const label = btn.querySelector('.copy-label');
+    const originalLabel = label ? label.textContent : 'For Claude';
+    btn.classList.add('copied');
+    btn.innerHTML = CHECK_ICON + `<span class="copy-label">Copied</span>`;
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = COPY_ICON + `<span class="copy-label">${originalLabel}</span>`;
+    }, 1800);
+  } else {
+    // .subtask-copy (icon only)
+    const original = btn.innerHTML;
+    btn.classList.add('copied');
+    btn.innerHTML = CHECK_ICON;
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = original;
+    }, 1800);
   }
-  btn.classList.add('copied');
-  const label = btn.querySelector('.copy-label');
-  const originalLabel = label ? label.textContent : '';
-  if (label) label.textContent = 'Copied';
-  const iconHolder = btn.firstChild;
-  // Swap the SVG to a checkmark briefly
-  btn.innerHTML = CHECK_ICON + `<span class="copy-label">Copied</span>`;
-  btn.classList.add('copied');
+}
+
+async function handleSubtaskCheckboxClick(btn) {
+  const id = btn.dataset.subtaskToggle;
+  const found = findSubtaskWithProject(id);
+  if (!found) return;
+  // If already done, do nothing (re-opening should happen via Claude editing data.json)
+  if (found.subtask.status === 'done') return;
+  const text = formatMarkSubtaskDoneForClaude(found.subtask, found.project);
+  await copyText(text);
+  btn.classList.add('done');
+  btn.innerHTML = CHECK_ICON;
+  // Reset back after a moment so user knows it didn't actually persist
   setTimeout(() => {
-    btn.classList.remove('copied');
-    btn.innerHTML = COPY_ICON + `<span class="copy-label">${originalLabel || 'For Claude'}</span>`;
-  }, 1800);
+    btn.classList.remove('done');
+    btn.innerHTML = '';
+    // Show a small toast message inline
+  }, 1400);
+  showToast('Copied "mark done" prompt — paste into Claude to persist');
+}
+
+let toastTimeout = null;
+function showToast(msg) {
+  let toast = document.getElementById('collab-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'collab-toast';
+    toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#00465E;color:white;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,0.2);z-index:1000;opacity:0;transition:opacity 0.2s;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  if (toastTimeout) clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => { toast.style.opacity = '0'; }, 2400);
 }
 
 // Filter buttons
@@ -692,12 +1237,45 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
   });
 });
 
-// Delegated handler for copy buttons (cards re-render on every load)
+// Delegated handler for all interactive elements (cards re-render on every load)
 document.getElementById('app').addEventListener('click', (e) => {
-  const btn = e.target.closest('.copy-btn');
-  if (!btn) return;
-  e.preventDefault();
-  handleCopyClick(btn);
+  // Copy button (branch / task / message / project)
+  const copyBtn = e.target.closest('.copy-btn, .subtask-copy');
+  if (copyBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    handleCopyClick(copyBtn);
+    return;
+  }
+  // Subtask checkbox → copy "mark done" prompt
+  const cb = e.target.closest('.subtask-checkbox');
+  if (cb) {
+    e.preventDefault();
+    e.stopPropagation();
+    handleSubtaskCheckboxClick(cb);
+    return;
+  }
+  // Project header toggle
+  const projHead = e.target.closest('[data-project-toggle]');
+  if (projHead) {
+    const id = projHead.dataset.projectToggle;
+    const proj = projHead.closest('.project');
+    const wasOpen = proj.classList.contains('open');
+    proj.classList.toggle('open');
+    setProjectOpen(id, !wasOpen);
+    return;
+  }
+  // Branch "details" toggle (works/review collapse)
+  const detailsBtn = e.target.closest('.card-toggle[data-toggle]');
+  if (detailsBtn) {
+    const id = detailsBtn.dataset.toggle;
+    const target = document.getElementById(id);
+    if (target) {
+      target.classList.toggle('open');
+      detailsBtn.classList.toggle('open');
+    }
+    return;
+  }
 });
 
 load();

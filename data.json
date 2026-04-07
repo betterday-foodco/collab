@@ -1,10 +1,89 @@
 {
   "meta": {
-    "last_updated": "2026-04-07T03:55:00-07:00",
+    "last_updated": "2026-04-07T05:10:00-07:00",
     "updated_by": "Claude (Conner)",
-    "version": 1
+    "version": 2
   },
   "people": ["Conner", "Gurleen", "Claude"],
+  "projects": [
+    {
+      "id": "proj-001",
+      "title": "Migrate Flask backend to culinary-ops",
+      "description": "Replace Google Apps Script + Flask backend in betterday-app with culinary-ops NestJS endpoints, phase by phase. Goal: retire GAS entirely so all corporate data lives in PostgreSQL.",
+      "owner": "Conner",
+      "status": "in_progress",
+      "created": "2026-04-07",
+      "subtasks": [
+        {
+          "id": "sub-001",
+          "title": "Build corp manager + portal API endpoints in culinary-ops",
+          "status": "done",
+          "assigned_to": "Conner",
+          "linked_branch": "feature/corp-manager-api",
+          "linked_pr": 7,
+          "depends_on": [],
+          "notes": "~25 endpoints. nest build passes. Awaiting Gurleen's review."
+        },
+        {
+          "id": "sub-002",
+          "title": "Smoke-test PR #7 endpoints with a real corp_manager JWT",
+          "status": "pending",
+          "assigned_to": "Gurleen",
+          "linked_pr": 7,
+          "depends_on": ["sub-001"],
+          "notes": "Verify cross-company access is blocked, bulk replace transactions roll back, par-cart rebuild works against a seeded company."
+        },
+        {
+          "id": "sub-003",
+          "title": "Phase 1 — Switch /manager/dashboard read-only routes to culinary-ops",
+          "status": "pending",
+          "assigned_to": "Conner",
+          "depends_on": ["sub-002"],
+          "notes": "Lowest risk. Replace _gas_post() calls with requests.get() against culinary-ops, with GAS fallback for 1 week."
+        },
+        {
+          "id": "sub-004",
+          "title": "Phase 2 — Replace GAS magic-token + PIN flows with culinary-ops JWT auth",
+          "status": "pending",
+          "assigned_to": "Conner",
+          "depends_on": ["sub-003"],
+          "notes": "Manager auth model changes from magic-link to PIN-only. Store JWT in Flask session."
+        },
+        {
+          "id": "sub-005",
+          "title": "Phase 3 — Rewire employee + benefit-level CRUD to culinary-ops",
+          "status": "pending",
+          "assigned_to": "Conner",
+          "depends_on": ["sub-002"],
+          "notes": "All endpoints already exist in PR #7. Frontend needs to switch from GAS actions to /api/corp-manager/* calls."
+        },
+        {
+          "id": "sub-006",
+          "title": "Phase 4 — Migrate order submission + par level write paths",
+          "status": "pending",
+          "assigned_to": "Conner",
+          "depends_on": ["sub-005"],
+          "notes": "Highest-risk phase — directly affects what food gets produced. Dual-write GAS + culinary-ops for at least a week before cutover."
+        },
+        {
+          "id": "sub-007",
+          "title": "Phase 5 — Build invoicing + financials pipeline in culinary-ops",
+          "status": "pending",
+          "assigned_to": "Conner",
+          "depends_on": ["sub-005"],
+          "notes": "Endpoints exist in PR #7. Needs frontend wiring for invoice generation, credit notes, AR summary."
+        },
+        {
+          "id": "sub-008",
+          "title": "Phase 6 — Retire GAS: remove _gas_post(), archive backend.gs, drop buffer sheet",
+          "status": "pending",
+          "assigned_to": "Conner",
+          "depends_on": ["sub-006", "sub-007"],
+          "notes": "Final cleanup. Remove GOOGLE_SCRIPT_URL env var. All corporate data lives in PostgreSQL after this."
+        }
+      ]
+    }
+  ],
   "branches": [
     {
       "id": "feature/corp-manager-api",

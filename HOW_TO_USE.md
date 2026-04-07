@@ -110,6 +110,29 @@ cd /path/to/betterday-collab && git config user.name
   },
   "people": ["Conner", "Gurleen", "Claude"],
 
+  "projects": [
+    {
+      "id":          "proj-001",
+      "title":       "Big initiative title",
+      "description": "1–3 sentence summary of why this project exists and the end state",
+      "owner":       "Conner | Gurleen",
+      "status":      "in_progress | paused | done",
+      "created":     "YYYY-MM-DD",
+      "subtasks": [
+        {
+          "id":            "sub-001",
+          "title":         "Imperative subtask description",
+          "status":        "pending | in_progress | blocked | done",
+          "assigned_to":   "Conner | Gurleen | Claude",
+          "linked_branch": "feature/branch (optional)",
+          "linked_pr":     7,
+          "depends_on":    ["sub-id", "sub-id"],
+          "notes":         "Optional context"
+        }
+      ]
+    }
+  ],
+
   "branches": [
     {
       "id":               "feature/branch-name",
@@ -158,7 +181,35 @@ cd /path/to/betterday-collab && git config user.name
 ### ID conventions
 - Tasks: `task-NNN` — auto-increment from highest existing `task-` ID
 - Messages: `msg-NNN` — auto-increment from highest existing `msg-` ID
+- Projects: `proj-NNN` — auto-increment from highest existing `proj-` ID
+- Subtasks: `sub-NNN` — auto-increment **across all projects**, not per-project (so `depends_on` references stay globally unique)
 - Branches: use the actual git branch name as the ID
+
+---
+
+## Working with Projects
+
+Projects are the top-level coordination unit on the board. Each project has its own subtask list with dependency tracking. Use them when the user asks you to "map out a project," "plan out X," or describes work that has clear sequential phases.
+
+### When to add a project
+- The user describes a multi-step initiative with > 3 distinct steps
+- Work spans multiple PRs or sessions
+- There are dependencies between steps (X must happen before Y)
+
+### When to add subtasks instead of tasks
+- The work is part of an existing project on the board → add as subtasks
+- Standalone work (PR review, one-off message reply) → use `tasks[]`
+
+### Marking a subtask done
+The user (or another Claude session) may click the checkbox in the dashboard. That **does not** persist — it copies a "mark done" prompt to clipboard for them to paste back into a Claude session. When you receive that prompt:
+1. `git pull`
+2. Read `data.json`, find the subtask by ID inside `projects[].subtasks[]`
+3. Set its `status` to `"done"`
+4. Update `meta.last_updated` and `meta.updated_by`
+5. Commit + push with message `update: mark sub-NNN as done`
+
+### Dependencies
+`depends_on` is an array of sibling subtask IDs. The dashboard renders a subtask as **blocked** when any of its dependencies is not yet `done`. When suggesting next steps, prefer subtasks whose dependencies are all satisfied.
 
 ---
 
@@ -194,6 +245,8 @@ If you're unsure whether something belongs on the board, ask the user first.
 |---|---|
 | "Add PR #8 to the board" | Pull, fetch PR #8 details via `gh pr view 8`, add a branch entry, commit, push |
 | "Mark task-003 as done" | Pull, find task-003, set `status: "done"`, commit, push |
+| "Map out a project for X with subtasks" | Plan the phases, draft a `proj-NNN` entry with sequential `sub-NNN` subtasks and `depends_on` chains, commit, push |
+| "Mark sub-005 as done" | Pull, find sub-005 inside `projects[].subtasks[]`, set `status: "done"`, commit, push |
 | "Send Gurleen a message that the staging deploy is broken" | Pull, append a message with `from: "Conner"`, `to: "Gurleen"`, commit, push |
 | "Check the board" | Pull, summarize unread messages + pending tasks for the current user |
 | "Anything new from Gurleen?" | Pull, list any branches/tasks/messages where she is `from`/`owner`/`created_by` since last check |
