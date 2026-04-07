@@ -1,8 +1,8 @@
 {
   "meta": {
-    "last_updated": "2026-04-07T19:10:00-07:00",
+    "last_updated": "2026-04-07T19:45:00-07:00",
     "updated_by": "Claude (Conner)",
-    "version": 7
+    "version": 8
   },
   "people": ["Conner", "Gurleen", "Claude"],
   "projects": [
@@ -30,16 +30,56 @@
           "status": "pending",
           "assigned_to": "Gurleen",
           "linked_pr": 7,
+          "depends_on": ["sub-001", "sub-016", "sub-018"],
+          "notes": "Verify cross-company access is blocked, bulk replace transactions roll back, par-cart rebuild works against a seeded company. Also exercise the new meal-change-log audit pipeline: PATCH /corp-manager/benefit-levels/:id/allowances should write rows to CorporateMealAllowanceLog visible via GET /corp-manager/meal-change-log."
+        },
+        {
+          "id": "sub-016",
+          "title": "Run `prisma db push` on dev + Railway to materialize CorporateMealAllowanceLog",
+          "status": "pending",
+          "assigned_to": "Conner",
           "depends_on": ["sub-001"],
-          "notes": "Verify cross-company access is blocked, bulk replace transactions roll back, par-cart rebuild works against a seeded company."
+          "notes": "One-time deploy step to apply the new audit-log table from PR #7. Required before sub-002 can exercise the meal-change-log endpoint end-to-end. No data migration needed — empty table on first push."
+        },
+        {
+          "id": "sub-017",
+          "title": "Stage Flask `culinary_ops_client.py` helper + feature flag wrapper (parallel with PR #7 review)",
+          "status": "pending",
+          "assigned_to": "Conner",
+          "depends_on": [],
+          "notes": "Small `requests`-based HTTP client wrapper that handles JWT auth + base URL + retry/fallback. Behind a CULINARY_OPS_ENABLED env flag so it ships dormant. Lets Phase 1 cutover land within hours of PR #7 merging instead of starting from scratch. Can be developed in parallel with Gurleen's review since it's pure Flask-side."
+        },
+        {
+          "id": "sub-018",
+          "title": "Seed test company in culinary-ops dev DB (employees + benefit levels + par levels)",
+          "status": "pending",
+          "assigned_to": "Conner",
+          "depends_on": ["sub-016"],
+          "notes": "Mirrors Demo Inc setup so smoke tests have realistic data: ~5 employees across 3 benefit-level tiers, par level config with both office snacks + breakfast items, one open invoice. Lets Gurleen run sub-002 against a stable fixture instead of an empty DB. Can be a seed script in `culinary-ops/backend/prisma/seed-corporate-demo.ts`."
+        },
+        {
+          "id": "sub-019",
+          "title": "Update GAS_to_CulinaryOps_Integration_Map.md — mark meal-change-log GAP as READY",
+          "status": "pending",
+          "assigned_to": "Conner",
+          "depends_on": ["sub-001"],
+          "notes": "Doc on Conner's desktop. The Invoicing & Financials table still lists `get_meal_change_log` as GAP — needs to flip to READY now that PR #7 covers it. Also update the Gap Summary totals (24 GAPs → 23, etc.) so the migration scoreboard is accurate."
         },
         {
           "id": "sub-003",
           "title": "Phase 1 — Switch /manager/dashboard read-only routes to culinary-ops",
           "status": "pending",
           "assigned_to": "Conner",
-          "depends_on": ["sub-002"],
-          "notes": "Lowest risk. Replace _gas_post() calls with requests.get() against culinary-ops, with GAS fallback for 1 week."
+          "depends_on": ["sub-002", "sub-017"],
+          "notes": "Lowest risk. Replace _gas_post() calls with culinary_ops_client.get() against culinary-ops, with GAS fallback for 1 week. Targets: get_employees, get_invoices, get_corporate_orders, get_company_dashboard. Behind CULINARY_OPS_ENABLED env flag so we can flip per-company."
+        },
+        {
+          "id": "sub-020",
+          "title": "Phase 1 verification — dual-read logging to compare GAS vs culinary-ops responses",
+          "status": "pending",
+          "assigned_to": "Conner",
+          "depends_on": ["sub-003"],
+          "notes": "Safety net for Phase 1. When CULINARY_OPS_ENABLED is on, fire BOTH GAS + culinary-ops requests, return culinary-ops, but log discrepancies (employee count drift, missing orders, invoice status mismatches) to data/migration_diff.log. Run for 1 week before removing GAS fallback in Phase 6."
         },
         {
           "id": "sub-004",
@@ -171,7 +211,8 @@
         "Smoke test endpoints with a real corp_manager JWT",
         "Verify cross-company access actually 403s",
         "Confirm getCompanyPin UX change for the manager dashboard (bcrypt PINs cannot be retrieved)",
-        "Decide whether to split CorpAdminService into Manager + BD Admin services"
+        "Decide whether to split CorpAdminService into Manager + BD Admin services",
+        "NEW: schema adds CorporateMealAllowanceLog — requires `prisma db push` on deploy before meal-change-log endpoint is exercisable. No backfill needed."
       ],
       "created": "2026-04-07"
     }
@@ -185,7 +226,7 @@
       "linked_project_id": "proj-001",
       "linked_branch": "feature/corp-manager-api",
       "linked_pr": 7,
-      "notes": "First PR from Conner's side. Build passes clean. Test plan checklist is in the PR body. Patterns followed your existing CorpAdminService structure — would love a sanity check before merging.",
+      "notes": "First PR from Conner's side. Build passes clean. Test plan checklist is in the PR body. Patterns followed your existing CorpAdminService structure — would love a sanity check before merging. Heads-up: latest commit (4def472) adds ONE schema change — `CorporateMealAllowanceLog` model (replaces GAS MealEditLog sheet). Requires `prisma db push` on deploy. Audit logging is wrapped in $transaction so update + log rows are atomic.",
       "created": "2026-04-07",
       "created_by": "Conner"
     },
