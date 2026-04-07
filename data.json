@@ -1,8 +1,8 @@
 {
   "meta": {
-    "last_updated": "2026-04-07T20:30:00-07:00",
+    "last_updated": "2026-04-07T20:55:00-07:00",
     "updated_by": "Claude (Conner)",
-    "version": 9
+    "version": 10
   },
   "people": ["Conner", "Gurleen", "Claude"],
   "projects": [
@@ -47,8 +47,9 @@
           "status": "done",
           "assigned_to": "Conner",
           "linked_branch": "feature/culinary-ops-client",
+          "linked_pr": 3,
           "depends_on": [],
-          "notes": "DONE 4/7 PM. Branch `feature/culinary-ops-client` in betterday-app, commit 3c6672f. Module exposes CulinaryOpsClient.get/post/patch/put/delete — all return parsed JSON, fallback result, or None (never raise). JWT pulled from session['culinary_ops_jwt'] when present. CULINARY_OPS_ENABLED env flag gates everything — ships dormant so prod is unaffected. 22/22 unit tests pass via stdlib unittest + mock (no new requirements.txt deps). Failure modes covered: transport errors, 4xx/5xx, non-json, missing flask context, missing jwt. Phase 1 callsite migration lands in a follow-up PR after PR #7 merges + sub-016 runs."
+          "notes": "DONE 4/7 PM. Branch `feature/culinary-ops-client` in betterday-app, commit 3c6672f. Opened as PR #3 (https://github.com/betterday-foodco/betterday-app/pull/3) — stand-alone, can self-merge since it ships dormant behind CULINARY_OPS_ENABLED flag. Module exposes CulinaryOpsClient.get/post/patch/put/delete — all return parsed JSON, fallback result, or None (never raise). JWT pulled from session['culinary_ops_jwt'] when present. 22/22 unit tests pass via stdlib unittest + mock (no new requirements.txt deps). Failure modes covered: transport errors, 4xx/5xx, non-json, missing flask context, missing jwt. Phase 1 callsite migration lands in a follow-up PR after culinary-ops PR #7 merges + sub-016 runs."
         },
         {
           "id": "sub-018",
@@ -222,8 +223,8 @@
       "title": "Flask culinary_ops_client.py + feature flag (dormant)",
       "repo": "betterday-foodco/betterday-app",
       "linked_project_id": "proj-001",
-      "pr_number": null,
-      "pr_url": "https://github.com/betterday-foodco/betterday-app/pull/new/feature/culinary-ops-client",
+      "pr_number": 3,
+      "pr_url": "https://github.com/betterday-foodco/betterday-app/pull/3",
       "status": "open",
       "owner": "Conner",
       "summary": "Thin HTTP client wrapper for talking to the culinary-ops NestJS backend, gated behind CULINARY_OPS_ENABLED env flag. Ships dormant — every callsite short-circuits to its GAS fallback when the flag is unset, zero runtime impact. Includes 22 stdlib unittest tests against a mocked requests layer (no new deps).",
