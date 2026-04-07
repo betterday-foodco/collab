@@ -198,6 +198,45 @@
   }
   .card-title a { color: var(--navy); text-decoration: none; }
   .card-title a:hover { text-decoration: underline; }
+  .card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .copy-btn:hover {
+    border-color: var(--navy);
+    color: var(--navy);
+    background: #eef4f7;
+  }
+  .copy-btn svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+  }
+  .copy-btn.copied {
+    background: var(--navy);
+    color: white;
+    border-color: var(--navy);
+  }
   .badge {
     font-size: 11px;
     font-weight: 700;
@@ -448,6 +487,13 @@ function render() {
   `;
 }
 
+const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+const CHECK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+function copyBtn(type, id) {
+  return `<button class="copy-btn" data-copy-type="${escapeHtml(type)}" data-copy-id="${escapeHtml(id)}" title="Copy this ${type} as a Claude-ready prompt">${COPY_ICON}<span class="copy-label">For Claude</span></button>`;
+}
+
 function renderBranch(b) {
   const works = (b.what_works || []).map(w => `<li>${escapeHtml(w)}</li>`).join('');
   const review = (b.what_needs_review || []).map(w => `<li>${escapeHtml(w)}</li>`).join('');
@@ -458,7 +504,10 @@ function renderBranch(b) {
     <div class="card status-${escapeHtml(b.status)}">
       <div class="card-head">
         <div class="card-title">${titleHtml}</div>
-        <span class="badge badge-${escapeHtml(b.status)}">${escapeHtml(b.status)}</span>
+        <div class="card-actions">
+          <span class="badge badge-${escapeHtml(b.status)}">${escapeHtml(b.status)}</span>
+          ${copyBtn('branch', b.id)}
+        </div>
       </div>
       <div class="card-meta">
         ${b.pr_number ? `<span>PR #${escapeHtml(b.pr_number)}</span>` : ''}
@@ -478,7 +527,10 @@ function renderTask(t) {
     <div class="card status-${escapeHtml(t.status)}">
       <div class="card-head">
         <div class="card-title">${escapeHtml(t.title)}</div>
-        <span class="badge badge-${escapeHtml(t.status)}">${escapeHtml(t.status)}</span>
+        <div class="card-actions">
+          <span class="badge badge-${escapeHtml(t.status)}">${escapeHtml(t.status)}</span>
+          ${copyBtn('task', t.id)}
+        </div>
       </div>
       <div class="card-meta">
         <span>→ <span class="owner-chip">${escapeHtml(t.assigned_to)}</span></span>
@@ -499,12 +551,135 @@ function renderMessage(m) {
           ${m.read ? '' : '<span class="unread-dot"></span>'}
           ${escapeHtml(m.from)} <span class="arrow">→</span> ${escapeHtml(m.to)}
         </div>
-        <div class="message-time">${fmtDate(m.timestamp)}</div>
+        <div class="card-actions">
+          <span class="message-time">${fmtDate(m.timestamp)}</span>
+          ${copyBtn('message', m.id)}
+        </div>
       </div>
       <div class="message-subject">${escapeHtml(m.subject || '')}</div>
       <div class="message-body">${escapeHtml(m.body || '')}</div>
     </div>
   `;
+}
+
+// ---------- Format helpers: turn a card into a Claude-ready prompt ----------
+
+function formatBranchForClaude(b) {
+  const lines = [];
+  lines.push('**Context: PR from BetterDay Collab Board**');
+  lines.push('(https://betterday-foodco.github.io/collab/)');
+  lines.push('');
+  lines.push("I'd like your help reviewing this PR from our shared collab board. Full context below:");
+  lines.push('');
+  lines.push(`- **Title:** ${b.title}`);
+  if (b.repo) lines.push(`- **Repo:** ${b.repo}`);
+  lines.push(`- **Branch:** \`${b.id}\``);
+  if (b.pr_url) lines.push(`- **PR:** ${b.pr_url}${b.pr_number ? ' (#' + b.pr_number + ')' : ''}`);
+  lines.push(`- **Status:** ${b.status}`);
+  if (b.owner) lines.push(`- **Owner:** ${b.owner}`);
+  if (b.created) lines.push(`- **Opened:** ${b.created}`);
+  if (b.summary) {
+    lines.push('');
+    lines.push('**Summary:**');
+    lines.push(b.summary);
+  }
+  if (b.what_works && b.what_works.length) {
+    lines.push('');
+    lines.push("**What's working:**");
+    b.what_works.forEach(w => lines.push(`- ${w}`));
+  }
+  if (b.what_needs_review && b.what_needs_review.length) {
+    lines.push('');
+    lines.push('**Needs review:**');
+    b.what_needs_review.forEach(w => lines.push(`- ${w}`));
+  }
+  lines.push('');
+  lines.push("Please pull this branch locally if relevant, walk through the review checklist above, and flag anything you'd want changed before merging. Use `gh pr view` and `gh pr diff` if helpful.");
+  return lines.join('\n');
+}
+
+function formatTaskForClaude(t) {
+  const lines = [];
+  lines.push('**Context: Task from BetterDay Collab Board**');
+  lines.push('(https://betterday-foodco.github.io/collab/)');
+  lines.push('');
+  lines.push(`- **Task:** ${t.title}`);
+  lines.push(`- **ID:** ${t.id}`);
+  lines.push(`- **Assigned to:** ${t.assigned_to}`);
+  lines.push(`- **Status:** ${t.status}`);
+  if (t.linked_branch) lines.push(`- **Linked branch:** \`${t.linked_branch}\``);
+  if (t.linked_pr) lines.push(`- **Linked PR:** #${t.linked_pr}`);
+  if (t.blocked_by) lines.push(`- **Blocked by:** ${t.blocked_by}`);
+  if (t.created) lines.push(`- **Created:** ${t.created}${t.created_by ? ' by ' + t.created_by : ''}`);
+  if (t.notes) {
+    lines.push('');
+    lines.push('**Notes:**');
+    lines.push(t.notes);
+  }
+  lines.push('');
+  lines.push("Please help me work through this task. If it's blocked, surface what needs to happen first. If it has a linked PR, pull that context too.");
+  return lines.join('\n');
+}
+
+function formatMessageForClaude(m) {
+  const lines = [];
+  lines.push('**Context: Message from BetterDay Collab Board**');
+  lines.push('(https://betterday-foodco.github.io/collab/)');
+  lines.push('');
+  lines.push(`- **From:** ${m.from}`);
+  lines.push(`- **To:** ${m.to}`);
+  if (m.subject) lines.push(`- **Subject:** ${m.subject}`);
+  if (m.timestamp) lines.push(`- **Sent:** ${m.timestamp}`);
+  lines.push('');
+  lines.push('**Message:**');
+  lines.push(m.body || '');
+  lines.push('');
+  lines.push('Please help me draft a response and pull out any action items I need to handle.');
+  return lines.join('\n');
+}
+
+// ---------- Click handler: copy button ----------
+
+async function handleCopyClick(btn) {
+  const type = btn.dataset.copyType;
+  const id = btn.dataset.copyId;
+  let text = '';
+  if (type === 'branch') {
+    const b = (DATA.branches || []).find(x => x.id === id);
+    if (b) text = formatBranchForClaude(b);
+  } else if (type === 'task') {
+    const t = (DATA.tasks || []).find(x => x.id === id);
+    if (t) text = formatTaskForClaude(t);
+  } else if (type === 'message') {
+    const m = (DATA.messages || []).find(x => x.id === id);
+    if (m) text = formatMessageForClaude(m);
+  }
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (err) {
+    // Fallback for older browsers / non-secure contexts
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  btn.classList.add('copied');
+  const label = btn.querySelector('.copy-label');
+  const originalLabel = label ? label.textContent : '';
+  if (label) label.textContent = 'Copied';
+  const iconHolder = btn.firstChild;
+  // Swap the SVG to a checkmark briefly
+  btn.innerHTML = CHECK_ICON + `<span class="copy-label">Copied</span>`;
+  btn.classList.add('copied');
+  setTimeout(() => {
+    btn.classList.remove('copied');
+    btn.innerHTML = COPY_ICON + `<span class="copy-label">${originalLabel || 'For Claude'}</span>`;
+  }, 1800);
 }
 
 // Filter buttons
@@ -515,6 +690,14 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     currentFilter = btn.dataset.filter;
     if (DATA) render();
   });
+});
+
+// Delegated handler for copy buttons (cards re-render on every load)
+document.getElementById('app').addEventListener('click', (e) => {
+  const btn = e.target.closest('.copy-btn');
+  if (!btn) return;
+  e.preventDefault();
+  handleCopyClick(btn);
 });
 
 load();
