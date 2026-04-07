@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BetterDay Collab Board</title>
+<style>
+  :root {
+    --navy: #00465E;
+    --navy-light: #1a6480;
+    --navy-dark: #00334a;
+    --gold: #D4A029;
+    --gold-light: #e5b94d;
+    --bg: #f7f8fa;
+    --card: #ffffff;
+    --text: #1a1f2e;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --green: #10b981;
+    --red: #ef4444;
+    --amber: #f59e0b;
+    --blue: #3b82f6;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-lg: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
+    color: white;
+    padding: 24px 0;
+    box-shadow: var(--shadow-lg);
+  }
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .brand-mark {
+    width: 42px;
+    height: 42px;
+    background: var(--gold);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: var(--navy);
+    font-size: 18px;
+  }
+  .brand h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .brand .subtitle {
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    margin-top: 2px;
+  }
+  .meta-info {
+    text-align: right;
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+  }
+  .meta-info .updated {
+    color: var(--gold-light);
+    font-weight: 600;
+  }
+  .filter-bar {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .filter-bar-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .filter-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  .filter-btn {
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text-muted);
+  }
+  .filter-btn:hover { border-color: var(--navy); color: var(--navy); }
+  .filter-btn.active {
+    background: var(--navy);
+    color: white;
+    border-color: var(--navy);
+  }
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  @media (min-width: 900px) {
+    main { grid-template-columns: 1.2fr 1fr; }
+    .messages-section { grid-column: 1 / -1; }
+  }
+  .section h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--navy);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--gold);
+  }
+  .section h2 .count {
+    background: var(--gold);
+    color: var(--navy);
+    font-size: 12px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+  .empty-state {
+    background: var(--card);
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+  /* Cards */
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--navy);
+    transition: all 0.15s;
+  }
+  .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+  .card.status-merged { border-left-color: var(--green); }
+  .card.status-closed { border-left-color: var(--text-muted); }
+  .card.status-draft { border-left-color: var(--amber); }
+  .card.status-done { border-left-color: var(--green); opacity: 0.7; }
+  .card.status-blocked { border-left-color: var(--red); }
+  .card.status-in_progress { border-left-color: var(--gold); }
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    flex: 1;
+  }
+  .card-title a { color: var(--navy); text-decoration: none; }
+  .card-title a:hover { text-decoration: underline; }
+  .badge {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .badge-open { background: #dbeafe; color: #1e40af; }
+  .badge-merged { background: #d1fae5; color: #065f46; }
+  .badge-closed { background: #f3f4f6; color: #6b7280; }
+  .badge-draft { background: #fef3c7; color: #92400e; }
+  .badge-pending { background: #fef3c7; color: #92400e; }
+  .badge-in_progress { background: #fef3c7; color: #92400e; }
+  .badge-done { background: #d1fae5; color: #065f46; }
+  .badge-blocked { background: #fee2e2; color: #991b1b; }
+  .card-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .card-meta span { display: inline-flex; align-items: center; gap: 4px; }
+  .owner-chip {
+    font-weight: 600;
+    color: var(--navy);
+  }
+  .card-summary {
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .card-section {
+    margin-top: 10px;
+  }
+  .card-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+  .card-section ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  .card-section li {
+    font-size: 13px;
+    color: var(--text);
+    padding: 3px 0 3px 18px;
+    position: relative;
+  }
+  .card-section li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--green);
+    font-weight: 700;
+  }
+  .card-section.review li::before {
+    content: '○';
+    color: var(--amber);
+  }
+  /* Messages */
+  .message {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--gold);
+  }
+  .message.unread { background: linear-gradient(to right, #fef9e7 0%, white 30%); }
+  .message-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .message-from {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .message-from .arrow { color: var(--text-muted); margin: 0 6px; font-weight: 400; }
+  .message-time {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .message-subject {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .message-body {
+    font-size: 14px;
+    color: var(--text);
+    white-space: pre-wrap;
+    line-height: 1.6;
+  }
+  .unread-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--red);
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  footer {
+    text-align: center;
+    padding: 32px 24px;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  footer a { color: var(--navy); text-decoration: none; font-weight: 600; }
+  footer a:hover { text-decoration: underline; }
+  .loading {
+    text-align: center;
+    padding: 48px;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-mark">BD</div>
+        <div>
+          <h1>BetterDay Collab Board</h1>
+          <div class="subtitle">Branches · Tasks · Messages</div>
+        </div>
+      </div>
+      <div class="meta-info">
+        <div>Last updated <span class="updated" id="last-updated">—</span></div>
+        <div id="updated-by">by —</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="filter-bar">
+    <div class="filter-bar-inner">
+      <span class="filter-label">View as:</span>
+      <button class="filter-btn active" data-filter="all">Everyone</button>
+      <button class="filter-btn" data-filter="Conner">Conner</button>
+      <button class="filter-btn" data-filter="Gurleen">Gurleen</button>
+    </div>
+  </div>
+
+  <main id="app">
+    <div class="loading">Loading…</div>
+  </main>
+
+  <footer>
+    Edit data via <a href="https://github.com/betterday-foodco/collab/edit/main/data.json">GitHub web UI</a> ·
+    <a href="https://github.com/betterday-foodco/collab">Source</a> ·
+    <a href="https://github.com/betterday-foodco/collab/blob/main/HOW_TO_USE.md">How it works</a>
+  </footer>
+
+<script>
+let DATA = null;
+let currentFilter = 'all';
+
+async function load() {
+  try {
+    // Cache-bust so updates show up immediately
+    const res = await fetch('./data.json?t=' + Date.now());
+    DATA = await res.json();
+    render();
+  } catch (e) {
+    document.getElementById('app').innerHTML =
+      '<div class="empty-state">Failed to load data.json — ' + e.message + '</div>';
+  }
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  const now = new Date();
+  const diffMs = now - d;
+  const diffMin = Math.floor(diffMs / 60000);
+  const diffHr  = Math.floor(diffMs / 3600000);
+  const diffDay = Math.floor(diffMs / 86400000);
+  if (diffMin < 1)  return 'just now';
+  if (diffMin < 60) return diffMin + 'm ago';
+  if (diffHr  < 24) return diffHr  + 'h ago';
+  if (diffDay < 7)  return diffDay + 'd ago';
+  return d.toLocaleDateString();
+}
+
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function render() {
+  document.getElementById('last-updated').textContent = fmtDate(DATA.meta.last_updated);
+  document.getElementById('updated-by').textContent = 'by ' + (DATA.meta.updated_by || 'unknown');
+
+  const filterBranches = b =>
+    currentFilter === 'all' || b.owner === currentFilter;
+  const filterTasks = t =>
+    currentFilter === 'all' || t.assigned_to === currentFilter;
+  const filterMessages = m =>
+    currentFilter === 'all' || m.to === currentFilter || m.from === currentFilter;
+
+  const branches = (DATA.branches || []).filter(filterBranches);
+  const tasks    = (DATA.tasks || []).filter(filterTasks);
+  const messages = (DATA.messages || []).filter(filterMessages)
+    .slice().sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  document.getElementById('app').innerHTML = `
+    <section class="section branches-section">
+      <h2>Branches <span class="count">${branches.length}</span></h2>
+      ${branches.length === 0
+        ? '<div class="empty-state">No branches to show</div>'
+        : branches.map(renderBranch).join('')}
+    </section>
+
+    <section class="section tasks-section">
+      <h2>Tasks <span class="count">${tasks.length}</span></h2>
+      ${tasks.length === 0
+        ? '<div class="empty-state">No tasks to show</div>'
+        : tasks.map(renderTask).join('')}
+    </section>
+
+    <section class="section messages-section">
+      <h2>Messages <span class="count">${messages.length}</span></h2>
+      ${messages.length === 0
+        ? '<div class="empty-state">No messages</div>'
+        : messages.map(renderMessage).join('')}
+    </section>
+  `;
+}
+
+function renderBranch(b) {
+  const works = (b.what_works || []).map(w => `<li>${escapeHtml(w)}</li>`).join('');
+  const review = (b.what_needs_review || []).map(w => `<li>${escapeHtml(w)}</li>`).join('');
+  const titleHtml = b.pr_url
+    ? `<a href="${escapeHtml(b.pr_url)}" target="_blank" rel="noopener">${escapeHtml(b.title)}</a>`
+    : escapeHtml(b.title);
+  return `
+    <div class="card status-${escapeHtml(b.status)}">
+      <div class="card-head">
+        <div class="card-title">${titleHtml}</div>
+        <span class="badge badge-${escapeHtml(b.status)}">${escapeHtml(b.status)}</span>
+      </div>
+      <div class="card-meta">
+        ${b.pr_number ? `<span>PR #${escapeHtml(b.pr_number)}</span>` : ''}
+        ${b.repo ? `<span>${escapeHtml(b.repo)}</span>` : ''}
+        ${b.owner ? `<span class="owner-chip">${escapeHtml(b.owner)}</span>` : ''}
+        ${b.created ? `<span>opened ${escapeHtml(b.created)}</span>` : ''}
+      </div>
+      <div class="card-summary">${escapeHtml(b.summary || '')}</div>
+      ${works ? `<div class="card-section"><div class="card-section-label">What works</div><ul>${works}</ul></div>` : ''}
+      ${review ? `<div class="card-section review"><div class="card-section-label">Needs review</div><ul>${review}</ul></div>` : ''}
+    </div>
+  `;
+}
+
+function renderTask(t) {
+  return `
+    <div class="card status-${escapeHtml(t.status)}">
+      <div class="card-head">
+        <div class="card-title">${escapeHtml(t.title)}</div>
+        <span class="badge badge-${escapeHtml(t.status)}">${escapeHtml(t.status)}</span>
+      </div>
+      <div class="card-meta">
+        <span>→ <span class="owner-chip">${escapeHtml(t.assigned_to)}</span></span>
+        ${t.linked_pr ? `<span>PR #${escapeHtml(t.linked_pr)}</span>` : ''}
+        ${t.blocked_by ? `<span>blocked by ${escapeHtml(t.blocked_by)}</span>` : ''}
+        ${t.created ? `<span>${escapeHtml(t.created)}</span>` : ''}
+      </div>
+      ${t.notes ? `<div class="card-summary">${escapeHtml(t.notes)}</div>` : ''}
+    </div>
+  `;
+}
+
+function renderMessage(m) {
+  return `
+    <div class="message ${m.read ? '' : 'unread'}">
+      <div class="message-head">
+        <div class="message-from">
+          ${m.read ? '' : '<span class="unread-dot"></span>'}
+          ${escapeHtml(m.from)} <span class="arrow">→</span> ${escapeHtml(m.to)}
+        </div>
+        <div class="message-time">${fmtDate(m.timestamp)}</div>
+      </div>
+      <div class="message-subject">${escapeHtml(m.subject || '')}</div>
+      <div class="message-body">${escapeHtml(m.body || '')}</div>
+    </div>
+  `;
+}
+
+// Filter buttons
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    if (DATA) render();
+  });
+});
+
+load();
+// Auto-refresh every 60 seconds
+setInterval(load, 60000);
+</script>
+</body>
+</html>
