@@ -1,8 +1,8 @@
 {
   "meta": {
-    "last_updated": "2026-04-07T20:55:00-07:00",
+    "last_updated": "2026-04-07T22:10:00-07:00",
     "updated_by": "Claude (Conner)",
-    "version": 10
+    "version": 11
   },
   "people": ["Conner", "Gurleen", "Claude"],
   "projects": [
@@ -66,6 +66,14 @@
           "assigned_to": "Conner",
           "depends_on": ["sub-001"],
           "notes": "Doc on Conner's desktop. The Invoicing & Financials table still lists `get_meal_change_log` as GAP — needs to flip to READY now that PR #7 covers it. Also update the Gap Summary totals (24 GAPs → 23, etc.) so the migration scoreboard is accurate."
+        },
+        {
+          "id": "sub-021",
+          "title": "Document corporate app connection map (24 connection points across all systems)",
+          "status": "done",
+          "assigned_to": "Conner",
+          "depends_on": [],
+          "notes": "DONE 4/7 PM. Comprehensive plain-English inventory of every place data flows between two systems in the BetterDay corporate app infrastructure. 24 numbered connection points across 8 categories (user front door, Flask↔GAS, Flask↔culinary-ops, culinary-ops externals, internal sync pipes, Gurleen-side direct UI, hosting, collab board), with status flags (LIVE/DORMANT/DEAD/DEPRECATED/PLANNED), config + secrets table, phase-by-phase migration shift table, target end-state diagram, and open-questions checklist for Phase 1 cutover. Lives at betterday-app/docs/CONNECTION_MAP.md (commit 805f8ae on main) so it's versioned next to the code. Update the doc whenever a connection is added/removed/status-changed. Useful as the live reference when explaining the migration to anyone non-technical."
         },
         {
           "id": "sub-003",
