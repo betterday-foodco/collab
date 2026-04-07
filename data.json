@@ -1,8 +1,8 @@
 {
   "meta": {
-    "last_updated": "2026-04-07T06:30:00-07:00",
+    "last_updated": "2026-04-07T07:15:00-07:00",
     "updated_by": "Claude (Conner)",
-    "version": 3
+    "version": 4
   },
   "people": ["Conner", "Gurleen", "Claude"],
   "projects": [
@@ -143,6 +143,15 @@
       "subject": "First PR from my side: corp manager API endpoints",
       "body": "Hey Gurleen! Just opened PR #7 in culinary-ops with the corporate manager + portal endpoints we needed for migrating off Google Apps Script. ~25 routes, no schema changes, nest build passes clean.\n\nWhen you have a moment, please take a look — would love your review on the patterns I followed since this is the first non-Gurleen PR in the repo. Test plan checklist is in the PR body.\n\nAlso: this collab board is new! It's how we'll coordinate from here on. You can ask your Claude session to update it for you, or edit data.json directly via the GitHub web UI.",
       "timestamp": "2026-04-07T03:55:00-07:00",
+      "read": false
+    },
+    {
+      "id": "msg-002",
+      "from": "Conner",
+      "to": "Gurleen",
+      "subject": "How to use the collab board (+ Claude protocol)",
+      "body": "Hey Gurleen — quick how-to-use guide for the board now that the structure is filled out a bit more.\n\n**Live site:** https://betterday-foodco.github.io/collab/\n\n**The four tabs at the top:**\n\n1. **Inbox** — anything that needs YOUR action: unread messages, subtasks assigned to you with all dependencies satisfied, open tasks, branches you own. Empty = caught up. (Right now you have task-001 here: review PR #7.)\n\n2. **Projects** — big initiatives grouped by status (Active / Blocked / Paused / Done). Click any project card to see its subtasks plus all linked branches/tasks/messages inline in one place. Done subtasks auto-collapse into a 'done' pill — click to expand. Right now there's one project: 'Migrate Flask backend to culinary-ops' with 8 phases mapped out so you can see where this whole thing is heading.\n\n3. **Activity** — chronological feed of every event (project created, PR opened, task created, message sent, subtask completed). Use this to scan 'what happened recently?'\n\n4. **Archive** — done projects, done tasks, merged/closed PRs. Out of sight but findable.\n\nThere's a **View as: Everyone / Conner / Gurleen** filter at the top right that filters everything to one person's perspective. Try 'Gurleen' for your personalized view.\n\n**The cool part — talking to it through Claude:**\n\nYou don't have to hand-edit data.json. The repo has a file called `HOW_TO_USE.md` that's written specifically FOR Claude Code. When you tell your Claude session something like:\n\n- 'check the collab board'\n- 'any new messages?'\n- 'send Conner a message saying X'\n- 'add a task for me to review PR #8'\n- 'mark task-001 as done'\n\n…Claude pulls latest, reads data.json, follows the protocol in HOW_TO_USE.md, and pushes the change. Both of our Claude sessions follow the same playbook so we don't step on each other (pull-before-edit, append-don't-overwrite, one logical change per push).\n\n**To get set up on your machine:**\n\n```\ncd ~/Downloads\ngit clone https://github.com/betterday-foodco/collab.git betterday-collab\n```\n\nThen any Claude session you start (in that folder or anywhere — Claude can navigate to it) will pick up the protocol automatically. First time, you can just say 'read HOW_TO_USE.md in the betterday-collab repo so you know how to update the board' and it'll be ready.\n\n**What's waiting for you right now:**\n\n- **task-001:** review PR #7 (feature/corp-manager-api in culinary-ops). Build passes clean, test plan checklist is in the PR body.\n- **proj-001:** the full Flask→culinary-ops migration plan, 8 phases, so you can see what comes after PR #7 lands.\n\nNo rush on any of it — whenever you have time. Just wanted to make sure you knew the board exists, how the tabs work, and how to drive it through Claude instead of editing JSON by hand.\n\n— Conner",
+      "timestamp": "2026-04-07T07:15:00-07:00",
       "read": false
     }
   ]
