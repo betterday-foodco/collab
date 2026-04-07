@@ -1,8 +1,8 @@
 {
   "meta": {
-    "last_updated": "2026-04-07T11:42:00-07:00",
+    "last_updated": "2026-04-07T18:05:00-07:00",
     "updated_by": "Claude (Conner)",
-    "version": 5
+    "version": 6
   },
   "people": ["Conner", "Gurleen", "Claude"],
   "projects": [
@@ -86,66 +86,66 @@
     {
       "id": "proj-002",
       "title": "Manager Dashboard rebuild — propaganda + functional",
-      "description": "Rebuild the BetterDay For Work manager dashboard Overview tab from a passive 3-card grid into an action-oriented control panel. Replaces 'haven't ordered' name list with team favorite + avg-meals + company/BD subsidy stats; replaces vague Par Order card with a true micro-invoice (subtotal → volume discount → BD contribution → Company pays); adds week-by-week month spend table with optional soft budget tracker, top-eaters leaderboard, ROI calculator (hours × rate vs. program spend), coming-soon menu preview placeholder, and sidebar status dots. Lives in betterday-app/templates/manager_dashboard.html (Flask Jinja2). No backend changes for Sprints 1-4; Sprint 5 (Monthly Budget System) adds 3 fields to the company table and an alerts cron.",
+      "description": "Rebuild the BetterDay For Work manager dashboard Overview tab from a passive 3-card grid into an action-oriented control panel. Replaces 'haven't ordered' name list with team favorite + avg-meals + company/BD subsidy stats; replaces vague Par Order card with a true micro-invoice (subtotal → volume discount → BD contribution → Company pays); adds week-by-week month spend table with optional soft budget tracker, top-eaters leaderboard, ROI calculator (hours × rate vs. program spend), coming-soon menu preview placeholder, and sidebar status dots. Lives in betterday-app/templates/manager_dashboard.html (Flask Jinja2). Sprint 5 (Monthly Budget System) stored in data/manager_budgets.json — Flask-managed JSON, will migrate to PostgreSQL company column once proj-001 Phase 5 lands.",
       "owner": "Conner",
-      "status": "in_progress",
+      "status": "done",
       "created": "2026-04-07",
       "subtasks": [
         {
           "id": "sub-009",
           "title": "Sprint 1 — Rebuild Overview action bar (Employee Orders box + Office Par micro-invoice + If-you-do-nothing note)",
-          "status": "in_progress",
+          "status": "done",
           "assigned_to": "Conner",
           "depends_on": [],
-          "notes": "Employee Orders box: drop name list, add avg-meals/employee + company subsidy + BD contribution stat strip + team favorite (thumbnail+name) + quick-add link. Par box: replace single-number status with categorized item list (no per-category prices) + Subtotal/Discount/BD/Company-pays grand total. Add dashed do-nothing note clarifying Wed-midnight cutoff for Mon delivery. CSS done, HTML done, JS for favorite/top-users + par-mini-invoice still pending."
+          "notes": "DONE. Employee Orders box has avg-meals/employee + co subsidy + BD contributed stat strip, team favorite thumbnail+name, quick-add link. Par box is now a true micro-invoice: categorized item list → retail subtotal → BetterDay covers (volume discount) → Company pays / wk grand total. Dashed do-nothing note clarifies Wed-midnight cutoff for Mon delivery."
         },
         {
           "id": "sub-010",
           "title": "Sprint 2 — Replace 'This Week at a Glance' 3-card grid with 'This Month at a Glance' 2-card layout",
-          "status": "in_progress",
+          "status": "done",
           "assigned_to": "Conner",
           "depends_on": [],
-          "notes": "Card A: week-by-week spend table for the active month (rows from sorted_weeks filtered by anchor[:7] == sorted_monthly[0].key) + sub-stat pills (meals, $/employee, top meal). Card B: big participation %, 3-cell mini bench (this week %, active team, avg meals/emp), top-3 eaters leaderboard, link to full Employees report. Old 3-card grid + Financials column deleted (financials surface in sidebar status dots + Card A pills). HTML done, top-users JS pending."
+          "notes": "DONE. Card A: week-by-week spend table filtered by w.anchor[:7] == this_month.key + meal/$-per-employee/top-meal pills + monthly budget block. Card B: big participation %, 3-cell mini bench, top-3 eaters leaderboard, link to full Employees report. Old 3-card grid + Financials column deleted."
         },
         {
           "id": "sub-011",
           "title": "Sprint 3 — Impact strip + ROI calculator (replaces 'share with leadership' button)",
-          "status": "in_progress",
+          "status": "done",
           "assigned_to": "Conner",
           "depends_on": [],
-          "notes": "Navy gradient strip with 3 lifetime stats (meals delivered, hours reclaimed at ½ hr/meal, BD covered) + interactive ROI calc: hours × adjustable $/hr input → productivity recovered → net ROI vs. company program spend. Kills the 'lunch runs avoided' fake stat. HTML done, updateRoiCalc() JS wireup pending."
+          "notes": "DONE. Navy gradient strip with 3 lifetime stats (meals delivered, hours reclaimed at ½ hr/meal, BD covered) + interactive ROI calc: hours × adjustable $/hr input → productivity recovered → net ROI + multiplier vs. company program spend. 'lunch runs avoided' fake stat killed."
         },
         {
           "id": "sub-012",
           "title": "Sprint 4 — Coming-soon menu preview card + sidebar status dots + quick-add stub",
-          "status": "in_progress",
+          "status": "done",
           "assigned_to": "Conner",
           "depends_on": [],
-          "notes": "Navy gradient placeholder card teasing next week's menu preview (build comes later). Red dot on Invoices when outstanding > 0, yellow dot on Orders when not_ordered > 0, yellow dot on Office Par Levels when editing window open. Quick-add employee button is a stub modal — no /manager/add-employee Flask route exists yet."
+          "notes": "DONE. Navy gradient placeholder card teases next week's menu preview. Red dot on Invoices when outstanding > 0, yellow dot on Orders when not_ordered > 0, yellow dot on Office Par Levels when editing window open. Quick-add employee is a stub that jumps to Employees tab — no /manager/add-employee Flask route yet."
         },
         {
           "id": "sub-013",
           "title": "Sprint 4 — JS plumbing: computeFavoriteAndTopUsers + updateParOverviewCards rewrite + updateRoiCalc + openQuickAddEmployee",
-          "status": "pending",
+          "status": "done",
           "assigned_to": "Conner",
           "depends_on": ["sub-009", "sub-010", "sub-011"],
-          "notes": "All four use existing client-side ORDERS array (no backend changes). Favorite/top-users iterates ORDERS by current month, ranks by meal count. updateParOverviewCards rewrite groups PL_CATEGORIES by name into the new #parMiniInvoice element with subtotal → discount → BD → Company-pays lines."
+          "notes": "DONE. All four functions use existing client-side ORDERS array (no backend changes). computeFavoriteAndTopUsers iterates ORDERS by current month, ranks by meal count, populates ewFavorite + topUsersList + mcnFavName. updateParOverviewCards rewrite populates #parMiniInvoice with subtotal/BD-covers/Company-pays lines based on PL_CATEGORIES + plData state. updateRoiCalc reads #impactHours and #roiRate, writes #roiNet + multiplier."
         },
         {
           "id": "sub-014",
           "title": "Sprint 5 — Monthly Budget System (soft cap, company spend only, no BD)",
-          "status": "pending",
+          "status": "done",
           "assigned_to": "Conner",
           "depends_on": ["sub-013"],
-          "notes": "Add monthly_budget_amount + monthly_budget_set_at + monthly_budget_set_by to company table. Single input in Account Settings (soft cap only — no hard cutoff). Wire progress bar into Card A .mcn-budget block with green/yellow/red states at 75%/90%/100% of company_covered (BD contribution excluded). Pacing forecast = current_month_spend × (days_in_month / days_elapsed). Email alerts fire once per month per threshold."
+          "notes": "DONE. Stored in data/manager_budgets.json (Flask-managed JSON, not GAS — clean migration path to PostgreSQL later as part of proj-001 Phase 5). Helpers: get_company_budget / set_company_budget / mark_budget_alert_sent / maybe_fire_budget_alert. New /manager/set-budget route. Account Settings card with single $ input + 'Update Budget' / 'Remove budget' buttons. Card A .mcn-budget block renders 4 states (ok/warn/critical/over) at 75/90/100% thresholds tracking company_covered only. Pacing forecast = current_month_co × (days_in_month / days_elapsed). Email alerts fire inline from dashboard load via threading.Thread, once per month per threshold (75/90/100), recorded in alerts_sent. Soft cap only — orders never blocked."
         },
         {
           "id": "sub-015",
           "title": "Validation pass — read-back all template edits, syntax-check Jinja + JS",
-          "status": "pending",
+          "status": "done",
           "assigned_to": "Conner",
           "depends_on": ["sub-013", "sub-014"],
-          "notes": "No preview server per session rule. Verify Jinja braces balance, action-bar grid renders without parlevels_on, ORDERS-derived JS handles empty array, do-nothing-note copy correct, sidebar dots only render when conditions match. Flask app must boot clean."
+          "notes": "DONE. python -m py_compile app.py passes clean. Jinja parse OK with custom filters mocked. Render-test confirmed all 5 budget states (no-budget prompt, ok green, warn amber, critical red, over red+'Over budget' label) produce correct mcn-budget-fill class output. Budget API smoke-tested end-to-end (set/get/mark-alert/clear) against tmp file. All element IDs wired (parMiniInvoice, pmiItems, pmiSubtotal, pmiBd, pmiCo, ewFavorite, mcnFavName, topUsersList, impactHours, roiRate, roiNet, sbParDot, mcnBudgetBlock)."
         }
       ]
     }
