@@ -1,8 +1,8 @@
 {
   "meta": {
-    "last_updated": "2026-04-07T18:05:00-07:00",
+    "last_updated": "2026-04-07T19:10:00-07:00",
     "updated_by": "Claude (Conner)",
-    "version": 6
+    "version": 7
   },
   "people": ["Conner", "Gurleen", "Claude"],
   "projects": [
@@ -22,7 +22,7 @@
           "linked_branch": "feature/corp-manager-api",
           "linked_pr": 7,
           "depends_on": [],
-          "notes": "~25 endpoints. nest build passes. Awaiting Gurleen's review."
+          "notes": "~26 endpoints. nest build passes. Awaiting Gurleen's review. Update 4/7 PM: closed last build gap (get_meal_change_log) — added CorporateMealAllowanceLog Prisma model + write-side audit logging in updateBenefitLevelAllowances + new GET /corp-manager/meal-change-log. Build side is now 100% — only `prisma db push` needed on deploy to materialize the new table."
         },
         {
           "id": "sub-002",
@@ -160,11 +160,12 @@
       "pr_url": "https://github.com/betterday-foodco/culinary-ops/pull/7",
       "status": "open",
       "owner": "Conner",
-      "summary": "~25 new endpoints covering manager CRUD (employees, benefit levels, par levels, company self-service, PIN), portal order counts and item swaps, and BD admin invoicing/credit notes/AR. No schema changes.",
+      "summary": "~26 new endpoints covering manager CRUD (employees, benefit levels, par levels, company self-service, PIN), portal order counts and item swaps, and BD admin invoicing/credit notes/AR. One small schema addition (CorporateMealAllowanceLog) replaces the GAS MealEditLog sheet — requires `prisma db push` on deploy.",
       "what_works": [
         "nest build passes (0 errors)",
         "All routes scoped to req.user.company_id with cross-company access blocked",
-        "Bulk replace endpoints use $transaction so partial failures roll back"
+        "Bulk replace endpoints use $transaction so partial failures roll back",
+        "Meal allowance audit log: PATCH /corp-manager/benefit-levels/:id/allowances diffs old vs new tier_config and writes one CorporateMealAllowanceLog row per changed field, atomic with the update. GET /corp-manager/meal-change-log returns rows in the exact shape the existing dashboard JS expects."
       ],
       "what_needs_review": [
         "Smoke test endpoints with a real corp_manager JWT",
