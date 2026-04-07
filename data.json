@@ -1,8 +1,8 @@
 {
   "meta": {
-    "last_updated": "2026-04-07T05:10:00-07:00",
+    "last_updated": "2026-04-07T06:30:00-07:00",
     "updated_by": "Claude (Conner)",
-    "version": 2
+    "version": 3
   },
   "people": ["Conner", "Gurleen", "Claude"],
   "projects": [
@@ -89,6 +89,7 @@
       "id": "feature/corp-manager-api",
       "title": "Corporate manager + portal API endpoints",
       "repo": "betterday-foodco/culinary-ops",
+      "linked_project_id": "proj-001",
       "pr_number": 7,
       "pr_url": "https://github.com/betterday-foodco/culinary-ops/pull/7",
       "status": "open",
@@ -114,6 +115,7 @@
       "title": "Review PR #7 (feature/corp-manager-api)",
       "assigned_to": "Gurleen",
       "status": "pending",
+      "linked_project_id": "proj-001",
       "linked_branch": "feature/corp-manager-api",
       "linked_pr": 7,
       "notes": "First PR from Conner's side. Build passes clean. Test plan checklist is in the PR body. Patterns followed your existing CorpAdminService structure — would love a sanity check before merging.",
@@ -125,6 +127,7 @@
       "title": "After PR #7 merges, plan Phase 1 of Flask migration (read-only routes)",
       "assigned_to": "Conner",
       "status": "blocked",
+      "linked_project_id": "proj-001",
       "blocked_by": "task-001",
       "notes": "First step: switch /manager/dashboard in betterday-app to call culinary-ops endpoints instead of GAS. See GAS_to_CulinaryOps_Integration_Map.md on Conner's desktop for the full migration plan.",
       "created": "2026-04-07",
@@ -136,6 +139,7 @@
       "id": "msg-001",
       "from": "Conner",
       "to": "Gurleen",
+      "linked_project_id": "proj-001",
       "subject": "First PR from my side: corp manager API endpoints",
       "body": "Hey Gurleen! Just opened PR #7 in culinary-ops with the corporate manager + portal endpoints we needed for migrating off Google Apps Script. ~25 routes, no schema changes, nest build passes clean.\n\nWhen you have a moment, please take a look — would love your review on the patterns I followed since this is the first non-Gurleen PR in the repo. Test plan checklist is in the PR body.\n\nAlso: this collab board is new! It's how we'll coordinate from here on. You can ask your Claude session to update it for you, or edit data.json directly via the GitHub web UI.",
       "timestamp": "2026-04-07T03:55:00-07:00",

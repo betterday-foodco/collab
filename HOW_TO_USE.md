@@ -135,44 +135,47 @@ cd /path/to/betterday-collab && git config user.name
 
   "branches": [
     {
-      "id":               "feature/branch-name",
-      "title":            "Human-readable title",
-      "repo":             "betterday-foodco/repo-name",
-      "pr_number":        7,
-      "pr_url":           "https://github.com/...",
-      "status":           "open | merged | closed | draft",
-      "owner":            "Conner | Gurleen",
-      "summary":          "1–2 sentences on what this branch does",
-      "what_works":       ["bullet", "bullet"],
-      "what_needs_review":["bullet", "bullet"],
-      "created":          "YYYY-MM-DD"
+      "id":                "feature/branch-name",
+      "title":             "Human-readable title",
+      "repo":              "betterday-foodco/repo-name",
+      "linked_project_id": "proj-001 (optional)",
+      "pr_number":         7,
+      "pr_url":            "https://github.com/...",
+      "status":            "open | merged | closed | draft",
+      "owner":             "Conner | Gurleen",
+      "summary":           "1–2 sentences on what this branch does",
+      "what_works":        ["bullet", "bullet"],
+      "what_needs_review": ["bullet", "bullet"],
+      "created":           "YYYY-MM-DD"
     }
   ],
 
   "tasks": [
     {
-      "id":            "task-001",
-      "title":         "Short imperative task description",
-      "assigned_to":   "Conner | Gurleen | Claude",
-      "status":        "pending | in_progress | blocked | done",
-      "linked_branch": "feature/branch-name (optional)",
-      "linked_pr":     7,
-      "blocked_by":    "task-id (optional)",
-      "notes":         "Optional context or instructions",
-      "created":       "YYYY-MM-DD",
-      "created_by":    "Conner | Gurleen | Claude"
+      "id":                "task-001",
+      "title":             "Short imperative task description",
+      "assigned_to":       "Conner | Gurleen | Claude",
+      "status":            "pending | in_progress | blocked | done",
+      "linked_project_id": "proj-001 (optional)",
+      "linked_branch":     "feature/branch-name (optional)",
+      "linked_pr":         7,
+      "blocked_by":        "task-id (optional)",
+      "notes":             "Optional context or instructions",
+      "created":           "YYYY-MM-DD",
+      "created_by":        "Conner | Gurleen | Claude"
     }
   ],
 
   "messages": [
     {
-      "id":        "msg-001",
-      "from":      "Conner | Gurleen | Claude",
-      "to":        "Conner | Gurleen",
-      "subject":   "Short subject line",
-      "body":      "Full message body. Markdown allowed.",
-      "timestamp": "ISO 8601 string",
-      "read":      false
+      "id":                "msg-001",
+      "from":              "Conner | Gurleen | Claude",
+      "to":                "Conner | Gurleen",
+      "linked_project_id": "proj-001 (optional)",
+      "subject":           "Short subject line",
+      "body":              "Full message body. Markdown allowed.",
+      "timestamp":         "ISO 8601 string",
+      "read":              false
     }
   ]
 }
@@ -210,6 +213,26 @@ The user (or another Claude session) may click the checkbox in the dashboard. Th
 
 ### Dependencies
 `depends_on` is an array of sibling subtask IDs. The dashboard renders a subtask as **blocked** when any of its dependencies is not yet `done`. When suggesting next steps, prefer subtasks whose dependencies are all satisfied.
+
+### Linking branches / tasks / messages to a project
+Add `linked_project_id: "proj-NNN"` to any branch, task, or message that belongs to a project. The dashboard will then render that item inline within the project card under "Linked branches / tasks / messages." Items without a `linked_project_id` still appear in the Inbox / Activity tabs as standalone work.
+
+When opening a new PR or sending a message about an existing project, **always set `linked_project_id`** so it bubbles up in the right place. Otherwise it floats free in Inbox/Activity.
+
+---
+
+## Dashboard tab model
+
+The dashboard has 4 tabs (Phase A):
+
+| Tab | What it shows |
+|---|---|
+| **Inbox** | Items needing the viewer's action: unread messages addressed to them, subtasks assigned to them with all deps satisfied, open branches they own, open tasks. Empty state when caught up. |
+| **Projects** | All projects, grouped by status (Active / Blocked / Paused / Done). Done is collapsed by default. Each project card shows its subtasks (with done auto-collapsed into a pill) and its linked branches/tasks/messages inline. |
+| **Activity** | Chronological feed of every event (project created, branch opened, task created, message sent, subtask completed). |
+| **Archive** | Done projects, done tasks, merged/closed branches. |
+
+The "View as: Everyone / Conner / Gurleen" filter applies on top of the active tab and persists across tab switches. Active tab is persisted in localStorage.
 
 ---
 

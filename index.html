@@ -127,15 +127,127 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 28px 24px;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 28px;
   }
-  @media (min-width: 900px) {
-    main { grid-template-columns: 1.2fr 1fr; }
-    .projects-section { grid-column: 1 / -1; }
-    .messages-section { grid-column: 1 / -1; }
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 20px;
+    flex-wrap: wrap;
   }
+  .tab {
+    background: none;
+    border: none;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tab:hover { color: var(--navy); }
+  .tab.active {
+    color: var(--navy);
+    border-bottom-color: var(--gold);
+  }
+  .tab-count {
+    background: var(--border);
+    color: var(--text-muted);
+    font-size: 11px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+  .tab.active .tab-count {
+    background: var(--gold);
+    color: var(--navy);
+  }
+  /* Group headers within a tab */
+  .group {
+    margin-bottom: 24px;
+  }
+  .group-head {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .group-head .group-chev { transition: transform 0.15s; display: inline-block; }
+  .group.collapsed .group-chev { transform: rotate(-90deg); }
+  .group.collapsed .group-body { display: none; }
+  /* Linked items inside a project */
+  .linked-section {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+  }
+  .linked-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .linked-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+  }
+  .linked-row:last-child { border-bottom: none; }
+  .linked-row .linked-kind {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+  .linked-row .linked-kind.branch { background: #dbeafe; color: #1e40af; }
+  .linked-row .linked-kind.task { background: #fef3c7; color: #92400e; }
+  .linked-row .linked-kind.message { background: #fce7f3; color: #9f1239; }
+  .linked-row .linked-title { flex: 1; color: var(--text); font-weight: 600; }
+  .linked-row .linked-meta { font-size: 11px; color: var(--text-muted); }
+  /* Done subtasks collapsed pill */
+  .done-pill {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #f0fdf4;
+    border: 1px solid #d1fae5;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #065f46;
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .done-pill:hover { background: #dcfce7; }
+  .done-subs-wrap { display: none; }
+  .done-subs-wrap.open { display: block; margin-top: 6px; }
   .section h2 {
     display: flex;
     align-items: center;
@@ -677,6 +789,15 @@
     </div>
   </div>
 
+  <div style="max-width: 1200px; margin: 0 auto; padding: 20px 24px 0;">
+    <nav class="tabs" id="tab-nav">
+      <button class="tab active" data-tab="inbox">Inbox <span class="tab-count" id="count-inbox">0</span></button>
+      <button class="tab" data-tab="projects">Projects <span class="tab-count" id="count-projects">0</span></button>
+      <button class="tab" data-tab="activity">Activity</button>
+      <button class="tab" data-tab="archive">Archive <span class="tab-count" id="count-archive">0</span></button>
+    </nav>
+  </div>
+
   <main id="app">
     <div class="loading">Loading…</div>
   </main>
@@ -690,6 +811,9 @@
 <script>
 let DATA = null;
 let currentFilter = 'all';
+let currentTab = (() => {
+  try { return localStorage.getItem('collab-tab') || 'inbox'; } catch (e) { return 'inbox'; }
+})();
 
 async function load() {
   try {
@@ -732,54 +856,247 @@ function render() {
   document.getElementById('last-updated').textContent = fmtDate(DATA.meta.last_updated);
   document.getElementById('updated-by').textContent = 'by ' + (DATA.meta.updated_by || 'unknown');
 
-  const filterBranches = b =>
-    currentFilter === 'all' || b.owner === currentFilter;
-  const filterTasks = t =>
-    currentFilter === 'all' || t.assigned_to === currentFilter;
-  const filterMessages = m =>
-    currentFilter === 'all' || m.to === currentFilter || m.from === currentFilter;
-  // For projects: show if owner matches, OR if any subtask is assigned to the filtered person
+  // Update tab counts
+  const inboxItems = getInboxItems();
+  const activeProjects = (DATA.projects || []).filter(p => p.status !== 'done');
+  const archivedItems = getArchivedItems();
+  const inboxCountEl = document.getElementById('count-inbox');
+  const projCountEl = document.getElementById('count-projects');
+  const archCountEl = document.getElementById('count-archive');
+  if (inboxCountEl) inboxCountEl.textContent = inboxItems.length;
+  if (projCountEl) projCountEl.textContent = activeProjects.length;
+  if (archCountEl) archCountEl.textContent = archivedItems.length;
+
+  // Update tab active state
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === currentTab);
+  });
+
+  let html = '';
+  if (currentTab === 'inbox')         html = renderInboxTab(inboxItems);
+  else if (currentTab === 'projects') html = renderProjectsTab();
+  else if (currentTab === 'activity') html = renderActivityTab();
+  else if (currentTab === 'archive')  html = renderArchiveTab(archivedItems);
+  document.getElementById('app').innerHTML = html;
+}
+
+// ============= TAB: INBOX =============
+
+function getInboxItems() {
+  const viewer = currentFilter; // 'all' | 'Conner' | 'Gurleen'
+  const items = [];
+
+  // Unread messages addressed to viewer
+  (DATA.messages || []).forEach(m => {
+    if (m.read) return;
+    if (viewer !== 'all' && m.to !== viewer) return;
+    items.push({ kind: 'message', data: m, ts: m.timestamp });
+  });
+
+  // Open branches owned by viewer
+  (DATA.branches || []).forEach(b => {
+    if (b.status !== 'open' && b.status !== 'draft') return;
+    if (viewer !== 'all' && b.owner !== viewer) return;
+    items.push({ kind: 'branch', data: b, ts: b.created });
+  });
+
+  // Standalone tasks assigned to viewer, not done
+  (DATA.tasks || []).forEach(t => {
+    if (t.status === 'done') return;
+    if (viewer !== 'all' && t.assigned_to !== viewer) return;
+    items.push({ kind: 'task', data: t, ts: t.created });
+  });
+
+  // Subtasks assigned to viewer, not done, not blocked
+  (DATA.projects || []).forEach(p => {
+    const allSubs = p.subtasks || [];
+    allSubs.forEach(s => {
+      if (s.status === 'done') return;
+      if (viewer !== 'all' && s.assigned_to !== viewer) return;
+      const deps = s.depends_on || [];
+      const blocking = deps.filter(id => {
+        const d = allSubs.find(x => x.id === id);
+        return d && d.status !== 'done';
+      });
+      if (blocking.length > 0) return;
+      items.push({ kind: 'subtask', data: s, project: p, ts: p.created });
+    });
+  });
+
+  // Sort newest-ish first (timestamp / date string)
+  items.sort((a, b) => (b.ts || '').localeCompare(a.ts || ''));
+  return items;
+}
+
+function renderInboxTab(items) {
+  const viewer = currentFilter === 'all' ? 'everyone' : currentFilter;
+  if (items.length === 0) {
+    return `<div class="empty-state">Inbox zero for <strong>${escapeHtml(viewer)}</strong> — nothing to act on right now.</div>`;
+  }
+  // Group by kind for clarity
+  const groups = {
+    message: items.filter(i => i.kind === 'message'),
+    subtask: items.filter(i => i.kind === 'subtask'),
+    task:    items.filter(i => i.kind === 'task'),
+    branch:  items.filter(i => i.kind === 'branch'),
+  };
+  const labels = {
+    message: 'Unread messages',
+    subtask: 'Subtasks ready for you',
+    task:    'Open tasks',
+    branch:  'Open branches',
+  };
+  let html = '';
+  ['message', 'subtask', 'task', 'branch'].forEach(kind => {
+    const g = groups[kind];
+    if (g.length === 0) return;
+    html += `<div class="group"><div class="group-head"><span class="group-chev">▾</span>${labels[kind]} <span class="tab-count">${g.length}</span></div><div class="group-body">`;
+    g.forEach(it => {
+      if (kind === 'message')      html += renderMessage(it.data);
+      else if (kind === 'subtask') html += renderInboxSubtask(it.data, it.project);
+      else if (kind === 'task')    html += renderTask(it.data);
+      else if (kind === 'branch')  html += renderBranch(it.data);
+    });
+    html += `</div></div>`;
+  });
+  return html;
+}
+
+function renderInboxSubtask(s, project) {
+  return `
+    <div class="card status-${escapeHtml(s.status)}">
+      <div class="card-head">
+        <div class="card-title">${escapeHtml(s.title)}</div>
+        <div class="card-actions">
+          <span class="badge badge-${escapeHtml(s.status)}">${escapeHtml(s.status)}</span>
+          ${copyBtn('subtask', s.id)}
+        </div>
+      </div>
+      <div class="card-meta">
+        <span>↳ <strong>${escapeHtml(project.title)}</strong></span>
+        ${s.assigned_to ? `<span class="owner-chip">${escapeHtml(s.assigned_to)}</span>` : ''}
+        ${s.linked_pr ? `<span>PR #${escapeHtml(s.linked_pr)}</span>` : ''}
+        ${s.linked_branch ? `<span>${escapeHtml(s.linked_branch)}</span>` : ''}
+      </div>
+      ${s.notes ? `<div class="card-summary">${escapeHtml(s.notes)}</div>` : ''}
+    </div>
+  `;
+}
+
+// ============= TAB: PROJECTS =============
+
+function renderProjectsTab() {
   const filterProjects = p => {
     if (currentFilter === 'all') return true;
     if (p.owner === currentFilter) return true;
     return (p.subtasks || []).some(s => s.assigned_to === currentFilter);
   };
+  const all = (DATA.projects || []).filter(filterProjects);
+  if (all.length === 0) {
+    return '<div class="empty-state">No projects yet — ask Claude to map one out and add it to the board.</div>';
+  }
+  const groups = {
+    in_progress: all.filter(p => p.status === 'in_progress'),
+    blocked:     all.filter(p => p.status === 'blocked'),
+    paused:      all.filter(p => p.status === 'paused'),
+    done:        all.filter(p => p.status === 'done'),
+  };
+  const labels = {
+    in_progress: 'Active',
+    blocked:     'Blocked',
+    paused:      'Paused',
+    done:        'Done',
+  };
+  let html = '';
+  ['in_progress', 'blocked', 'paused', 'done'].forEach(k => {
+    const g = groups[k];
+    if (g.length === 0) return;
+    const collapsed = (k === 'done') ? 'collapsed' : '';
+    html += `<div class="group ${collapsed}" data-group="proj-${k}"><div class="group-head" data-group-toggle="proj-${k}"><span class="group-chev">▾</span>${labels[k]} <span class="tab-count">${g.length}</span></div><div class="group-body">`;
+    g.forEach(p => { html += renderProject(p); });
+    html += `</div></div>`;
+  });
+  return html;
+}
 
-  const projects = (DATA.projects || []).filter(filterProjects);
-  const branches = (DATA.branches || []).filter(filterBranches);
-  const tasks    = (DATA.tasks || []).filter(filterTasks);
-  const messages = (DATA.messages || []).filter(filterMessages)
-    .slice().sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+// ============= TAB: ACTIVITY =============
 
-  document.getElementById('app').innerHTML = `
-    <section class="section projects-section">
-      <h2>Projects <span class="count">${projects.length}</span></h2>
-      ${projects.length === 0
-        ? '<div class="empty-state">No projects yet — ask Claude to map one out and add it to the board</div>'
-        : projects.map(renderProject).join('')}
-    </section>
+function renderActivityTab() {
+  const events = [];
+  (DATA.messages || []).forEach(m => {
+    events.push({ ts: m.timestamp, kind: 'message', label: `${m.from} → ${m.to}: ${m.subject || '(no subject)'}`, data: m });
+  });
+  (DATA.branches || []).forEach(b => {
+    events.push({ ts: b.created, kind: 'branch', label: `${b.owner || '?'} opened branch ${b.title}`, data: b });
+  });
+  (DATA.tasks || []).forEach(t => {
+    events.push({ ts: t.created, kind: 'task', label: `${t.created_by || '?'} created task: ${t.title}`, data: t });
+  });
+  (DATA.projects || []).forEach(p => {
+    events.push({ ts: p.created, kind: 'project', label: `${p.owner || '?'} created project: ${p.title}`, data: p });
+    (p.subtasks || []).forEach(s => {
+      if (s.status === 'done') {
+        events.push({ ts: p.created, kind: 'subtask-done', label: `${s.assigned_to || '?'} completed: ${s.title}`, data: s });
+      }
+    });
+  });
+  events.sort((a, b) => (b.ts || '').localeCompare(a.ts || ''));
+  if (events.length === 0) {
+    return '<div class="empty-state">No activity yet.</div>';
+  }
+  let html = '<div class="group"><div class="group-body">';
+  events.forEach(e => {
+    html += `
+      <div class="linked-row">
+        <span class="linked-kind ${escapeHtml(e.kind)}">${escapeHtml(e.kind)}</span>
+        <span class="linked-title">${escapeHtml(e.label)}</span>
+        <span class="linked-meta">${fmtDate(e.ts)}</span>
+      </div>
+    `;
+  });
+  html += '</div></div>';
+  return html;
+}
 
-    <section class="section branches-section">
-      <h2>Branches <span class="count">${branches.length}</span></h2>
-      ${branches.length === 0
-        ? '<div class="empty-state">No branches to show</div>'
-        : branches.map(renderBranch).join('')}
-    </section>
+// ============= TAB: ARCHIVE =============
 
-    <section class="section tasks-section">
-      <h2>Tasks <span class="count">${tasks.length}</span></h2>
-      ${tasks.length === 0
-        ? '<div class="empty-state">No tasks to show</div>'
-        : tasks.map(renderTask).join('')}
-    </section>
+function getArchivedItems() {
+  const items = [];
+  (DATA.projects || []).forEach(p => {
+    if (p.status === 'done') items.push({ kind: 'project', data: p });
+  });
+  (DATA.tasks || []).forEach(t => {
+    if (t.status === 'done') items.push({ kind: 'task', data: t });
+  });
+  (DATA.branches || []).forEach(b => {
+    if (b.status === 'merged' || b.status === 'closed') items.push({ kind: 'branch', data: b });
+  });
+  return items;
+}
 
-    <section class="section messages-section">
-      <h2>Messages <span class="count">${messages.length}</span></h2>
-      ${messages.length === 0
-        ? '<div class="empty-state">No messages</div>'
-        : messages.map(renderMessage).join('')}
-    </section>
-  `;
+function renderArchiveTab(items) {
+  if (items.length === 0) {
+    return '<div class="empty-state">Nothing archived yet.</div>';
+  }
+  const groups = {
+    project: items.filter(i => i.kind === 'project'),
+    task:    items.filter(i => i.kind === 'task'),
+    branch:  items.filter(i => i.kind === 'branch'),
+  };
+  const labels = { project: 'Done projects', task: 'Done tasks', branch: 'Closed/merged branches' };
+  let html = '';
+  ['project', 'task', 'branch'].forEach(k => {
+    const g = groups[k];
+    if (g.length === 0) return;
+    html += `<div class="group"><div class="group-head"><span class="group-chev">▾</span>${labels[k]} <span class="tab-count">${g.length}</span></div><div class="group-body">`;
+    g.forEach(it => {
+      if (k === 'project')      html += renderProject(it.data);
+      else if (k === 'task')    html += renderTask(it.data);
+      else if (k === 'branch')  html += renderBranch(it.data);
+    });
+    html += `</div></div>`;
+  });
+  return html;
 }
 
 const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
@@ -839,6 +1156,16 @@ function renderProject(p) {
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
   const isOpen = isProjectOpen(p.id);
 
+  // Split active vs done so done can collapse into a pill
+  const activeSubs = subs.filter(s => s.status !== 'done');
+  const doneSubs = subs.filter(s => s.status === 'done');
+
+  // Linked items
+  const linkedBranches = (DATA.branches || []).filter(b => b.linked_project_id === p.id);
+  const linkedTasks    = (DATA.tasks || []).filter(t => t.linked_project_id === p.id);
+  const linkedMessages = (DATA.messages || []).filter(m => m.linked_project_id === p.id);
+  const hasLinked = linkedBranches.length + linkedTasks.length + linkedMessages.length > 0;
+
   return `
     <div class="project status-${escapeHtml(p.status)} ${isOpen ? 'open' : ''}" data-project-id="${escapeHtml(p.id)}">
       <div class="project-head" data-project-toggle="${escapeHtml(p.id)}">
@@ -857,8 +1184,48 @@ function renderProject(p) {
       <div class="project-body">
         ${p.description ? `<div class="project-description">${escapeHtml(p.description)}</div>` : ''}
         <div class="subtask-list">
-          ${subs.map(s => renderSubtask(s, p, subs)).join('')}
+          ${activeSubs.map(s => renderSubtask(s, p, subs)).join('')}
         </div>
+        ${doneSubs.length > 0 ? `
+          <div class="done-pill" data-done-toggle="${escapeHtml(p.id)}">▾ ${doneSubs.length} done</div>
+          <div class="done-subs-wrap" id="done-subs-${escapeHtml(p.id)}">
+            ${doneSubs.map(s => renderSubtask(s, p, subs)).join('')}
+          </div>
+        ` : ''}
+        ${hasLinked ? `
+          <div class="linked-section">
+            ${linkedBranches.length > 0 ? `
+              <div class="linked-label">Linked branches</div>
+              ${linkedBranches.map(b => `
+                <div class="linked-row">
+                  <span class="linked-kind branch">branch</span>
+                  <span class="linked-title">${b.pr_url ? `<a href="${escapeHtml(b.pr_url)}" target="_blank" rel="noopener">${escapeHtml(b.title)}</a>` : escapeHtml(b.title)}</span>
+                  <span class="linked-meta">${b.pr_number ? 'PR #' + escapeHtml(b.pr_number) + ' · ' : ''}${escapeHtml(b.status)}</span>
+                </div>
+              `).join('')}
+            ` : ''}
+            ${linkedTasks.length > 0 ? `
+              <div class="linked-label" style="margin-top:10px;">Linked tasks</div>
+              ${linkedTasks.map(t => `
+                <div class="linked-row">
+                  <span class="linked-kind task">task</span>
+                  <span class="linked-title">${escapeHtml(t.title)}</span>
+                  <span class="linked-meta">${escapeHtml(t.assigned_to || '')} · ${escapeHtml(t.status)}</span>
+                </div>
+              `).join('')}
+            ` : ''}
+            ${linkedMessages.length > 0 ? `
+              <div class="linked-label" style="margin-top:10px;">Linked messages</div>
+              ${linkedMessages.map(m => `
+                <div class="linked-row">
+                  <span class="linked-kind message">msg</span>
+                  <span class="linked-title">${escapeHtml(m.subject || '(no subject)')}</span>
+                  <span class="linked-meta">${escapeHtml(m.from)} → ${escapeHtml(m.to)} · ${fmtDate(m.timestamp)}</span>
+                </div>
+              `).join('')}
+            ` : ''}
+          </div>
+        ` : ''}
       </div>
     </div>
   `;
@@ -1237,6 +1604,15 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
   });
 });
 
+// Tab nav buttons
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentTab = btn.dataset.tab;
+    try { localStorage.setItem('collab-tab', currentTab); } catch (e) {}
+    if (DATA) render();
+  });
+});
+
 // Delegated handler for all interactive elements (cards re-render on every load)
 document.getElementById('app').addEventListener('click', (e) => {
   // Copy button (branch / task / message / project)
@@ -1274,6 +1650,23 @@ document.getElementById('app').addEventListener('click', (e) => {
       target.classList.toggle('open');
       detailsBtn.classList.toggle('open');
     }
+    return;
+  }
+  // Group header collapse (Inbox / Projects / Archive groups)
+  const groupHead = e.target.closest('.group-head');
+  if (groupHead) {
+    const grp = groupHead.closest('.group');
+    if (grp) grp.classList.toggle('collapsed');
+    return;
+  }
+  // Done-subtasks pill toggle
+  const donePill = e.target.closest('[data-done-toggle]');
+  if (donePill) {
+    e.preventDefault();
+    e.stopPropagation();
+    const id = donePill.dataset.doneToggle;
+    const wrap = document.getElementById('done-subs-' + id);
+    if (wrap) wrap.classList.toggle('open');
     return;
   }
 });
