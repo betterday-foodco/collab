@@ -1,8 +1,8 @@
 {
   "meta": {
-    "last_updated": "2026-04-07T19:45:00-07:00",
+    "last_updated": "2026-04-07T20:30:00-07:00",
     "updated_by": "Claude (Conner)",
-    "version": 8
+    "version": 9
   },
   "people": ["Conner", "Gurleen", "Claude"],
   "projects": [
@@ -44,10 +44,11 @@
         {
           "id": "sub-017",
           "title": "Stage Flask `culinary_ops_client.py` helper + feature flag wrapper (parallel with PR #7 review)",
-          "status": "pending",
+          "status": "done",
           "assigned_to": "Conner",
+          "linked_branch": "feature/culinary-ops-client",
           "depends_on": [],
-          "notes": "Small `requests`-based HTTP client wrapper that handles JWT auth + base URL + retry/fallback. Behind a CULINARY_OPS_ENABLED env flag so it ships dormant. Lets Phase 1 cutover land within hours of PR #7 merging instead of starting from scratch. Can be developed in parallel with Gurleen's review since it's pure Flask-side."
+          "notes": "DONE 4/7 PM. Branch `feature/culinary-ops-client` in betterday-app, commit 3c6672f. Module exposes CulinaryOpsClient.get/post/patch/put/delete — all return parsed JSON, fallback result, or None (never raise). JWT pulled from session['culinary_ops_jwt'] when present. CULINARY_OPS_ENABLED env flag gates everything — ships dormant so prod is unaffected. 22/22 unit tests pass via stdlib unittest + mock (no new requirements.txt deps). Failure modes covered: transport errors, 4xx/5xx, non-json, missing flask context, missing jwt. Phase 1 callsite migration lands in a follow-up PR after PR #7 merges + sub-016 runs."
         },
         {
           "id": "sub-018",
@@ -213,6 +214,29 @@
         "Confirm getCompanyPin UX change for the manager dashboard (bcrypt PINs cannot be retrieved)",
         "Decide whether to split CorpAdminService into Manager + BD Admin services",
         "NEW: schema adds CorporateMealAllowanceLog — requires `prisma db push` on deploy before meal-change-log endpoint is exercisable. No backfill needed."
+      ],
+      "created": "2026-04-07"
+    },
+    {
+      "id": "feature/culinary-ops-client",
+      "title": "Flask culinary_ops_client.py + feature flag (dormant)",
+      "repo": "betterday-foodco/betterday-app",
+      "linked_project_id": "proj-001",
+      "pr_number": null,
+      "pr_url": "https://github.com/betterday-foodco/betterday-app/pull/new/feature/culinary-ops-client",
+      "status": "open",
+      "owner": "Conner",
+      "summary": "Thin HTTP client wrapper for talking to the culinary-ops NestJS backend, gated behind CULINARY_OPS_ENABLED env flag. Ships dormant — every callsite short-circuits to its GAS fallback when the flag is unset, zero runtime impact. Includes 22 stdlib unittest tests against a mocked requests layer (no new deps).",
+      "what_works": [
+        "py_compile clean (culinary_ops_client.py + tests + app.py)",
+        "22/22 unit tests pass: feature flag parsing, dormant short-circuit, GET/POST/PATCH/PUT/DELETE dispatch, JWT header injection, all failure modes (transport / 4xx / 5xx / non-json / missing flask context) fall back gracefully without raising",
+        "app.py wiring is a 14-line additive config block — no callsite changes, no behavior changes when flag is unset",
+        "Pure stdlib unittest + mock — requirements.txt unchanged"
+      ],
+      "what_needs_review": [
+        "Decide on the production CULINARY_OPS_BASE_URL (default points at culinary-ops-backend-production.up.railway.app — confirm or override)",
+        "Phase 2 (auth migration) will populate session['culinary_ops_jwt'] — sub-017 stubs the field but doesn't set it. Confirm field name before Phase 2 lands.",
+        "No PR opened yet — should this go in as a stand-alone PR or roll into the Phase 1 cutover PR after PR #7 merges?"
       ],
       "created": "2026-04-07"
     }
