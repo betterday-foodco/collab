@@ -2,7 +2,7 @@
   "meta": {
     "title": "BetterDay Platform \u2014 Project Scope",
     "subtitle": "By-category module tree for the D2C storefront, subscription engine, and admin console",
-    "last_updated": "2026-04-08T11:03:41-06:00",
+    "last_updated": "2026-04-08T11:09:23-06:00",
     "updated_by": "Claude (Conner)",
     "version": 1,
     "session": 1
@@ -3671,7 +3671,560 @@
       "priority": 2,
       "description": "Creating, viewing, tracking, and reordering one-time orders. History, detail, status updates.",
       "tech_notes": "Order and OrderItem tables. Status lifecycle: pending \u2192 confirmed \u2192 in_production \u2192 out_for_delivery \u2192 delivered. Snapshots meal data at order time.",
-      "modules": []
+      "modules": [
+        {
+          "id": "orders.schema",
+          "name": "Order Data Model",
+          "priority": 1,
+          "description": "The tables that capture an order from placement through delivery.",
+          "submodules": [
+            {
+              "id": "orders.schema.order",
+              "name": "Order table",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "orders.schema.order.model",
+                  "name": "Order Prisma model",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Immutable once placed. Fields: id, human_number (BD-YYYY-MM-NNNNN), customer_id, delivery_address_id, delivery_method, delivery_window_at, pickup_location_id, status, subtotal_cents, discount_cents, tax_cents, delivery_fee_cents, tip_cents, total_cents, applied_coupon_code, customer_notes, internal_notes, source, created_at, confirmed_at, delivered_at.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "Order"
+                    ],
+                    "notes": "All money as integer cents. human_number generated via sequence + format."
+                  },
+                  "dependencies": [
+                    "profile.schema.customer.model"
+                  ],
+                  "tags": [
+                    "schema",
+                    "foundation"
+                  ]
+                },
+                {
+                  "id": "orders.schema.order.status-enum",
+                  "name": "Order status enum",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "pending -> confirmed -> in_production -> out_for_delivery -> delivered. Plus cancelled, refunded, failed.",
+                  "tech": {
+                    "notes": "Prisma enum. Drives admin filters and customer tracking UI."
+                  },
+                  "dependencies": [
+                    "orders.schema.order.model"
+                  ],
+                  "tags": [
+                    "schema"
+                  ]
+                },
+                {
+                  "id": "orders.schema.order.human-number",
+                  "name": "Human order number generator",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "BD-2026-04-00123 format. Global sequence, resets per month.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "notes": "Postgres sequence or atomic counter in Redis."
+                  },
+                  "tags": [
+                    "util"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "orders.schema.items",
+              "name": "Order items table",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "orders.schema.items.model",
+                  "name": "OrderItem Prisma model",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Line items snapshotted at order time. Fields: id, order_id, meal_recipe_id, meal_code, meal_name (snapshot), quantity, unit_price_cents, line_total_cents.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "OrderItem"
+                    ],
+                    "notes": "meal_name and meal_code are denormalized snapshots so historical orders render correctly even if meal is deleted."
+                  },
+                  "dependencies": [
+                    "orders.schema.order.model"
+                  ],
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "orders.schema.notes",
+              "name": "Order notes table",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "orders.schema.notes.model",
+                  "name": "OrderNote model",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Internal notes from staff about an order (complaint, special instruction resolution, etc.).",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "OrderNote"
+                    ]
+                  },
+                  "dependencies": [
+                    "orders.schema.order.model"
+                  ],
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "orders.create",
+          "name": "Order Creation",
+          "priority": 1,
+          "description": "The one-time order placement flow (subscription orders use a separate path).",
+          "submodules": [
+            {
+              "id": "orders.create.endpoint",
+              "name": "POST /api/orders",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "orders.create.endpoint.validate",
+                  "name": "Cart validation",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Pre-charge validation: cart not empty, items in stock, total matches server compute, delivery zone valid, cutoff not passed.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "dependencies": [
+                    "cart.pricing.engine.compute",
+                    "delivery.cutoff.check"
+                  ],
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "orders.create.endpoint.charge",
+                  "name": "Stripe charge",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Create PaymentIntent with idempotency key tied to cart id, confirm inline.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "Stripe"
+                  },
+                  "dependencies": [
+                    "payments.stripe.charge.create-intent"
+                  ],
+                  "tags": [
+                    "api",
+                    "payment"
+                  ]
+                },
+                {
+                  "id": "orders.create.endpoint.persist",
+                  "name": "Persist Order + OrderItems + Payment",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Single Prisma transaction: create Order, items, payment row, mark cart converted.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "database": "Prisma + Postgres (Neon)"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "orders.create.endpoint.notify",
+                  "name": "Trigger post-order notifications",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Fire receipt email, SMS order confirmation (if opted in), admin notification.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "dependencies": [
+                    "notifications.email.receipt",
+                    "notifications.sms.order-confirmation"
+                  ],
+                  "tags": [
+                    "api"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "orders.create.idempotency",
+              "name": "Idempotency",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "orders.create.idempotency.key",
+                  "name": "Idempotency-Key header support",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Client-sent idempotency key prevents double orders on retry.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "notes": "Store key + response hash for 24h, replay on collision."
+                  },
+                  "tags": [
+                    "safety"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "orders.create.failure",
+              "name": "Failure handling",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "orders.create.failure.compensate",
+                  "name": "Stripe fail compensation",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "If charge succeeds but DB write fails, refund the charge automatically.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "safety"
+                  ]
+                },
+                {
+                  "id": "orders.create.failure.user-message",
+                  "name": "User-friendly error mapping",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Map Stripe error codes to readable messages (insufficient funds, card declined, 3DS failed, etc.).",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "orders.view",
+          "name": "Order Viewing",
+          "priority": 2,
+          "description": "Customer and admin views of existing orders.",
+          "submodules": [
+            {
+              "id": "orders.view.api",
+              "name": "Read endpoints",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "orders.view.api.customer-list",
+                  "name": "GET /api/account/orders",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Customer's own order history, paginated.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "endpoints": [
+                      "GET /api/account/orders"
+                    ]
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "orders.view.api.customer-detail",
+                  "name": "GET /api/account/orders/:id",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Full detail including items, status timeline, payment info (redacted).",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "orders.view.ui",
+              "name": "Customer order UI",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "orders.view.ui.history",
+                  "name": "Order history page",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Chronological list of past orders with status pills.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "orders.view.ui.detail",
+                  "name": "Order detail page",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Full order breakdown: items with photos, totals, delivery address, status timeline, reorder CTA.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "orders.view.ui.receipt",
+                  "name": "Printable receipt view",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Print-friendly page for expense reports.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "orders.reorder",
+          "name": "Reorder",
+          "priority": 2,
+          "description": "One-click rebuild of a previous order's cart.",
+          "submodules": [
+            {
+              "id": "orders.reorder.flow",
+              "name": "Reorder flow",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "orders.reorder.flow.endpoint",
+                  "name": "POST /api/account/orders/:id/reorder",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Creates a new cart with the same items, adapted if any are no longer available.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "orders.reorder.flow.unavailable",
+                  "name": "Unavailable item handling",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "If a meal is no longer on the menu, skip with a warning toast.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "orders.reorder.flow.ui",
+                  "name": "Reorder button on order detail",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "One-click 'Reorder these meals' CTA.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "orders.tracking",
+          "name": "Order Tracking",
+          "priority": 3,
+          "description": "Live-ish status updates between order placement and delivery.",
+          "submodules": [
+            {
+              "id": "orders.tracking.status",
+              "name": "Status updates",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "orders.tracking.status.transitions",
+                  "name": "Status transition endpoints",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Admin + automated transitions: confirmed -> in_production -> out_for_delivery -> delivered.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api",
+                    "admin"
+                  ]
+                },
+                {
+                  "id": "orders.tracking.status.customer-view",
+                  "name": "Customer-visible timeline",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Progress bar / timeline showing where the order is in the flow.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "orders.tracking.status.notifications",
+                  "name": "Status change notifications",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Email + SMS trigger on status transitions customer opted in to.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "dependencies": [
+                    "notifications.email.transactional",
+                    "notifications.sms.delivery-updates"
+                  ],
+                  "tags": [
+                    "api"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "orders.admin",
+          "name": "Admin Order Operations",
+          "priority": 3,
+          "description": "Staff-facing order management (lives in Admin Console category but wired here).",
+          "submodules": [
+            {
+              "id": "orders.admin.list",
+              "name": "Admin order list",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "orders.admin.list.filters",
+                  "name": "Admin list with filters",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Status, delivery window, customer search, source filter.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "admin"
+                  ]
+                },
+                {
+                  "id": "orders.admin.list.bulk-status",
+                  "name": "Bulk status change",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Select many orders and batch-transition status.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "admin"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "orders.admin.edit",
+              "name": "Admin order edit",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "orders.admin.edit.items",
+                  "name": "Add/remove items post-placement",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Admin can edit an order before cutoff (e.g. customer called to add something).",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "admin"
+                  ]
+                },
+                {
+                  "id": "orders.admin.edit.notes",
+                  "name": "Internal note add",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Timestamped notes visible only to staff.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "admin"
+                  ]
+                },
+                {
+                  "id": "orders.admin.edit.refund",
+                  "name": "Refund from order detail",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Button to issue full or partial refund.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "dependencies": [
+                    "payments.refunds.full.api"
+                  ],
+                  "tags": [
+                    "ui",
+                    "admin"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "subscriptions",
@@ -3679,7 +4232,617 @@
       "priority": 2,
       "description": "Weekly subscription engine. Friday rollover creates next week's WeeklyCartRecord. Thursday cutoff locks and charges. Auto dish-swap on menu changes.",
       "tech_notes": "Designed in project_betterday_skip_pause_model.md. Unified cart report query. Single delivery_status enum. No placeholder leakage (fixes the Sprwt problem).",
-      "modules": []
+      "modules": [
+        {
+          "id": "subscriptions.schema",
+          "name": "Subscription Data Model",
+          "priority": 1,
+          "description": "The unified skip/pause/cancel model already designed in project_betterday_skip_pause_model.md.",
+          "submodules": [
+            {
+              "id": "subscriptions.schema.subscription",
+              "name": "Subscription table",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "subscriptions.schema.subscription.model",
+                  "name": "Subscription Prisma model",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Fields: id, customer_id, status (active|paused_indefinite|cancelled), stripe_subscription_id, billing_anchor_day, created_at, paused_at, cancelled_at, reactivated_at.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "Subscription"
+                    ]
+                  },
+                  "dependencies": [
+                    "profile.schema.customer.model"
+                  ],
+                  "tags": [
+                    "schema",
+                    "foundation"
+                  ]
+                },
+                {
+                  "id": "subscriptions.schema.subscription.status-enum",
+                  "name": "Subscription status enum",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "active | paused_indefinite | cancelled. Drives cart report query.",
+                  "tech": {
+                    "notes": "Only three values. Week-level skip is on WeeklyCartRecord."
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "subscriptions.schema.weekly-cart",
+              "name": "Weekly cart records",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "subscriptions.schema.weekly-cart.record",
+                  "name": "WeeklyCartRecord model",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Fields: id, subscription_id, delivery_week, cart_contents (jsonb or via items table), delivery_status (confirmed|scheduled|skipped|paused|cancelled), processed_at, last_reviewed_at.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "WeeklyCartRecord"
+                    ]
+                  },
+                  "tags": [
+                    "schema",
+                    "foundation"
+                  ]
+                },
+                {
+                  "id": "subscriptions.schema.weekly-cart.items",
+                  "name": "WeeklyCartItem model",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Line items for this week's cart. Same shape as CartItem but tied to WeeklyCartRecord.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "WeeklyCartItem"
+                    ]
+                  },
+                  "dependencies": [
+                    "subscriptions.schema.weekly-cart.record"
+                  ],
+                  "tags": [
+                    "schema"
+                  ]
+                },
+                {
+                  "id": "subscriptions.schema.weekly-cart.delivery-status",
+                  "name": "delivery_status enum",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "confirmed | scheduled | skipped | paused | cancelled. The cart report query filters on scheduled+confirmed.",
+                  "tech": {
+                    "notes": "Single source of truth for production - no placeholder leakage."
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "subscriptions.schema.events",
+              "name": "Subscription event log",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "subscriptions.schema.events.model",
+                  "name": "SubscriptionEvent model",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Audit log: created, paused, resumed, cancelled, week_skipped, week_unskipped, meal_swapped.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "SubscriptionEvent"
+                    ]
+                  },
+                  "dependencies": [
+                    "subscriptions.schema.subscription.model"
+                  ],
+                  "tags": [
+                    "schema",
+                    "audit"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "subscriptions.engine",
+          "name": "Subscription Engine",
+          "priority": 1,
+          "description": "The cron jobs and logic that make a subscription tick week over week.",
+          "submodules": [
+            {
+              "id": "subscriptions.engine.rollover",
+              "name": "Friday rollover cron",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "subscriptions.engine.rollover.cron",
+                  "name": "Friday morning rollover job",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "For every non-cancelled subscription, create next week's WeeklyCartRecord. Copy previous week's items, run auto-swap, set status=scheduled (or paused if account is paused).",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "crons": [
+                      "0 6 * * 5"
+                    ]
+                  },
+                  "dependencies": [
+                    "subscriptions.schema.weekly-cart.record"
+                  ],
+                  "tags": [
+                    "cron",
+                    "foundation"
+                  ]
+                },
+                {
+                  "id": "subscriptions.engine.rollover.idempotent",
+                  "name": "Idempotent rollover",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Re-running should be a no-op; check for existing record for delivery_week before inserting.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "safety"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "subscriptions.engine.auto-swap",
+              "name": "Auto dish-swap",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "subscriptions.engine.auto-swap.logic",
+                  "name": "Auto-swap on rollover",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "If a meal from last week isn't on next week's menu, pick a replacement in the same category matching dietary preferences.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "notes": "Uses CustomerPreference to rank candidates."
+                  },
+                  "dependencies": [
+                    "profile.schema.preferences.model"
+                  ],
+                  "tags": [
+                    "engine"
+                  ]
+                },
+                {
+                  "id": "subscriptions.engine.auto-swap.fallback",
+                  "name": "Swap fallback",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "If no same-category match exists, pick the closest match and flag the record for customer review.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "engine"
+                  ]
+                },
+                {
+                  "id": "subscriptions.engine.auto-swap.notify",
+                  "name": "Swap notification",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Optional email: 'We swapped X for Y this week - tap to review'.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "Resend"
+                  },
+                  "dependencies": [
+                    "notifications.email.transactional"
+                  ],
+                  "tags": [
+                    "notification"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "subscriptions.engine.cutoff",
+              "name": "Thursday cutoff cron",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "subscriptions.engine.cutoff.cron",
+                  "name": "Thursday cutoff job",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Every Thursday 23:59 (or configured time), flip every 'scheduled' WeeklyCartRecord to 'confirmed', charge the card, generate the production order.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "crons": [
+                      "59 23 * * 4"
+                    ]
+                  },
+                  "dependencies": [
+                    "subscriptions.engine.rollover.cron"
+                  ],
+                  "tags": [
+                    "cron",
+                    "foundation"
+                  ]
+                },
+                {
+                  "id": "subscriptions.engine.cutoff.charge",
+                  "name": "Charge at cutoff",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Create Stripe charge via subscription + update invoice. On success mark confirmed. On failure mark payment_failed and notify.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "Stripe"
+                  },
+                  "dependencies": [
+                    "payments.stripe.subscriptions.create"
+                  ],
+                  "tags": [
+                    "payment"
+                  ]
+                },
+                {
+                  "id": "subscriptions.engine.cutoff.production-order",
+                  "name": "Create production Order",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Cutoff creates an immutable Order record for production (one per weekly record that flipped to confirmed).",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "dependencies": [
+                    "orders.schema.order.model"
+                  ],
+                  "tags": [
+                    "integration"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "subscriptions.engine.cart-report",
+              "name": "Production cart report",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "subscriptions.engine.cart-report.query",
+                  "name": "Cart report SQL",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "SELECT meal_id, SUM(qty) FROM weekly_cart_items JOIN weekly_cart_records WHERE delivery_week=X AND delivery_status IN ('scheduled','confirmed') GROUP BY meal_id.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "notes": "The production kitchen reads this to know what to make."
+                  },
+                  "tags": [
+                    "query",
+                    "integration"
+                  ]
+                },
+                {
+                  "id": "subscriptions.engine.cart-report.endpoint",
+                  "name": "GET /api/admin/cart-report",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Admin-only endpoint returning the cart report for a given delivery week.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api",
+                    "admin"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "subscriptions.signup",
+          "name": "Subscription Signup",
+          "priority": 2,
+          "description": "The flow where a customer converts from one-time or prospect into a subscriber.",
+          "submodules": [
+            {
+              "id": "subscriptions.signup.flow",
+              "name": "Signup flow",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "subscriptions.signup.flow.entry",
+                  "name": "Subscribe CTA on checkout",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Toggle on the cart sidebar: 'Subscribe and save %' converts this order into a recurring subscription.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "subscriptions.signup.flow.create",
+                  "name": "POST /api/subscriptions",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Creates Subscription + first WeeklyCartRecord + Stripe subscription.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "subscriptions.signup.flow.confirm",
+                  "name": "Confirmation UI",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "'Your subscription is active - first delivery [date]' landing page.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "subscriptions.signup.onboarding",
+              "name": "Subscription onboarding",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "subscriptions.signup.onboarding.dietary",
+                  "name": "Dietary preferences wizard",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "First-time subscription asks for dietary preferences to power auto-swap.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "dependencies": [
+                    "profile.api.write.preferences"
+                  ],
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "subscriptions.signup.onboarding.delivery-pref",
+                  "name": "Delivery day preference",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Pick preferred delivery day (Sun/Tue) if multiple are offered.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "subscriptions.hub",
+          "name": "Subscriber Hub",
+          "priority": 1,
+          "description": "The account-page surface where a subscribed customer manages their plan.",
+          "submodules": [
+            {
+              "id": "subscriptions.hub.dashboard",
+              "name": "Main dashboard",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "subscriptions.hub.dashboard.next-delivery",
+                  "name": "Next delivery card",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Big hero showing upcoming delivery date, cutoff countdown, current cart summary.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "Port from subscriber-hub.html."
+                  },
+                  "tags": [
+                    "ui",
+                    "ported"
+                  ]
+                },
+                {
+                  "id": "subscriptions.hub.dashboard.cart-summary",
+                  "name": "Cart summary by category",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Chip cards grouping items by category with thumbnails.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "ported"
+                  ]
+                },
+                {
+                  "id": "subscriptions.hub.dashboard.savings-progress",
+                  "name": "Savings progress bar",
+                  "status": "designed",
+                  "priority": 2,
+                  "description": "Shows how close to next savings tier.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "ported"
+                  ]
+                },
+                {
+                  "id": "subscriptions.hub.dashboard.edit-cart-cta",
+                  "name": "Edit Cart footer bar",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Sticky footer with 'Edit Cart' button that opens the full menu overlay.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "ported"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "subscriptions.hub.edit-cart",
+              "name": "Edit cart overlay",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "subscriptions.hub.edit-cart.overlay",
+                  "name": "Full-screen overlay",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Menu grid + cart sidebar + swap panel. Modal version of main menu page.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "dependencies": [
+                    "menu.browse.grid.cards",
+                    "cart.ui.sidebar.items"
+                  ],
+                  "tags": [
+                    "ui",
+                    "ported"
+                  ]
+                },
+                {
+                  "id": "subscriptions.hub.edit-cart.confirm",
+                  "name": "Confirm weekly changes",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Save button sends cart to server as the next week's WeeklyCartRecord.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "framework_api": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "subscriptions.hub.edit-cart.cutoff-lock",
+                  "name": "Cutoff-aware locking",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "After cutoff, the overlay becomes read-only and shows next editable week.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "subscriptions.hub.rewards-section",
+              "name": "Rewards section",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "subscriptions.hub.rewards-section.card",
+                  "name": "Points + offers + referral card",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Shows rewards balance, active coupons, referral link.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "dependencies": [
+                    "rewards.balance",
+                    "referrals.link"
+                  ],
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "subscriptions.hub.suggestions",
+              "name": "Complete your week suggestions",
+              "priority": 4,
+              "components": [
+                {
+                  "id": "subscriptions.hub.suggestions.strip",
+                  "name": "Suggested add-ons strip",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Recommended meals to round out the week, based on what's in cart.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "recommendations"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "subscriptions.hub.how-it-works",
+              "name": "How it works expandable",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "subscriptions.hub.how-it-works.explainer",
+                  "name": "Carry-over model explainer",
+                  "status": "designed",
+                  "priority": 3,
+                  "description": "Expandable section explaining the weekly rollover model.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "ported"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "plan-mgmt",
@@ -3687,7 +4850,403 @@
       "priority": 2,
       "description": "Skip, pause, cancel, and related lifecycle actions on an active subscription. Retention gauntlet on cancel.",
       "tech_notes": "Unified skip/pause/cancel model already designed. Skip is universal week-level action; pause = indefinite only; cancel = terminal. Demo exists in subscriber-hub.html.",
-      "modules": []
+      "modules": [
+        {
+          "id": "plan-mgmt.skip",
+          "name": "Skip Weeks",
+          "priority": 1,
+          "description": "Skip is the universal week-level action. Default 1-week skip plus presets.",
+          "submodules": [
+            {
+              "id": "plan-mgmt.skip.single",
+              "name": "Skip a single week",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "plan-mgmt.skip.single.endpoint",
+                  "name": "POST /api/subscriptions/skip",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Sets delivery_status='skipped' on the targeted WeeklyCartRecord.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "dependencies": [
+                    "subscriptions.schema.weekly-cart.delivery-status"
+                  ],
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "plan-mgmt.skip.single.ui",
+                  "name": "Calendar card skip button",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Red 'Skip' button on each scheduled week card in the plan sidebar.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "ported"
+                  ]
+                },
+                {
+                  "id": "plan-mgmt.skip.single.unskip",
+                  "name": "Unskip button",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Blue 'Unskip' button on skipped cards, flips status back to 'scheduled'.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "ported"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "plan-mgmt.skip.presets",
+              "name": "Skip presets",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "plan-mgmt.skip.presets.ui",
+                  "name": "Preset buttons (1w / 2w / 1m / 2m)",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Batch-skip the next N scheduled weeks.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "plan-mgmt.skip.presets.endpoint",
+                  "name": "POST /api/subscriptions/skip-batch",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Accepts count or duration, skips that many future scheduled weeks.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "plan-mgmt.pause",
+          "name": "Pause Plan",
+          "priority": 2,
+          "description": "Indefinite pause only - finite pauses are actually batch skips.",
+          "submodules": [
+            {
+              "id": "plan-mgmt.pause.indefinite",
+              "name": "Indefinite pause",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "plan-mgmt.pause.indefinite.endpoint",
+                  "name": "POST /api/subscriptions/pause",
+                  "status": "designed",
+                  "priority": 2,
+                  "description": "Sets subscription_status='paused_indefinite'. All scheduled weeks flip to 'paused'. Future rollovers create as 'paused'.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "dependencies": [
+                    "subscriptions.schema.subscription.model"
+                  ],
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "plan-mgmt.pause.indefinite.resume",
+                  "name": "POST /api/subscriptions/resume",
+                  "status": "designed",
+                  "priority": 2,
+                  "description": "Flips paused_indefinite -> active. All paused weeks become scheduled again.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "plan-mgmt.pause.indefinite.reengagement",
+                  "name": "Re-engagement tag",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Mark paused-indefinite customers for future win-back campaigns.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "marketing"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "plan-mgmt.pause.modal",
+              "name": "Take a break modal",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "plan-mgmt.pause.modal.layout",
+                  "name": "Half-width centered modal",
+                  "status": "designed",
+                  "priority": 2,
+                  "description": "Left side: skip presets. Right side: pause indefinitely. Bottom: 'Cancel my plan instead'.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "ported"
+                  ]
+                },
+                {
+                  "id": "plan-mgmt.pause.modal.states",
+                  "name": "Modal state transitions",
+                  "status": "designed",
+                  "priority": 2,
+                  "description": "Default -> cancel-view -> cancel-final-view via CSS class swap.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "plan-mgmt.cancel",
+          "name": "Cancellation",
+          "priority": 1,
+          "description": "Terminal state. Retention gauntlet before confirmation.",
+          "submodules": [
+            {
+              "id": "plan-mgmt.cancel.retention",
+              "name": "Retention gauntlet",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "plan-mgmt.cancel.retention.reasons",
+                  "name": "Reason picker",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Why are you leaving? Customizable reason list with freeform 'Other'.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "retention"
+                  ]
+                },
+                {
+                  "id": "plan-mgmt.cancel.retention.offer",
+                  "name": "Smart retention offer",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Based on reason, offer a targeted coupon (too expensive -> discount; not enough variety -> new meal preview).",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "dependencies": [
+                    "coupons.engine.create"
+                  ],
+                  "tags": [
+                    "marketing",
+                    "retention"
+                  ]
+                },
+                {
+                  "id": "plan-mgmt.cancel.retention.pause-instead",
+                  "name": "Pause-instead shortcut",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Offer indefinite pause as an alternative to cancel.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "retention"
+                  ]
+                },
+                {
+                  "id": "plan-mgmt.cancel.retention.final",
+                  "name": "Final confirmation screen",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Red icon, 'are you sure?' one-more-step before actual cancel.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "plan-mgmt.cancel.execute",
+              "name": "Execute cancel",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "plan-mgmt.cancel.execute.endpoint",
+                  "name": "POST /api/subscriptions/cancel",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Sets subscription_status='cancelled', flips all future weeks to cancelled, stops rollovers, cancels Stripe subscription.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "Stripe"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "plan-mgmt.cancel.execute.survey",
+                  "name": "Post-cancel survey",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Email follow-up asking for detailed feedback.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "Resend"
+                  },
+                  "tags": [
+                    "marketing"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "plan-mgmt.reactivate",
+          "name": "Reactivation",
+          "priority": 2,
+          "description": "Bring a cancelled customer back.",
+          "submodules": [
+            {
+              "id": "plan-mgmt.reactivate.flow",
+              "name": "Reactivate flow",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "plan-mgmt.reactivate.flow.endpoint",
+                  "name": "POST /api/subscriptions/reactivate",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Sets status=active, creates fresh weekly records going forward.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "plan-mgmt.reactivate.flow.welcome-back",
+                  "name": "Welcome-back UI",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Celebration screen, reload preferences, kickstart weekly cart.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "plan-mgmt.calendar",
+          "name": "Calendar & Status UI",
+          "priority": 1,
+          "description": "The calendar strip showing upcoming weeks and their statuses.",
+          "submodules": [
+            {
+              "id": "plan-mgmt.calendar.strip",
+              "name": "Calendar strip",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "plan-mgmt.calendar.strip.render",
+                  "name": "Upcoming weeks strip",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Horizontal list of next 8-12 weeks with date, status pill, action button per status.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "ported"
+                  ]
+                },
+                {
+                  "id": "plan-mgmt.calendar.strip.status-rules",
+                  "name": "Status-driven card rendering",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Locked/scheduled/skipped/paused/cancelled states each render differently per project_betterday_skip_pause_model.md.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "plan-mgmt.calendar.plan-status",
+              "name": "Plan status pill",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "plan-mgmt.calendar.plan-status.logic",
+                  "name": "Status pill computation",
+                  "status": "designed",
+                  "priority": 2,
+                  "description": "Active / Active - Next [date] / Paused / Cancelled.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "Uses getNextDeliveryDate() helper."
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "delivery",
@@ -3695,7 +5254,369 @@
       "priority": 2,
       "description": "Delivery zones, pickup locations, scheduling, delivery windows, holidays, route hints for fulfillment.",
       "tech_notes": "DeliveryZone, PickupLocation, Holiday, CutoffRule tables. Calgary zones only at launch.",
-      "modules": []
+      "modules": [
+        {
+          "id": "delivery.zones",
+          "name": "Delivery Zones",
+          "priority": 1,
+          "description": "Geographic areas we deliver to, with pricing and cutoff rules.",
+          "submodules": [
+            {
+              "id": "delivery.zones.schema",
+              "name": "Zone schema",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "delivery.zones.schema.model",
+                  "name": "DeliveryZone model",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Fields: id, name, postal_code_prefixes[], polygon_geojson?, base_fee_cents, min_order_cents, enabled.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "DeliveryZone"
+                    ]
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "delivery.zones.validate",
+              "name": "Zone validation",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "delivery.zones.validate.endpoint",
+                  "name": "POST /api/delivery/zones/validate",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Given a postal code, returns which zone (if any) it falls into + fee + rules.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "endpoints": [
+                      "POST /api/delivery/zones/validate"
+                    ]
+                  },
+                  "dependencies": [
+                    "delivery.zones.schema.model"
+                  ],
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "delivery.zones.validate.fallback",
+                  "name": "Pickup-only fallback",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Out-of-zone postal codes offered pickup instead of a hard reject.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "delivery.zones.admin",
+              "name": "Zone admin UI",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "delivery.zones.admin.list",
+                  "name": "Zones list",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Admin list with enable/disable toggles.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "admin"
+                  ]
+                },
+                {
+                  "id": "delivery.zones.admin.edit",
+                  "name": "Zone edit form",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Prefix list editor, polygon editor (phase 2), fee/min order fields.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "admin"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "delivery.pickup",
+          "name": "Pickup Locations",
+          "priority": 2,
+          "description": "Customer pickup points (the kitchen or partner locations).",
+          "submodules": [
+            {
+              "id": "delivery.pickup.schema",
+              "name": "Pickup schema",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "delivery.pickup.schema.model",
+                  "name": "PickupLocation model",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Fields: id, name, address, hours (json), instructions, enabled.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "PickupLocation"
+                    ]
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "delivery.pickup.ui",
+              "name": "Pickup UI",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "delivery.pickup.ui.picker",
+                  "name": "Pickup location picker",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "On checkout, list enabled pickup points with hours + map.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "delivery.pickup.ui.instructions",
+                  "name": "Pickup instructions display",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Post-order, clearly show where/when/how to pick up.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "delivery.cutoff",
+          "name": "Cutoff Rules",
+          "priority": 1,
+          "description": "Time windows that determine when ordering for a delivery date closes.",
+          "submodules": [
+            {
+              "id": "delivery.cutoff.schema",
+              "name": "Cutoff schema",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "delivery.cutoff.schema.model",
+                  "name": "CutoffRule model",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Fields: id, name, delivery_method (delivery|pickup|both), delivery_day_of_week, cutoff_day_of_week, cutoff_time, enabled, priority.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "CutoffRule"
+                    ]
+                  },
+                  "tags": [
+                    "schema",
+                    "foundation"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "delivery.cutoff.check",
+              "name": "Cutoff check logic",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "delivery.cutoff.check.service",
+                  "name": "Is-cutoff-passed service",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Pure function: given a cart state, returns whether the cutoff has passed for its delivery date.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "notes": "Pure and testable."
+                  },
+                  "tags": [
+                    "logic",
+                    "foundation"
+                  ]
+                },
+                {
+                  "id": "delivery.cutoff.check.countdown",
+                  "name": "Countdown timer component",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "'Order by Thursday 11:59 PM - 4 hours 12 minutes left' display.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "delivery.holidays",
+          "name": "Holidays",
+          "priority": 2,
+          "description": "Blackout dates when delivery doesn't run.",
+          "submodules": [
+            {
+              "id": "delivery.holidays.schema",
+              "name": "Holiday schema",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "delivery.holidays.schema.model",
+                  "name": "Holiday model",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Fields: id, name, date, affects_delivery, affects_pickup, alternative_delivery_date.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "Holiday"
+                    ]
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "delivery.holidays.logic",
+              "name": "Holiday logic",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "delivery.holidays.logic.excluder",
+                  "name": "Holiday exclusion in calendar",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Remove holiday dates from eligible delivery dates; shift forward to alternative if set.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "logic"
+                  ]
+                },
+                {
+                  "id": "delivery.holidays.logic.banner",
+                  "name": "Holiday notice banner",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Storefront banner when a holiday is coming up affecting the schedule.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "delivery.routing",
+          "name": "Route Building",
+          "priority": 4,
+          "description": "Optimized delivery routes for the driver. Phase 2.",
+          "submodules": [
+            {
+              "id": "delivery.routing.build",
+              "name": "Route build",
+              "priority": 4,
+              "components": [
+                {
+                  "id": "delivery.routing.build.vendor",
+                  "name": "Vendor decision",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Onfleet vs Routific vs self-built. Input is a list of addresses; output is an ordered route.",
+                  "tech": {
+                    "vendor": "Onfleet or Routific"
+                  },
+                  "tags": [
+                    "decision"
+                  ]
+                },
+                {
+                  "id": "delivery.routing.build.integration",
+                  "name": "Integration module",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Push confirmed orders to the chosen routing vendor at cutoff.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "integration"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "delivery.routing.driver",
+              "name": "Driver app / PWA",
+              "priority": 5,
+              "components": [
+                {
+                  "id": "delivery.routing.driver.pwa",
+                  "name": "Driver PWA",
+                  "status": "to-build",
+                  "priority": 5,
+                  "description": "Mobile-first page showing today's route, stop details, proof-of-delivery capture.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "future"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "coupons",
@@ -3735,7 +5656,553 @@
       "priority": 2,
       "description": "Transactional email (receipts, password reset, delivery updates), SMS delivery alerts, push notifications, in-app toasts.",
       "tech_notes": "Resend for email. Twilio (non-Verify) for SMS delivery updates. FCM for web push (later).",
-      "modules": []
+      "modules": [
+        {
+          "id": "notifications.email",
+          "name": "Transactional Email",
+          "priority": 1,
+          "description": "All customer email: receipts, order confirmations, password resets, delivery updates.",
+          "submodules": [
+            {
+              "id": "notifications.email.provider",
+              "name": "Provider setup",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "notifications.email.provider.resend",
+                  "name": "Resend setup + domain verification",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Verify eatbetterday.ca domain (SPF, DKIM, DMARC). Generate API key. Test sending.",
+                  "tech": {
+                    "vendor": "Resend"
+                  },
+                  "tags": [
+                    "vendor-setup",
+                    "infra"
+                  ]
+                },
+                {
+                  "id": "notifications.email.provider.from-addresses",
+                  "name": "From addresses",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "hello@eatbetterday.ca, orders@, support@, noreply@ each configured and tested.",
+                  "tech": {
+                    "vendor": "Resend"
+                  },
+                  "tags": [
+                    "vendor-setup"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "notifications.email.templates",
+              "name": "Email templates",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "notifications.email.templates.receipt",
+                  "name": "Order receipt template",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "React Email template with line items, totals, delivery info, BetterDay branding.",
+                  "tech": {
+                    "vendor": "React Email + Resend"
+                  },
+                  "tags": [
+                    "template"
+                  ]
+                },
+                {
+                  "id": "notifications.email.templates.confirmation",
+                  "name": "Order confirmation template",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Fired on successful place-order. Similar to receipt with CTAs to track.",
+                  "tech": {
+                    "vendor": "React Email"
+                  },
+                  "tags": [
+                    "template"
+                  ]
+                },
+                {
+                  "id": "notifications.email.templates.welcome",
+                  "name": "Welcome email",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "New-account signup email with tour.",
+                  "tech": {
+                    "vendor": "React Email"
+                  },
+                  "tags": [
+                    "template"
+                  ]
+                },
+                {
+                  "id": "notifications.email.templates.password-reset",
+                  "name": "Password reset email",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "One-click reset link with 1h expiry.",
+                  "tech": {
+                    "vendor": "React Email"
+                  },
+                  "dependencies": [
+                    "auth.recovery.forgot.request"
+                  ],
+                  "tags": [
+                    "template",
+                    "security"
+                  ]
+                },
+                {
+                  "id": "notifications.email.templates.legacy-migration",
+                  "name": "HMP legacy migration email",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "'Set your new BetterDay password' migration prompt for existing HMP customers.",
+                  "tech": {
+                    "vendor": "React Email"
+                  },
+                  "dependencies": [
+                    "auth.email.migration.reset"
+                  ],
+                  "tags": [
+                    "template",
+                    "migration"
+                  ]
+                },
+                {
+                  "id": "notifications.email.templates.delivery-tomorrow",
+                  "name": "Delivery tomorrow reminder",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Day-before reminder with delivery window.",
+                  "tech": {
+                    "vendor": "React Email"
+                  },
+                  "tags": [
+                    "template"
+                  ]
+                },
+                {
+                  "id": "notifications.email.templates.delivery-arriving",
+                  "name": "Delivery arriving today",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Morning-of email with driver ETA.",
+                  "tech": {
+                    "vendor": "React Email"
+                  },
+                  "tags": [
+                    "template"
+                  ]
+                },
+                {
+                  "id": "notifications.email.templates.payment-failed",
+                  "name": "Payment failed template",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Used in dunning flow. CTA to update card.",
+                  "tech": {
+                    "vendor": "React Email"
+                  },
+                  "dependencies": [
+                    "payments.failures.comms.email"
+                  ],
+                  "tags": [
+                    "template"
+                  ]
+                },
+                {
+                  "id": "notifications.email.templates.subscription-upcoming",
+                  "name": "Subscription week opening",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "'Your next week is ready to customize' mid-week nudge.",
+                  "tech": {
+                    "vendor": "React Email"
+                  },
+                  "tags": [
+                    "template"
+                  ]
+                },
+                {
+                  "id": "notifications.email.templates.winback",
+                  "name": "Win-back template",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Post-cancel follow-up at 30 days with discount offer.",
+                  "tech": {
+                    "vendor": "React Email"
+                  },
+                  "tags": [
+                    "template",
+                    "marketing"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "notifications.email.receipt",
+              "name": "Receipt sending",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "notifications.email.receipt.send",
+                  "name": "Send order receipt",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Service called from order create flow.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "Resend"
+                  },
+                  "dependencies": [
+                    "notifications.email.provider.resend",
+                    "notifications.email.templates.receipt"
+                  ],
+                  "tags": [
+                    "api"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "notifications.email.transactional",
+              "name": "Generic transactional sender",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "notifications.email.transactional.service",
+                  "name": "EmailService",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Injectable NestJS service that every feature calls to send an email by template id.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "service",
+                    "foundation"
+                  ]
+                },
+                {
+                  "id": "notifications.email.transactional.logs",
+                  "name": "EmailLog model",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Track every send: template, recipient, status, error, sent_at, message_id.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "EmailLog"
+                    ]
+                  },
+                  "tags": [
+                    "schema",
+                    "observability"
+                  ]
+                },
+                {
+                  "id": "notifications.email.transactional.bounces",
+                  "name": "Bounce/complaint handling",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Resend webhook for bounces; mark email as invalid to avoid future sends.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api",
+                    "webhook"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "notifications.sms",
+          "name": "SMS",
+          "priority": 2,
+          "description": "Delivery updates and critical alerts via SMS.",
+          "submodules": [
+            {
+              "id": "notifications.sms.provider",
+              "name": "Provider",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "notifications.sms.provider.twilio",
+                  "name": "Twilio messaging setup",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Separate Twilio service (not Verify) for outbound delivery SMS. Buy a Canadian number.",
+                  "tech": {
+                    "vendor": "Twilio"
+                  },
+                  "tags": [
+                    "vendor-setup"
+                  ]
+                },
+                {
+                  "id": "notifications.sms.provider.a2p",
+                  "name": "A2P 10DLC registration",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "If we go beyond personal-style messaging, register for 10DLC. US-relevant; Canada may not require.",
+                  "tech": {
+                    "vendor": "Twilio",
+                    "notes": "Research requirement in Canada."
+                  },
+                  "tags": [
+                    "vendor-setup"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "notifications.sms.order-confirmation",
+              "name": "Order confirmation SMS",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "notifications.sms.order-confirmation.send",
+                  "name": "Send order-confirmation SMS",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Short message on successful order with tracking link.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "Twilio"
+                  },
+                  "tags": [
+                    "sms"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "notifications.sms.delivery-updates",
+              "name": "Delivery update SMS",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "notifications.sms.delivery-updates.out-for-delivery",
+                  "name": "Out for delivery SMS",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "'Your BetterDay delivery is on the way - ETA 2-3 PM'.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "Twilio"
+                  },
+                  "tags": [
+                    "sms"
+                  ]
+                },
+                {
+                  "id": "notifications.sms.delivery-updates.delivered",
+                  "name": "Delivered SMS",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "'Your bag has arrived - enjoy!'",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "Twilio"
+                  },
+                  "tags": [
+                    "sms"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "notifications.sms.cutoff-reminder",
+              "name": "Cutoff reminder SMS",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "notifications.sms.cutoff-reminder.send",
+                  "name": "'Order by X' cutoff reminder",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Sent to opted-in subscribers a few hours before cutoff.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "Twilio"
+                  },
+                  "tags": [
+                    "sms",
+                    "marketing"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "notifications.push",
+          "name": "Push Notifications",
+          "priority": 4,
+          "description": "Web push notifications for active browsing users. Low priority for launch.",
+          "submodules": [
+            {
+              "id": "notifications.push.web-push",
+              "name": "Web push",
+              "priority": 4,
+              "components": [
+                {
+                  "id": "notifications.push.web-push.subscription",
+                  "name": "Push subscription endpoint",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "POST /api/account/push-subscribe stores a push subscription object.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api",
+                    "future"
+                  ]
+                },
+                {
+                  "id": "notifications.push.web-push.send",
+                  "name": "Push send service",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "web-push npm package or Firebase Cloud Messaging.",
+                  "tech": {
+                    "vendor": "FCM"
+                  },
+                  "tags": [
+                    "service",
+                    "future"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "notifications.in-app",
+          "name": "In-App Notifications",
+          "priority": 3,
+          "description": "Toasts, banners, badges in the storefront UI.",
+          "submodules": [
+            {
+              "id": "notifications.in-app.toasts",
+              "name": "Toast system",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "notifications.in-app.toasts.component",
+                  "name": "Toast component",
+                  "status": "designed",
+                  "priority": 3,
+                  "description": "Small navy pill badges matching the subscriber hub pattern.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "sonner or custom."
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "notifications.in-app.inbox",
+              "name": "Notification inbox",
+              "priority": 4,
+              "components": [
+                {
+                  "id": "notifications.in-app.inbox.list",
+                  "name": "Inbox list in account hub",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Chronological list of all notifications the customer has received.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "notifications.preferences",
+          "name": "Notification Preferences",
+          "priority": 2,
+          "description": "Customer controls over which notifications they get via which channel.",
+          "submodules": [
+            {
+              "id": "notifications.preferences.model",
+              "name": "Preferences schema",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "notifications.preferences.model.table",
+                  "name": "NotificationPreference model",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Per-customer, per-category (transactional, marketing, delivery, subscription) channel toggles.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "NotificationPreference"
+                    ]
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "notifications.preferences.enforcement",
+              "name": "Preference enforcement",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "notifications.preferences.enforcement.gate",
+                  "name": "Pre-send gate",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Every notification send checks prefs and logs a skipped send if opted out.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "service"
+                  ]
+                },
+                {
+                  "id": "notifications.preferences.enforcement.unsubscribe-links",
+                  "name": "Email unsubscribe links",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "One-click unsubscribe per category, required for CASL compliance.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "legal",
+                    "email"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "admin",
