@@ -2,7 +2,7 @@
   "meta": {
     "title": "BetterDay Platform \u2014 Project Scope",
     "subtitle": "By-category module tree for the D2C storefront, subscription engine, and admin console",
-    "last_updated": "2026-04-08T11:15:36-06:00",
+    "last_updated": "2026-04-08T13:11:25-06:00",
     "updated_by": "Claude (Conner)",
     "version": 1,
     "session": 1
@@ -9731,6 +9731,409 @@
                     "dr",
                     "process"
                   ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "flask-migration",
+      "name": "Flask \u2192 Culinary-Ops Migration",
+      "priority": 2,
+      "description": "Migrate the corporate manager Flask app (betterday-foodco/betterday-app) backend from Google Apps Script to Gurleen's culinary-ops NestJS API. Active project owned by Conner + Gurleen; phased rollout. This is distinct from the D2C storefront build (betterday-webapp) and from the future 'Corporate B2B' 2.0 integration.",
+      "tech_notes": "Two repos involved: betterday-foodco/culinary-ops (new NestJS API with CorpManagerController + CorpBdAdminController + CorpPortalController) and betterday-foodco/betterday-app (Flask app with culinary_ops_client.py helper behind feature flag). Migration uses dual-read verification before cutover per phase. Archived from the old collab board proj-001 on 2026-04-08.",
+      "modules": [
+        {
+          "id": "flask-migration.pr7",
+          "name": "PR #7 \u2014 Corporate manager API",
+          "priority": 2,
+          "description": "Initial PR landing ~25 CorpManager routes + 7 CorpBdAdmin routes plus Flask-side client and feature flag. Review complete; deployment pending.",
+          "submodules": [
+            {
+              "id": "flask-migration.pr7.build",
+              "name": "Build",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "flask-migration.pr7.build.endpoints",
+                  "name": "Build corp manager + portal API endpoints in culinary-ops",
+                  "status": "done",
+                  "priority": 2,
+                  "description": "~25 routes on CorpManagerController + 7 routes on CorpBdAdminController + CorporateMealAllowanceLog schema. PR #7 on culinary-ops.",
+                  "tech": {
+                    "framework": "NestJS",
+                    "database": "Prisma + Postgres",
+                    "tables": [
+                      "CorporateMealAllowanceLog"
+                    ],
+                    "notes": "Originally proj-001/sub-001. Includes company_id scoping, $transaction on bulk ops, bcrypt PIN write-only UX."
+                  },
+                  "tags": [
+                    "flask-migration",
+                    "pr7",
+                    "done"
+                  ],
+                  "notes": "2026-04-08 (archive): Originally tracked as proj-001/sub-001 on the old collab board. Gurleen completed review in msg-003 and confirmed ready-to-merge pending model naming reconciliation."
+                },
+                {
+                  "id": "flask-migration.pr7.build.client-helper",
+                  "name": "Flask culinary_ops_client.py + feature flag wrapper",
+                  "status": "done",
+                  "priority": 2,
+                  "description": "Staged helper in Flask side that calls culinary-ops endpoints behind a feature flag. Dormant until PR #7 merges.",
+                  "tech": {
+                    "language": "Python",
+                    "framework": "Flask",
+                    "notes": "Originally proj-001/sub-017. Lives on branch feature/culinary-ops-client in betterday-foodco/betterday-app."
+                  },
+                  "tags": [
+                    "flask-migration",
+                    "pr7",
+                    "done",
+                    "flask-side"
+                  ],
+                  "notes": "2026-04-08 (archive): from proj-001/sub-017"
+                },
+                {
+                  "id": "flask-migration.pr7.build.connection-map",
+                  "name": "Document corporate app connection map",
+                  "status": "done",
+                  "priority": 3,
+                  "description": "24-connection-point mapping across all systems: Flask \u2192 culinary-ops \u2192 GAS integration points.",
+                  "tech": {
+                    "notes": "GAS_to_CulinaryOps_Integration_Map.md in betterday-app repo."
+                  },
+                  "tags": [
+                    "flask-migration",
+                    "documentation",
+                    "done"
+                  ],
+                  "notes": "2026-04-08 (archive): from proj-001/sub-021"
+                }
+              ]
+            },
+            {
+              "id": "flask-migration.pr7.deploy",
+              "name": "Deploy + verify",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "flask-migration.pr7.deploy.prisma-push",
+                  "name": "Run `prisma db push` on dev + Railway",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Materialize CorporateMealAllowanceLog table in dev DB and Railway production DB. Required before smoke testing.",
+                  "tech": {
+                    "framework": "Prisma",
+                    "notes": "Gurleen may have already done this on her side (msg-004 mentions `db pushed`). Conner still needs to verify on his dev DB."
+                  },
+                  "dependencies": [
+                    "flask-migration.pr7.build.endpoints"
+                  ],
+                  "tags": [
+                    "flask-migration",
+                    "pr7",
+                    "deploy"
+                  ],
+                  "notes": "2026-04-08 (archive): from proj-001/sub-016. Blocker for smoke-test."
+                },
+                {
+                  "id": "flask-migration.pr7.deploy.smoke-test",
+                  "name": "Smoke-test PR #7 endpoints with a real corp_manager JWT",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Hit the ~25 routes with a real JWT and verify behavior matches GAS baseline.",
+                  "tech": {
+                    "framework": "NestJS",
+                    "notes": "Requires test company seeded first (next task)."
+                  },
+                  "dependencies": [
+                    "flask-migration.pr7.deploy.prisma-push",
+                    "flask-migration.pr7.deploy.seed-test-company"
+                  ],
+                  "tags": [
+                    "flask-migration",
+                    "pr7",
+                    "verify"
+                  ],
+                  "notes": "2026-04-08 (archive): from proj-001/sub-002"
+                },
+                {
+                  "id": "flask-migration.pr7.deploy.seed-test-company",
+                  "name": "Seed test company in culinary-ops dev DB",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Create test company with employees, benefit levels, par levels. Needed to smoke-test all manager routes end-to-end.",
+                  "tech": {
+                    "framework": "Prisma seed"
+                  },
+                  "dependencies": [
+                    "flask-migration.pr7.deploy.prisma-push"
+                  ],
+                  "tags": [
+                    "flask-migration",
+                    "pr7",
+                    "fixtures"
+                  ],
+                  "notes": "2026-04-08 (archive): from proj-001/sub-018"
+                },
+                {
+                  "id": "flask-migration.pr7.deploy.update-integration-map",
+                  "name": "Update GAS \u2192 culinary-ops integration map",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Mark meal-change-log GAP as READY in GAS_to_CulinaryOps_Integration_Map.md now that CorporateMealAllowanceLog is schema-confirmed.",
+                  "tech": {
+                    "notes": "Docs update in betterday-app repo."
+                  },
+                  "dependencies": [
+                    "flask-migration.pr7.build.endpoints"
+                  ],
+                  "tags": [
+                    "flask-migration",
+                    "documentation"
+                  ],
+                  "notes": "2026-04-08 (archive): from proj-001/sub-019"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "flask-migration.phase1",
+          "name": "Phase 1 \u2014 Read-only routes to culinary-ops",
+          "priority": 2,
+          "description": "Switch /manager/dashboard read-only endpoints from GAS to culinary-ops. Dual-read verification before cutover. Lowest-risk phase.",
+          "submodules": [
+            {
+              "id": "flask-migration.phase1.cutover",
+              "name": "Cutover",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "flask-migration.phase1.cutover.dashboard-reads",
+                  "name": "Switch /manager/dashboard read-only routes to culinary-ops",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Flip feature flag for read-only routes (dashboard summary, benefit-level list, par-level read). Write paths stay on GAS for now.",
+                  "tech": {
+                    "framework": "Flask",
+                    "notes": "Uses culinary_ops_client.py behind feature flag."
+                  },
+                  "dependencies": [
+                    "flask-migration.pr7.deploy.smoke-test"
+                  ],
+                  "tags": [
+                    "flask-migration",
+                    "phase1"
+                  ],
+                  "notes": "2026-04-08 (archive): from proj-001/sub-003"
+                },
+                {
+                  "id": "flask-migration.phase1.cutover.dual-read-verify",
+                  "name": "Dual-read logging to compare GAS vs culinary-ops responses",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "While migrating, read from both backends and log diffs to catch mismatches before cutover completes.",
+                  "tech": {
+                    "framework": "Flask",
+                    "notes": "Drop dual-read once diff rate is 0 for a week."
+                  },
+                  "dependencies": [
+                    "flask-migration.phase1.cutover.dashboard-reads"
+                  ],
+                  "tags": [
+                    "flask-migration",
+                    "phase1",
+                    "verification"
+                  ],
+                  "notes": "2026-04-08 (archive): from proj-001/sub-020"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "flask-migration.phase2",
+          "name": "Phase 2 \u2014 Auth migration",
+          "priority": 3,
+          "description": "Replace GAS magic-token + PIN flows with culinary-ops JWT-based auth.",
+          "submodules": [
+            {
+              "id": "flask-migration.phase2.cutover",
+              "name": "Cutover",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "flask-migration.phase2.cutover.auth",
+                  "name": "Replace GAS magic-token + PIN flows with culinary-ops JWT",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Move corporate manager and employee auth from GAS-issued tokens to JWT from culinary-ops /auth/login.",
+                  "tech": {
+                    "framework": "NestJS + Flask",
+                    "notes": "Existing culinary-ops has CorporateMagicToken and CorporateCompanyPIN tables."
+                  },
+                  "dependencies": [
+                    "flask-migration.phase1.cutover.dual-read-verify"
+                  ],
+                  "tags": [
+                    "flask-migration",
+                    "phase2",
+                    "auth"
+                  ],
+                  "notes": "2026-04-08 (archive): from proj-001/sub-004"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "flask-migration.phase3",
+          "name": "Phase 3 \u2014 Employee + benefit CRUD",
+          "priority": 3,
+          "description": "Rewire employee and benefit-level CRUD operations to culinary-ops.",
+          "submodules": [
+            {
+              "id": "flask-migration.phase3.cutover",
+              "name": "Cutover",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "flask-migration.phase3.cutover.crud",
+                  "name": "Rewire employee + benefit-level CRUD to culinary-ops",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Full CRUD on CorporateEmployee and CorporateBenefitLevel through culinary-ops, retiring GAS paths.",
+                  "tech": {
+                    "framework": "NestJS + Flask"
+                  },
+                  "dependencies": [
+                    "flask-migration.phase2.cutover.auth"
+                  ],
+                  "tags": [
+                    "flask-migration",
+                    "phase3"
+                  ],
+                  "notes": "2026-04-08 (archive): from proj-001/sub-005"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "flask-migration.phase4",
+          "name": "Phase 4 \u2014 Orders + par writes",
+          "priority": 3,
+          "description": "Migrate order submission and par-level write paths (the highest-risk writes).",
+          "submodules": [
+            {
+              "id": "flask-migration.phase4.cutover",
+              "name": "Cutover",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "flask-migration.phase4.cutover.writes",
+                  "name": "Migrate order submission + par level write paths",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Flip order creation, order editing, and par-level updates from GAS to culinary-ops. Includes the meal-swap endpoint Gurleen added (PATCH /orders/:id/items/:itemId).",
+                  "tech": {
+                    "framework": "NestJS + Flask",
+                    "endpoints": [
+                      "PATCH /orders/:id/items/:itemId"
+                    ]
+                  },
+                  "dependencies": [
+                    "flask-migration.phase3.cutover.crud"
+                  ],
+                  "tags": [
+                    "flask-migration",
+                    "phase4",
+                    "high-risk"
+                  ],
+                  "notes": "2026-04-08 (archive): from proj-001/sub-006"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "flask-migration.phase5",
+          "name": "Phase 5 \u2014 Invoicing + financials",
+          "priority": 4,
+          "description": "Build invoicing and financials pipeline in culinary-ops (CompanyInvoice, CorporateCreditNote, CorporateMonthlyStatement generation).",
+          "submodules": [
+            {
+              "id": "flask-migration.phase5.cutover",
+              "name": "Cutover",
+              "priority": 4,
+              "components": [
+                {
+                  "id": "flask-migration.phase5.cutover.financials",
+                  "name": "Build invoicing + financials pipeline in culinary-ops",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Monthly invoice generation, credit notes, AR summary all move off GAS to culinary-ops.",
+                  "tech": {
+                    "framework": "NestJS",
+                    "tables": [
+                      "CompanyInvoice",
+                      "CorporateCreditNote",
+                      "CorporateMonthlyStatement"
+                    ],
+                    "endpoints": [
+                      "invoices generate",
+                      "credit-notes CRUD+void",
+                      "ar-summary"
+                    ],
+                    "notes": "Corresponding NestJS routes already exist in CorpBdAdminController per msg-004."
+                  },
+                  "dependencies": [
+                    "flask-migration.phase4.cutover.writes"
+                  ],
+                  "tags": [
+                    "flask-migration",
+                    "phase5",
+                    "financials"
+                  ],
+                  "notes": "2026-04-08 (archive): from proj-001/sub-007"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "flask-migration.phase6",
+          "name": "Phase 6 \u2014 Retire GAS",
+          "priority": 4,
+          "description": "Remove all GAS code paths, archive backend.gs, drop the buffer sheet.",
+          "submodules": [
+            {
+              "id": "flask-migration.phase6.cutover",
+              "name": "Cutover",
+              "priority": 4,
+              "components": [
+                {
+                  "id": "flask-migration.phase6.cutover.shutoff",
+                  "name": "Retire GAS \u2014 remove _gas_post(), archive backend.gs, drop buffer sheet",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Final teardown of the old GAS system. No more GAS API calls, no more Google Sheet buffer, backend.gs committed to history and removed.",
+                  "tech": {
+                    "notes": "Point of no return \u2014 ensure dual-read has been off for at least two weeks and all writes have been stable on culinary-ops."
+                  },
+                  "dependencies": [
+                    "flask-migration.phase5.cutover.financials"
+                  ],
+                  "tags": [
+                    "flask-migration",
+                    "phase6",
+                    "final"
+                  ],
+                  "notes": "2026-04-08 (archive): from proj-001/sub-008"
                 }
               ]
             }
