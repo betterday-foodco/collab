@@ -1,31 +1,73 @@
 {
   "meta": {
-    "title": "BetterDay Platform — Project Scope",
+    "title": "BetterDay Platform \u2014 Project Scope",
     "subtitle": "By-category module tree for the D2C storefront, subscription engine, and admin console",
-    "last_updated": "2026-04-08T10:30:00-06:00",
+    "last_updated": "2026-04-08T11:03:41-06:00",
     "updated_by": "Claude (Conner)",
     "version": 1,
     "session": 1
   },
-
   "legend": {
     "priorities": {
-      "1": { "label": "P1 — Foundation", "color": "#003141", "description": "Immediate. Must exist before any other work happens." },
-      "2": { "label": "P2 — Core", "color": "#4EA2FD", "description": "Next layer. Built on P1, required for a functional platform." },
-      "3": { "label": "P3 — Launch polish", "color": "#C8A4F5", "description": "Required for a credible launch." },
-      "4": { "label": "P4 — Post-launch soon", "color": "#FFC600", "description": "Not needed day one but wanted within a month." },
-      "5": { "label": "P5 — Future", "color": "#9ca3af", "description": "Out of scope for 2026. Explore later." }
+      "1": {
+        "label": "P1 \u2014 Foundation",
+        "color": "#003141",
+        "description": "Immediate. Must exist before any other work happens."
+      },
+      "2": {
+        "label": "P2 \u2014 Core",
+        "color": "#4EA2FD",
+        "description": "Next layer. Built on P1, required for a functional platform."
+      },
+      "3": {
+        "label": "P3 \u2014 Launch polish",
+        "color": "#C8A4F5",
+        "description": "Required for a credible launch."
+      },
+      "4": {
+        "label": "P4 \u2014 Post-launch soon",
+        "color": "#FFC600",
+        "description": "Not needed day one but wanted within a month."
+      },
+      "5": {
+        "label": "P5 \u2014 Future",
+        "color": "#9ca3af",
+        "description": "Out of scope for 2026. Explore later."
+      }
     },
     "statuses": {
-      "done":        { "label": "Done",        "color": "#10b981", "description": "Built, tested, and live (or ready to be)." },
-      "in-progress": { "label": "In progress", "color": "#3b82f6", "description": "Actively being worked on now." },
-      "designed":    { "label": "Designed",    "color": "#a78bfa", "description": "Schema / demo / prior design exists, ready to implement." },
-      "to-build":    { "label": "To build",    "color": "#9ca3af", "description": "Identified and in scope, not started." },
-      "blocked":     { "label": "Blocked",     "color": "#f59e0b", "description": "Cannot proceed until a dependency or decision resolves." },
-      "skipped":     { "label": "Skipped",     "color": "#64748b", "description": "Consciously dropped from scope. Kept visible for context." }
+      "done": {
+        "label": "Done",
+        "color": "#10b981",
+        "description": "Built, tested, and live (or ready to be)."
+      },
+      "in-progress": {
+        "label": "In progress",
+        "color": "#3b82f6",
+        "description": "Actively being worked on now."
+      },
+      "designed": {
+        "label": "Designed",
+        "color": "#a78bfa",
+        "description": "Schema / demo / prior design exists, ready to implement."
+      },
+      "to-build": {
+        "label": "To build",
+        "color": "#9ca3af",
+        "description": "Identified and in scope, not started."
+      },
+      "blocked": {
+        "label": "Blocked",
+        "color": "#f59e0b",
+        "description": "Cannot proceed until a dependency or decision resolves."
+      },
+      "skipped": {
+        "label": "Skipped",
+        "color": "#64748b",
+        "description": "Consciously dropped from scope. Kept visible for context."
+      }
     }
   },
-
   "categories": [
     {
       "id": "marketing",
@@ -33,9 +75,802 @@
       "priority": 2,
       "description": "Unauthenticated public pages: homepage, menu teaser, story, FAQ, legal, SEO. The face of BetterDay.",
       "tech_notes": "Next.js 14 App Router, SSG/SSR hybrid. Port from existing betterday-v2_81.html. Shared brand system.",
-      "modules": []
+      "modules": [
+        {
+          "id": "marketing.pages",
+          "name": "Public Pages",
+          "priority": 2,
+          "description": "Every statically-renderable page customers can land on without logging in.",
+          "submodules": [
+            {
+              "id": "marketing.pages.homepage",
+              "name": "Homepage",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "marketing.pages.homepage.hero",
+                  "name": "Hero section",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Above-the-fold: headline, sub, primary CTA, hero image, price anchor pill, location pill.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "Port from betterday-v2_81.html. Mobile-first."
+                  },
+                  "tags": [
+                    "ui",
+                    "ported"
+                  ]
+                },
+                {
+                  "id": "marketing.pages.homepage.how-it-works",
+                  "name": "How It Works",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Three-step explainer. Cards with icons, subtle brand colour blocks.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "Ported from homepage draft."
+                  },
+                  "tags": [
+                    "ui",
+                    "ported"
+                  ]
+                },
+                {
+                  "id": "marketing.pages.homepage.menu-teaser",
+                  "name": "Menu teaser",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Shows 6-8 meals from current week with 'See full menu' CTA.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "Pulls live menu via API."
+                  },
+                  "dependencies": [
+                    "menu.api.public"
+                  ],
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "marketing.pages.homepage.why-betterday-race",
+                  "name": "Why BetterDay race",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Interactive race animation comparing BetterDay vs takeout vs groceries.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "IntersectionObserver auto-start. Canvas or CSS animation."
+                  },
+                  "tags": [
+                    "ui",
+                    "animation"
+                  ]
+                },
+                {
+                  "id": "marketing.pages.homepage.order-types",
+                  "name": "Order Types card",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Side-by-side subscribe vs one-time cards with price pills.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "marketing.pages.homepage.savings-slider",
+                  "name": "Savings slider",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Interactive slider showing savings as cart grows.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "Auto-animates on scroll, confetti at free-delivery threshold."
+                  },
+                  "tags": [
+                    "ui",
+                    "animation"
+                  ]
+                },
+                {
+                  "id": "marketing.pages.homepage.social-proof",
+                  "name": "Social proof section",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Calgary testimonials carousel.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "marketing.pages.homepage.our-story",
+                  "name": "Our Story (Amy & Conner)",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Founder story section with photo. Positioned before final CTA.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "Copy still being drafted."
+                  },
+                  "tags": [
+                    "ui",
+                    "content"
+                  ]
+                },
+                {
+                  "id": "marketing.pages.homepage.final-cta",
+                  "name": "Final CTA",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Bottom-of-page conversion card with risk-reversal copy.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "marketing.pages.menu-preview",
+              "name": "Menu preview page",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "marketing.pages.menu-preview.grid",
+                  "name": "Public menu grid",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Non-logged-in view of current week's menu with filters. Clicking a meal shows detail.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "Port from menu-overlay.html."
+                  },
+                  "dependencies": [
+                    "menu.browse.grid"
+                  ],
+                  "tags": [
+                    "ui",
+                    "ported"
+                  ]
+                },
+                {
+                  "id": "marketing.pages.menu-preview.detail-modal",
+                  "name": "Meal detail modal",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Side-by-side 55/45 layout: photo + name + macros + allergens.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "dependencies": [
+                    "menu.detail.modal"
+                  ],
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "marketing.pages.pricing",
+              "name": "Pricing page",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "marketing.pages.pricing.tier-calculator",
+                  "name": "Savings tier calculator",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Standalone calculator showing savings at each cart size.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "marketing.pages.pricing.plan-comparison",
+                  "name": "Plan comparison card",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "One-time vs subscription at various cart sizes.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "marketing.pages.about",
+              "name": "About / Our Story",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "marketing.pages.about.founders",
+                  "name": "Founders bio",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Amy & Conner bio with photos.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "content",
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "marketing.pages.about.mission",
+                  "name": "Mission + values",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Brand values block. Compostable, local, etc.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "content",
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "marketing.pages.faq",
+              "name": "FAQ",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "marketing.pages.faq.categories",
+                  "name": "FAQ categories",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Accordion grouped by topic (ordering, delivery, subscriptions, dietary, payments).",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "Content in MDX or a simple JSON source."
+                  },
+                  "tags": [
+                    "content",
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "marketing.pages.faq.search",
+                  "name": "FAQ search",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Client-side fuzzy search over FAQ content.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "fuse.js or similar."
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "marketing.pages.legal",
+              "name": "Legal pages",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "marketing.pages.legal.terms",
+                  "name": "Terms of Service",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Required for launch. Lawyer review needed.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "legal",
+                    "content"
+                  ]
+                },
+                {
+                  "id": "marketing.pages.legal.privacy",
+                  "name": "Privacy Policy",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Required for launch. PIPEDA compliant.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "legal",
+                    "content"
+                  ]
+                },
+                {
+                  "id": "marketing.pages.legal.accessibility",
+                  "name": "Accessibility statement",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "AODA statement for Alberta.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "legal",
+                    "content"
+                  ]
+                },
+                {
+                  "id": "marketing.pages.legal.refund-policy",
+                  "name": "Refund policy",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Customer-facing refund rules. Linked from checkout + footer.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "legal",
+                    "content"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "marketing.pages.contact",
+              "name": "Contact",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "marketing.pages.contact.form",
+                  "name": "Contact form",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Simple name/email/message form, routes to support inbox.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "vendor": "Resend"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "marketing.pages.contact.hours",
+                  "name": "Hours + location",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Kitchen location, delivery zones, customer support hours.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "content"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "marketing.pages.blog",
+              "name": "Blog (phase 2)",
+              "priority": 4,
+              "components": [
+                {
+                  "id": "marketing.pages.blog.index",
+                  "name": "Blog index",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "List of posts. MDX or CMS-backed.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "content"
+                  ]
+                },
+                {
+                  "id": "marketing.pages.blog.post",
+                  "name": "Blog post template",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Single post template with related posts.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "content"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "marketing.seo",
+          "name": "SEO & Discovery",
+          "priority": 2,
+          "description": "Making sure Google and social platforms understand and surface the site.",
+          "submodules": [
+            {
+              "id": "marketing.seo.meta",
+              "name": "Meta tags + Open Graph",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "marketing.seo.meta.og",
+                  "name": "Open Graph tags",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Per-page og:title, og:description, og:image.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "Next.js metadata API."
+                  },
+                  "tags": [
+                    "seo"
+                  ]
+                },
+                {
+                  "id": "marketing.seo.meta.twitter",
+                  "name": "Twitter card tags",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "summary_large_image cards per page.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "seo"
+                  ]
+                },
+                {
+                  "id": "marketing.seo.meta.canonical",
+                  "name": "Canonical URLs",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Prevent duplicate content indexing.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "seo"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "marketing.seo.schema",
+              "name": "Structured data (JSON-LD)",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "marketing.seo.schema.org",
+                  "name": "Organization schema",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "BetterDay org schema with logo, social, address.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "seo"
+                  ]
+                },
+                {
+                  "id": "marketing.seo.schema.product",
+                  "name": "Menu item schema",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Product schema for each meal (name, image, offers).",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "seo"
+                  ]
+                },
+                {
+                  "id": "marketing.seo.schema.local-business",
+                  "name": "LocalBusiness schema",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Kitchen address, opening hours, delivery area.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "seo"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "marketing.seo.sitemap",
+              "name": "Sitemap + robots",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "marketing.seo.sitemap.xml",
+                  "name": "sitemap.xml",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Auto-generated from Next.js routes.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "seo"
+                  ]
+                },
+                {
+                  "id": "marketing.seo.sitemap.robots",
+                  "name": "robots.txt",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Allow all except /admin and /api.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "seo"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "marketing.seo.analytics",
+              "name": "Analytics + tracking",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "marketing.seo.analytics.ga4",
+                  "name": "Google Analytics 4",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Page views, custom events, conversion tracking.",
+                  "tech": {
+                    "vendor": "Google Analytics 4"
+                  },
+                  "tags": [
+                    "analytics"
+                  ]
+                },
+                {
+                  "id": "marketing.seo.analytics.meta-pixel",
+                  "name": "Meta Pixel",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Facebook/Instagram conversion tracking.",
+                  "tech": {
+                    "vendor": "Meta"
+                  },
+                  "tags": [
+                    "analytics"
+                  ]
+                },
+                {
+                  "id": "marketing.seo.analytics.consent",
+                  "name": "Cookie consent banner",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "GDPR/PIPEDA-style consent before firing trackers.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "cookiebot or self-hosted."
+                  },
+                  "tags": [
+                    "privacy",
+                    "legal"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "marketing.brand",
+          "name": "Brand System",
+          "priority": 2,
+          "description": "Design tokens and shared visual assets used across every surface.",
+          "submodules": [
+            {
+              "id": "marketing.brand.tokens",
+              "name": "Design tokens",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "marketing.brand.tokens.colors",
+                  "name": "Colour tokens",
+                  "status": "designed",
+                  "priority": 2,
+                  "description": "Cream #FAEBDA, sky #4EA2FD, navy #003141, yellow #FFC600, purple #C8A4F5. Plus greens.",
+                  "tech": {
+                    "framework": "Tailwind config",
+                    "notes": "Locked; documented in design-tokens.md."
+                  },
+                  "tags": [
+                    "brand"
+                  ]
+                },
+                {
+                  "id": "marketing.brand.tokens.fonts",
+                  "name": "Typography tokens",
+                  "status": "designed",
+                  "priority": 2,
+                  "description": "BDSupper (meal names), Gaya (section headers), Sofia Pro (body/UI), Inter (system).",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "self-hosted WOFF2, preload critical subsets."
+                  },
+                  "tags": [
+                    "brand"
+                  ]
+                },
+                {
+                  "id": "marketing.brand.tokens.radius",
+                  "name": "Radius + shadow tokens",
+                  "status": "designed",
+                  "priority": 2,
+                  "description": "20px card radius, 100px pill radius, 7px 7px hover shadow.",
+                  "tech": {
+                    "framework": "Tailwind config"
+                  },
+                  "tags": [
+                    "brand"
+                  ]
+                },
+                {
+                  "id": "marketing.brand.tokens.spacing",
+                  "name": "Spacing scale",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Standard Tailwind spacing with brand-specific overrides.",
+                  "tech": {
+                    "framework": "Tailwind config"
+                  },
+                  "tags": [
+                    "brand"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "marketing.brand.components",
+              "name": "Shared components",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "marketing.brand.components.button",
+                  "name": "Button component",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Primary (yellow), secondary (outline), ghost variants. Pill shape.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "shadcn/ui as base, themed to brand."
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "marketing.brand.components.pill",
+                  "name": "Pill component",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Section pill labels, status pills, price pills. Consistent sizing.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "marketing.brand.components.card",
+                  "name": "Card component",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Standard card with shadow variants.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "marketing.brand.components.nav",
+                  "name": "Nav bar",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Sticky sky-blue header with logo + nav links + cart icon + login/account.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "marketing.brand.components.footer",
+                  "name": "Footer",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Navy footer with navigation, subscribe form, social links, contact.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "marketing.brand.assets",
+              "name": "Logo + asset library",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "marketing.brand.assets.logo",
+                  "name": "Logo files",
+                  "status": "designed",
+                  "priority": 2,
+                  "description": "SVG + PNG at multiple sizes, light + dark variants.",
+                  "tech": {
+                    "notes": "Store in /public/brand/ or CDN."
+                  },
+                  "tags": [
+                    "brand"
+                  ]
+                },
+                {
+                  "id": "marketing.brand.assets.favicon",
+                  "name": "Favicons + app icons",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "ICO, PNG, Apple touch icons, Android icons, manifest.json.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "brand"
+                  ]
+                },
+                {
+                  "id": "marketing.brand.assets.social",
+                  "name": "Social share images",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "OG images per key page (1200x630).",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "Next.js opengraph-image.tsx or pre-rendered."
+                  },
+                  "tags": [
+                    "brand"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
-
     {
       "id": "auth",
       "name": "Identity & Auth",
@@ -51,7 +886,7 @@
           "submodules": [
             {
               "id": "auth.foundation.schema",
-              "name": "Prisma schema — auth tables",
+              "name": "Prisma schema \u2014 auth tables",
               "priority": 1,
               "components": [
                 {
@@ -63,11 +898,16 @@
                   "tech": {
                     "language": "Prisma",
                     "database": "Postgres (Neon, culinary-ops DB)",
-                    "tables": ["AuthIdentity"],
+                    "tables": [
+                      "AuthIdentity"
+                    ],
                     "notes": "Fields: id, email?, phone?, password_hash?, email_verified_at?, phone_verified_at?, created_at, last_login_at"
                   },
                   "dependencies": [],
-                  "tags": ["foundation", "schema"]
+                  "tags": [
+                    "foundation",
+                    "schema"
+                  ]
                 },
                 {
                   "id": "auth.foundation.schema.session",
@@ -78,11 +918,18 @@
                   "tech": {
                     "language": "Prisma",
                     "database": "Postgres",
-                    "tables": ["Session"],
+                    "tables": [
+                      "Session"
+                    ],
                     "notes": "Fields: id, identity_id, refresh_token_hash, user_agent, ip_address, expires_at, revoked_at?"
                   },
-                  "dependencies": ["auth.foundation.schema.identity"],
-                  "tags": ["foundation", "schema"]
+                  "dependencies": [
+                    "auth.foundation.schema.identity"
+                  ],
+                  "tags": [
+                    "foundation",
+                    "schema"
+                  ]
                 },
                 {
                   "id": "auth.foundation.schema.otp",
@@ -93,11 +940,18 @@
                   "tech": {
                     "language": "Prisma",
                     "database": "Postgres",
-                    "tables": ["OtpCode"],
+                    "tables": [
+                      "OtpCode"
+                    ],
                     "notes": "Fields: id, identity_id?, destination, channel (sms|email), code_hash, attempts, expires_at, consumed_at?"
                   },
-                  "dependencies": ["auth.foundation.schema.identity"],
-                  "tags": ["foundation", "schema"]
+                  "dependencies": [
+                    "auth.foundation.schema.identity"
+                  ],
+                  "tags": [
+                    "foundation",
+                    "schema"
+                  ]
                 },
                 {
                   "id": "auth.foundation.schema.oauth",
@@ -108,11 +962,18 @@
                   "tech": {
                     "language": "Prisma",
                     "database": "Postgres",
-                    "tables": ["OAuthLink"],
+                    "tables": [
+                      "OAuthLink"
+                    ],
                     "notes": "Fields: id, identity_id, provider, provider_id, email, linked_at. @@unique([provider, provider_id])"
                   },
-                  "dependencies": ["auth.foundation.schema.identity"],
-                  "tags": ["foundation", "schema"]
+                  "dependencies": [
+                    "auth.foundation.schema.identity"
+                  ],
+                  "tags": [
+                    "foundation",
+                    "schema"
+                  ]
                 }
               ]
             },
@@ -132,8 +993,13 @@
                     "framework": "NestJS",
                     "notes": "jsonwebtoken or jose. 15-minute access token, 30-day refresh. Our own signing secret from env."
                   },
-                  "dependencies": ["auth.foundation.schema.session"],
-                  "tags": ["foundation", "security"]
+                  "dependencies": [
+                    "auth.foundation.schema.session"
+                  ],
+                  "tags": [
+                    "foundation",
+                    "security"
+                  ]
                 },
                 {
                   "id": "auth.foundation.middleware.guard",
@@ -146,8 +1012,13 @@
                     "framework": "NestJS",
                     "notes": "@UseGuards(AuthGuard) on protected controllers."
                   },
-                  "dependencies": ["auth.foundation.middleware.jwt"],
-                  "tags": ["foundation", "security"]
+                  "dependencies": [
+                    "auth.foundation.middleware.jwt"
+                  ],
+                  "tags": [
+                    "foundation",
+                    "security"
+                  ]
                 },
                 {
                   "id": "auth.foundation.middleware.ratelimit",
@@ -159,14 +1030,18 @@
                     "framework": "NestJS",
                     "notes": "@nestjs/throttler or a Redis-backed custom limiter."
                   },
-                  "dependencies": ["auth.foundation.middleware.guard"],
-                  "tags": ["foundation", "security"]
+                  "dependencies": [
+                    "auth.foundation.middleware.guard"
+                  ],
+                  "tags": [
+                    "foundation",
+                    "security"
+                  ]
                 }
               ]
             }
           ]
         },
-
         {
           "id": "auth.phone",
           "name": "Phone OTP Login",
@@ -183,33 +1058,53 @@
                   "name": "Send OTP endpoint",
                   "status": "to-build",
                   "priority": 1,
-                  "description": "POST /api/auth/phone/start — normalizes phone, looks up or creates AuthIdentity, triggers Twilio Verify send, returns otp_id.",
+                  "description": "POST /api/auth/phone/start \u2014 normalizes phone, looks up or creates AuthIdentity, triggers Twilio Verify send, returns otp_id.",
                   "tech": {
                     "language": "TypeScript",
                     "framework": "NestJS",
                     "vendor": "Twilio Verify",
-                    "endpoints": ["POST /api/auth/phone/start"],
-                    "tables": ["AuthIdentity", "OtpCode"],
-                    "notes": "Twilio Verify SID in env. Uses their service — we don't manage code generation or storage ourselves."
+                    "endpoints": [
+                      "POST /api/auth/phone/start"
+                    ],
+                    "tables": [
+                      "AuthIdentity",
+                      "OtpCode"
+                    ],
+                    "notes": "Twilio Verify SID in env. Uses their service \u2014 we don't manage code generation or storage ourselves."
                   },
-                  "dependencies": ["auth.foundation.schema.identity", "auth.foundation.schema.otp"],
-                  "tags": ["phone-auth"]
+                  "dependencies": [
+                    "auth.foundation.schema.identity",
+                    "auth.foundation.schema.otp"
+                  ],
+                  "tags": [
+                    "phone-auth"
+                  ]
                 },
                 {
                   "id": "auth.phone.twilio.verify",
                   "name": "Verify OTP endpoint",
                   "status": "to-build",
                   "priority": 1,
-                  "description": "POST /api/auth/phone/verify — checks code with Twilio, marks phone verified, creates session, returns JWT + refresh token.",
+                  "description": "POST /api/auth/phone/verify \u2014 checks code with Twilio, marks phone verified, creates session, returns JWT + refresh token.",
                   "tech": {
                     "language": "TypeScript",
                     "framework": "NestJS",
                     "vendor": "Twilio Verify",
-                    "endpoints": ["POST /api/auth/phone/verify"],
-                    "tables": ["Session", "OtpCode", "AuthIdentity"]
+                    "endpoints": [
+                      "POST /api/auth/phone/verify"
+                    ],
+                    "tables": [
+                      "Session",
+                      "OtpCode",
+                      "AuthIdentity"
+                    ]
                   },
-                  "dependencies": ["auth.phone.twilio.send"],
-                  "tags": ["phone-auth"]
+                  "dependencies": [
+                    "auth.phone.twilio.send"
+                  ],
+                  "tags": [
+                    "phone-auth"
+                  ]
                 }
               ]
             },
@@ -230,7 +1125,9 @@
                     "notes": "libphonenumber-js for validation and formatting."
                   },
                   "dependencies": [],
-                  "tags": ["ui"]
+                  "tags": [
+                    "ui"
+                  ]
                 },
                 {
                   "id": "auth.phone.ui.code",
@@ -242,14 +1139,17 @@
                     "language": "TypeScript / React",
                     "notes": "Resend button disabled for 30s after a send."
                   },
-                  "dependencies": ["auth.phone.ui.form"],
-                  "tags": ["ui"]
+                  "dependencies": [
+                    "auth.phone.ui.form"
+                  ],
+                  "tags": [
+                    "ui"
+                  ]
                 }
               ]
             }
           ]
         },
-
         {
           "id": "auth.email",
           "name": "Email + Password Login",
@@ -271,12 +1171,21 @@
                     "language": "TypeScript",
                     "framework": "NestJS",
                     "vendor": "Resend",
-                    "endpoints": ["POST /api/auth/email/signup"],
-                    "tables": ["AuthIdentity", "Session"],
+                    "endpoints": [
+                      "POST /api/auth/email/signup"
+                    ],
+                    "tables": [
+                      "AuthIdentity",
+                      "Session"
+                    ],
                     "notes": "argon2id with sensible work factors. Verification email sent via Resend."
                   },
-                  "dependencies": ["auth.foundation.schema.identity"],
-                  "tags": ["email-auth"]
+                  "dependencies": [
+                    "auth.foundation.schema.identity"
+                  ],
+                  "tags": [
+                    "email-auth"
+                  ]
                 },
                 {
                   "id": "auth.email.signup.verify",
@@ -285,11 +1194,19 @@
                   "priority": 1,
                   "description": "One-time link that marks email_verified_at. Expires in 24h.",
                   "tech": {
-                    "endpoints": ["GET /api/auth/email/verify?token=..."],
-                    "tables": ["AuthIdentity"]
+                    "endpoints": [
+                      "GET /api/auth/email/verify?token=..."
+                    ],
+                    "tables": [
+                      "AuthIdentity"
+                    ]
                   },
-                  "dependencies": ["auth.email.signup.endpoint"],
-                  "tags": ["email-auth"]
+                  "dependencies": [
+                    "auth.email.signup.endpoint"
+                  ],
+                  "tags": [
+                    "email-auth"
+                  ]
                 }
               ]
             },
@@ -307,12 +1224,21 @@
                   "tech": {
                     "language": "TypeScript",
                     "framework": "NestJS",
-                    "endpoints": ["POST /api/auth/login"],
-                    "tables": ["AuthIdentity", "Session"],
+                    "endpoints": [
+                      "POST /api/auth/login"
+                    ],
+                    "tables": [
+                      "AuthIdentity",
+                      "Session"
+                    ],
                     "notes": "Returns 401 with reason='must_reset_password' when legacy HMP user has no local hash."
                   },
-                  "dependencies": ["auth.foundation.middleware.jwt"],
-                  "tags": ["email-auth"]
+                  "dependencies": [
+                    "auth.foundation.middleware.jwt"
+                  ],
+                  "tags": [
+                    "email-auth"
+                  ]
                 }
               ]
             },
@@ -331,8 +1257,13 @@
                     "notes": "Uses HMP customer lookup. Marks AuthIdentity with legacy flag once created.",
                     "vendor": "HMP tenant API"
                   },
-                  "dependencies": ["auth.email.login.endpoint"],
-                  "tags": ["migration", "hmp"]
+                  "dependencies": [
+                    "auth.email.login.endpoint"
+                  ],
+                  "tags": [
+                    "migration",
+                    "hmp"
+                  ]
                 },
                 {
                   "id": "auth.email.migration.reset",
@@ -344,14 +1275,18 @@
                     "vendor": "Resend",
                     "notes": "Custom template separate from normal password reset."
                   },
-                  "dependencies": ["auth.email.migration.detect"],
-                  "tags": ["migration", "email-template"]
+                  "dependencies": [
+                    "auth.email.migration.detect"
+                  ],
+                  "tags": [
+                    "migration",
+                    "email-template"
+                  ]
                 }
               ]
             }
           ]
         },
-
         {
           "id": "auth.oauth",
           "name": "OAuth (Google, Facebook)",
@@ -368,28 +1303,42 @@
                   "name": "Register Google OAuth app",
                   "status": "to-build",
                   "priority": 2,
-                  "description": "Create BetterDay OAuth client in Google Cloud Console. Redirect URI → /api/auth/oauth/google/callback.",
+                  "description": "Create BetterDay OAuth client in Google Cloud Console. Redirect URI \u2192 /api/auth/oauth/google/callback.",
                   "tech": {
                     "vendor": "Google Cloud",
                     "notes": "One-time setup. Consent screen branding review if we need production access."
                   },
                   "dependencies": [],
-                  "tags": ["oauth", "setup"]
+                  "tags": [
+                    "oauth",
+                    "setup"
+                  ]
                 },
                 {
                   "id": "auth.oauth.google.callback",
                   "name": "Callback endpoint",
                   "status": "to-build",
                   "priority": 2,
-                  "description": "Exchange code → token → profile. Upsert OAuthLink, AuthIdentity. Create session.",
+                  "description": "Exchange code \u2192 token \u2192 profile. Upsert OAuthLink, AuthIdentity. Create session.",
                   "tech": {
                     "language": "TypeScript",
                     "framework": "NestJS",
-                    "endpoints": ["GET /api/auth/oauth/google/callback"],
-                    "tables": ["OAuthLink", "AuthIdentity", "Session"]
+                    "endpoints": [
+                      "GET /api/auth/oauth/google/callback"
+                    ],
+                    "tables": [
+                      "OAuthLink",
+                      "AuthIdentity",
+                      "Session"
+                    ]
                   },
-                  "dependencies": ["auth.oauth.google.app", "auth.foundation.schema.oauth"],
-                  "tags": ["oauth"]
+                  "dependencies": [
+                    "auth.oauth.google.app",
+                    "auth.foundation.schema.oauth"
+                  ],
+                  "tags": [
+                    "oauth"
+                  ]
                 }
               ]
             },
@@ -403,10 +1352,16 @@
                   "name": "Register Facebook app",
                   "status": "to-build",
                   "priority": 3,
-                  "description": "Facebook for Developers → new app. Review required for production email scope.",
-                  "tech": { "vendor": "Meta", "notes": "App review is slower than Google. Start early." },
+                  "description": "Facebook for Developers \u2192 new app. Review required for production email scope.",
+                  "tech": {
+                    "vendor": "Meta",
+                    "notes": "App review is slower than Google. Start early."
+                  },
                   "dependencies": [],
-                  "tags": ["oauth", "setup"]
+                  "tags": [
+                    "oauth",
+                    "setup"
+                  ]
                 },
                 {
                   "id": "auth.oauth.facebook.callback",
@@ -416,16 +1371,22 @@
                   "description": "Same shape as Google callback.",
                   "tech": {
                     "framework": "NestJS",
-                    "endpoints": ["GET /api/auth/oauth/facebook/callback"]
+                    "endpoints": [
+                      "GET /api/auth/oauth/facebook/callback"
+                    ]
                   },
-                  "dependencies": ["auth.oauth.facebook.app", "auth.foundation.schema.oauth"],
-                  "tags": ["oauth"]
+                  "dependencies": [
+                    "auth.oauth.facebook.app",
+                    "auth.foundation.schema.oauth"
+                  ],
+                  "tags": [
+                    "oauth"
+                  ]
                 }
               ]
             }
           ]
         },
-
         {
           "id": "auth.session",
           "name": "Session Management",
@@ -444,12 +1405,21 @@
                   "priority": 1,
                   "description": "Trade opaque refresh token for new access token. Rotate refresh token on every use.",
                   "tech": {
-                    "endpoints": ["POST /api/auth/refresh"],
-                    "tables": ["Session"],
-                    "notes": "Refresh stored as httpOnly cookie. Rotation detects replay — if old token used after rotation, revoke entire session chain."
+                    "endpoints": [
+                      "POST /api/auth/refresh"
+                    ],
+                    "tables": [
+                      "Session"
+                    ],
+                    "notes": "Refresh stored as httpOnly cookie. Rotation detects replay \u2014 if old token used after rotation, revoke entire session chain."
                   },
-                  "dependencies": ["auth.foundation.middleware.jwt"],
-                  "tags": ["session", "security"]
+                  "dependencies": [
+                    "auth.foundation.middleware.jwt"
+                  ],
+                  "tags": [
+                    "session",
+                    "security"
+                  ]
                 }
               ]
             },
@@ -464,9 +1434,17 @@
                   "status": "to-build",
                   "priority": 1,
                   "description": "Revoke the current refresh token, clear cookie.",
-                  "tech": { "endpoints": ["POST /api/auth/logout"] },
-                  "dependencies": ["auth.session.refresh.endpoint"],
-                  "tags": ["session"]
+                  "tech": {
+                    "endpoints": [
+                      "POST /api/auth/logout"
+                    ]
+                  },
+                  "dependencies": [
+                    "auth.session.refresh.endpoint"
+                  ],
+                  "tags": [
+                    "session"
+                  ]
                 },
                 {
                   "id": "auth.session.logout.all",
@@ -474,9 +1452,18 @@
                   "status": "to-build",
                   "priority": 3,
                   "description": "Revoke every session for this identity. Used after password change or suspected compromise.",
-                  "tech": { "endpoints": ["POST /api/auth/logout-all"] },
-                  "dependencies": ["auth.session.logout.current"],
-                  "tags": ["session", "security"]
+                  "tech": {
+                    "endpoints": [
+                      "POST /api/auth/logout-all"
+                    ]
+                  },
+                  "dependencies": [
+                    "auth.session.logout.current"
+                  ],
+                  "tags": [
+                    "session",
+                    "security"
+                  ]
                 }
               ]
             },
@@ -492,17 +1479,26 @@
                   "priority": 3,
                   "description": "Account page showing all active sessions with user agent, IP, last active. Per-session revoke button.",
                   "tech": {
-                    "endpoints": ["GET /api/account/sessions", "DELETE /api/account/sessions/:id"],
-                    "tables": ["Session"]
+                    "endpoints": [
+                      "GET /api/account/sessions",
+                      "DELETE /api/account/sessions/:id"
+                    ],
+                    "tables": [
+                      "Session"
+                    ]
                   },
-                  "dependencies": ["auth.session.logout.current"],
-                  "tags": ["ui", "account"]
+                  "dependencies": [
+                    "auth.session.logout.current"
+                  ],
+                  "tags": [
+                    "ui",
+                    "account"
+                  ]
                 }
               ]
             }
           ]
         },
-
         {
           "id": "auth.recovery",
           "name": "Account Recovery",
@@ -520,9 +1516,18 @@
                   "status": "to-build",
                   "priority": 2,
                   "description": "Accept email, send reset link via Resend. Always respond 200 even if email doesn't exist (no user enumeration).",
-                  "tech": { "vendor": "Resend", "endpoints": ["POST /api/auth/forgot-password"] },
-                  "dependencies": ["auth.foundation.schema.identity"],
-                  "tags": ["recovery"]
+                  "tech": {
+                    "vendor": "Resend",
+                    "endpoints": [
+                      "POST /api/auth/forgot-password"
+                    ]
+                  },
+                  "dependencies": [
+                    "auth.foundation.schema.identity"
+                  ],
+                  "tags": [
+                    "recovery"
+                  ]
                 },
                 {
                   "id": "auth.recovery.forgot.reset",
@@ -530,9 +1535,21 @@
                   "status": "to-build",
                   "priority": 2,
                   "description": "Accept token + new password, verify, update hash, revoke all existing sessions.",
-                  "tech": { "endpoints": ["POST /api/auth/reset-password"], "tables": ["AuthIdentity", "Session"] },
-                  "dependencies": ["auth.recovery.forgot.request"],
-                  "tags": ["recovery"]
+                  "tech": {
+                    "endpoints": [
+                      "POST /api/auth/reset-password"
+                    ],
+                    "tables": [
+                      "AuthIdentity",
+                      "Session"
+                    ]
+                  },
+                  "dependencies": [
+                    "auth.recovery.forgot.request"
+                  ],
+                  "tags": [
+                    "recovery"
+                  ]
                 }
               ]
             }
@@ -540,31 +1557,809 @@
         }
       ]
     },
-
     {
       "id": "profile",
       "name": "Customer Profile",
       "priority": 2,
       "description": "Profile info, preferences, dietary restrictions, saved payment methods, communication settings.",
       "tech_notes": "NestJS module + Next.js account pages. Talks to Customer, CustomerAddress, AuthIdentity tables.",
-      "modules": []
+      "modules": [
+        {
+          "id": "profile.schema",
+          "name": "Profile Data Model",
+          "priority": 1,
+          "description": "Customer profile table separated from AuthIdentity so OAuth-only users still have a profile.",
+          "submodules": [
+            {
+              "id": "profile.schema.customer",
+              "name": "Customer table",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "profile.schema.customer.model",
+                  "name": "Customer Prisma model",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "One-to-one with AuthIdentity. Fields: id, identity_id, first_name, last_name, display_name, marketing_opt_in, lifecycle_stage, hmp_customer_id, created_at, notes.",
+                  "tech": {
+                    "language": "Prisma",
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "Customer"
+                    ],
+                    "notes": "hmp_customer_id exists only for migration traceability."
+                  },
+                  "dependencies": [
+                    "auth.foundation.schema.identity"
+                  ],
+                  "tags": [
+                    "schema",
+                    "foundation"
+                  ]
+                },
+                {
+                  "id": "profile.schema.customer.lifecycle",
+                  "name": "Lifecycle stage enum",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "prospect | active | paused | churned. Drives re-engagement campaigns and admin filters.",
+                  "tech": {
+                    "notes": "Enum in Prisma schema. Updated by subscription state transitions."
+                  },
+                  "dependencies": [
+                    "profile.schema.customer.model"
+                  ],
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "profile.schema.address",
+              "name": "Address table",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "profile.schema.address.model",
+                  "name": "CustomerAddress Prisma model",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Fields: id, customer_id, label, line1, line2, city, province, postal_code, country, delivery_notes, is_default_delivery, is_default_billing, created_at, archived_at.",
+                  "tech": {
+                    "language": "Prisma",
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "CustomerAddress"
+                    ],
+                    "notes": "Soft delete via archived_at so old orders still resolve."
+                  },
+                  "dependencies": [
+                    "profile.schema.customer.model"
+                  ],
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "profile.schema.preferences",
+              "name": "Preferences table",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "profile.schema.preferences.model",
+                  "name": "CustomerPreference model",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Dietary restrictions, allergens, portion size, flavour dislikes. Feeds menu filtering and auto-swap rules.",
+                  "tech": {
+                    "language": "Prisma",
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "CustomerPreference"
+                    ]
+                  },
+                  "dependencies": [
+                    "profile.schema.customer.model"
+                  ],
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "profile.api",
+          "name": "Profile API",
+          "priority": 2,
+          "description": "Read/write endpoints for profile data, called from the account hub.",
+          "submodules": [
+            {
+              "id": "profile.api.read",
+              "name": "Read endpoints",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "profile.api.read.me",
+                  "name": "GET /api/account/me",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Returns current customer + addresses + preferences + lifecycle summary.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "endpoints": [
+                      "GET /api/account/me"
+                    ]
+                  },
+                  "dependencies": [
+                    "profile.schema.customer.model",
+                    "auth.foundation.middleware.guard"
+                  ],
+                  "tags": [
+                    "api"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "profile.api.write",
+              "name": "Write endpoints",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "profile.api.write.profile",
+                  "name": "PUT /api/account/profile",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Update name, display name, phone, marketing opt-in.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "endpoints": [
+                      "PUT /api/account/profile"
+                    ]
+                  },
+                  "dependencies": [
+                    "profile.api.read.me"
+                  ],
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "profile.api.write.addresses",
+                  "name": "Address CRUD",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "POST/PUT/DELETE /api/account/addresses. Sets default_delivery / default_billing flags atomically.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "endpoints": [
+                      "POST /api/account/addresses",
+                      "PUT /api/account/addresses/:id",
+                      "DELETE /api/account/addresses/:id"
+                    ]
+                  },
+                  "dependencies": [
+                    "profile.schema.address.model"
+                  ],
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "profile.api.write.preferences",
+                  "name": "PUT /api/account/preferences",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Update dietary restrictions, allergens, portion size.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "dependencies": [
+                    "profile.schema.preferences.model"
+                  ],
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "profile.api.write.email",
+                  "name": "Email change with verification",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "POST triggers a verification email; new email takes effect only after link clicked.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "Resend"
+                  },
+                  "dependencies": [
+                    "profile.api.write.profile",
+                    "notifications.email.transactional"
+                  ],
+                  "tags": [
+                    "api",
+                    "security"
+                  ]
+                },
+                {
+                  "id": "profile.api.write.phone",
+                  "name": "Phone change with OTP",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "POST triggers an SMS verification to the new number; only updates on verify.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "Twilio Verify"
+                  },
+                  "dependencies": [
+                    "auth.phone.twilio.send"
+                  ],
+                  "tags": [
+                    "api",
+                    "security"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "profile.ui",
+          "name": "Profile UI",
+          "priority": 2,
+          "description": "Account hub pages where customers manage their info.",
+          "submodules": [
+            {
+              "id": "profile.ui.hub",
+              "name": "Account hub shell",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "profile.ui.hub.layout",
+                  "name": "Account layout shell",
+                  "status": "designed",
+                  "priority": 2,
+                  "description": "Navy nav bar, tabs for My Subscription / Customer Info / Billing / Order History / Discounts, mobile-responsive.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "Port from subscriber-hub.html ECC-style nav."
+                  },
+                  "dependencies": [
+                    "profile.api.read.me"
+                  ],
+                  "tags": [
+                    "ui",
+                    "ported"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "profile.ui.customer-info",
+              "name": "Customer Info tab",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "profile.ui.customer-info.form",
+                  "name": "Profile edit form",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Name, display name, phone, email, marketing opt-in toggle.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "profile.ui.customer-info.password",
+                  "name": "Password + security section",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Change password, enabled 2FA methods, manage sessions.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "dependencies": [
+                    "auth.session.devices.list"
+                  ],
+                  "tags": [
+                    "ui",
+                    "security"
+                  ]
+                },
+                {
+                  "id": "profile.ui.customer-info.dietary",
+                  "name": "Dietary preferences form",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Checkbox list: vegetarian, vegan, gluten-free, nut-free, dairy-free, etc.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "profile.ui.addresses",
+              "name": "Address book",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "profile.ui.addresses.list",
+                  "name": "Address list with default badge",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Cards for each address with 'Set default delivery' / 'Edit' / 'Delete' actions.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "profile.ui.addresses.form",
+                  "name": "Add/edit address form",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Autocomplete postal code, validate against delivery zones.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "Google Places or manual entry fallback."
+                  },
+                  "dependencies": [
+                    "delivery.zones.validate"
+                  ],
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "profile.ui.notifications-prefs",
+              "name": "Notification preferences",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "profile.ui.notifications-prefs.channels",
+                  "name": "Channel toggles",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Email / SMS / Push toggles per notification category.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "dependencies": [
+                    "notifications.preferences"
+                  ],
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
-
     {
       "id": "menu",
       "name": "Menu & Catalog",
       "priority": 2,
       "description": "Public and logged-in browsing of the weekly menu. Meal detail pages, filters, allergens, macros.",
-      "tech_notes": "Reads from culinary-ops MealRecipe/MealComponent tables. No duplicate data — the kitchen ops schema is the source of truth for meals.",
-      "modules": []
+      "tech_notes": "Reads from culinary-ops MealRecipe/MealComponent tables. No duplicate data \u2014 the kitchen ops schema is the source of truth for meals.",
+      "modules": [
+        {
+          "id": "menu.source",
+          "name": "Menu Source of Truth",
+          "priority": 1,
+          "description": "Culinary-ops owns all meal data. The webapp reads via a thin bridge, never duplicates.",
+          "submodules": [
+            {
+              "id": "menu.source.bridge",
+              "name": "Culinary-ops bridge",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "menu.source.bridge.fetch",
+                  "name": "Fetch weekly menu from culinary-ops",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Service that reads MealRecipe + MealComponent + PortionSpec from culinary-ops Postgres. Cached in Redis or in-memory.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "MealRecipe",
+                      "MealComponent",
+                      "PortionSpec"
+                    ],
+                    "notes": "Same Postgres DB as culinary-ops; direct query, no HTTP hop."
+                  },
+                  "tags": [
+                    "integration",
+                    "culinary-ops"
+                  ]
+                },
+                {
+                  "id": "menu.source.bridge.photo-urls",
+                  "name": "Meal photo URL resolution",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Resolve meal_code -> photo URL via S3/R2 or local bundle.",
+                  "tech": {
+                    "notes": "Move off local disk to S3/R2 before launch. Meal photos currently in /Copy of BetterDay Meal Photos (1)/."
+                  },
+                  "tags": [
+                    "integration",
+                    "assets"
+                  ]
+                },
+                {
+                  "id": "menu.source.bridge.availability",
+                  "name": "Weekly availability window",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Reads culinary-ops CategoryAvailability + PortionSpec to determine what's on this week's menu.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "notes": "Respects category_availability windows + holidays."
+                  },
+                  "tags": [
+                    "integration"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "menu.source.sync",
+              "name": "Menu sync job",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "menu.source.sync.weekly",
+                  "name": "Weekly menu advance job",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Cron runs every Sunday night to flip next week's menu live, triggering auto-swap on subscription carts.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "crons": [
+                      "0 23 * * 0 \u2014 weekly menu advance"
+                    ]
+                  },
+                  "dependencies": [
+                    "menu.source.bridge.fetch",
+                    "subscriptions.engine.auto-swap"
+                  ],
+                  "tags": [
+                    "cron"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "menu.api",
+          "name": "Menu API",
+          "priority": 1,
+          "description": "REST endpoints the frontend calls to render menu pages.",
+          "submodules": [
+            {
+              "id": "menu.api.public",
+              "name": "Public menu endpoints",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "menu.api.public.current",
+                  "name": "GET /api/menu/current",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Returns the current week's menu: meals grouped by category, with photos, macros, allergens.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "endpoints": [
+                      "GET /api/menu/current"
+                    ]
+                  },
+                  "dependencies": [
+                    "menu.source.bridge.fetch"
+                  ],
+                  "tags": [
+                    "api",
+                    "public"
+                  ]
+                },
+                {
+                  "id": "menu.api.public.meal",
+                  "name": "GET /api/menu/meal/:code",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Detail for a single meal by BD-NNN code.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "endpoints": [
+                      "GET /api/menu/meal/:code"
+                    ]
+                  },
+                  "dependencies": [
+                    "menu.api.public.current"
+                  ],
+                  "tags": [
+                    "api",
+                    "public"
+                  ]
+                },
+                {
+                  "id": "menu.api.public.week",
+                  "name": "GET /api/menu/week/:isoWeek",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Historical / future week lookup. Powers 'what's coming next week' previews.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "menu.api.filters",
+              "name": "Filter/search endpoints",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "menu.api.filters.search",
+                  "name": "GET /api/menu/search?q=...",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Server-side search across meal name/description.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "menu.api.filters.dietary",
+                  "name": "GET /api/menu/filter?diet=vegan",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Filter by dietary tag or allergen.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "menu.browse",
+          "name": "Browse Surface (UI)",
+          "priority": 1,
+          "description": "The visible grid where customers pick meals. Exists as demo HTML.",
+          "submodules": [
+            {
+              "id": "menu.browse.grid",
+              "name": "Card grid",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "menu.browse.grid.cards",
+                  "name": "Meal cards (4-wide grid)",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Photo, BDSupper name, category pill, macros, add-to-cart button. Hover state.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "Port from menu-overlay.html. 4-col desktop, 2-col tablet, 1-col mobile."
+                  },
+                  "tags": [
+                    "ui",
+                    "ported"
+                  ]
+                },
+                {
+                  "id": "menu.browse.grid.category-tabs",
+                  "name": "Category tabs",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "All / Entrees / Sandwiches & Wraps / Breakfasts / Snacks & Other.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "ported"
+                  ]
+                },
+                {
+                  "id": "menu.browse.grid.sort-filter",
+                  "name": "Sort & filter dropdown",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Price asc/desc, macro targets, dietary tags.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "menu.browse.grid.color-coding",
+                  "name": "Meat/vegan colour coding",
+                  "status": "designed",
+                  "priority": 2,
+                  "description": "Blue bg = meat, green bg = vegan for fast visual parsing.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "menu.browse.grid.empty-state",
+                  "name": "Empty filter state",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "'No meals match these filters' with reset CTA.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "menu.browse.filters",
+              "name": "Filter controls",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "menu.browse.filters.allergens",
+                  "name": "Allergen filter",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Multi-select to exclude meals containing specific allergens.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "menu.browse.filters.dietary-tags",
+                  "name": "Dietary tags filter",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Vegan, vegetarian, gluten-free, high-protein, etc.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "menu.browse.filters.macro",
+                  "name": "Macro range filter",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Min/max sliders for protein, carbs, fat, calories.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "menu.detail",
+          "name": "Meal Detail",
+          "priority": 1,
+          "description": "Modal or page showing everything about one meal.",
+          "submodules": [
+            {
+              "id": "menu.detail.modal",
+              "name": "Meal detail modal",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "menu.detail.modal.layout",
+                  "name": "55/45 layout",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Photo on left, details on right. Name, tags, allergens, macros, description, CTA.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "ported"
+                  ]
+                },
+                {
+                  "id": "menu.detail.modal.macros",
+                  "name": "Macro strip",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Protein / carbs / fat / calories pills.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "menu.detail.modal.allergen-pills",
+                  "name": "Allergen warning pills",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Highlighted pills for contains + may-contain.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "safety"
+                  ]
+                },
+                {
+                  "id": "menu.detail.modal.qty-control",
+                  "name": "Quantity control + Add/Swap",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "+/- qty buttons, 'Add to cart' for new items, 'Swap' for already-in-cart.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "dependencies": [
+                    "cart.model.state.store"
+                  ],
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
-
     {
       "id": "cart",
       "name": "Cart & Build-a-Cart",
       "priority": 2,
       "description": "The signature BetterDay feature. Dynamic cart replaces rigid plan tiers. Customer builds any cart size; savings scale with cart, not commitment length.",
-      "tech_notes": "Cart / CartItem tables in culinary-ops Postgres. Prior design: subscriber-hub.html, menu-overlay.html, swap panel demo. Savings tiers: 4→5%, 5→8%, 7→11%, 8→Free Delivery, 9→14%, 11→17%, 13→20%.",
+      "tech_notes": "Cart / CartItem tables in culinary-ops Postgres. Prior design: subscriber-hub.html, menu-overlay.html, swap panel demo. Savings tiers: 4\u21925%, 5\u21928%, 7\u219211%, 8\u2192Free Delivery, 9\u219214%, 11\u219217%, 13\u219220%.",
       "modules": [
         {
           "id": "cart.model",
@@ -574,7 +2369,7 @@
           "submodules": [
             {
               "id": "cart.model.schema",
-              "name": "Prisma schema — cart tables",
+              "name": "Prisma schema \u2014 cart tables",
               "priority": 1,
               "components": [
                 {
@@ -585,11 +2380,16 @@
                   "description": "One active cart per customer. Converts to an Order at checkout.",
                   "tech": {
                     "database": "Postgres",
-                    "tables": ["Cart"],
+                    "tables": [
+                      "Cart"
+                    ],
                     "notes": "Fields: id, customer_id, status (active|abandoned|converted), created_at, updated_at"
                   },
                   "dependencies": [],
-                  "tags": ["schema", "foundation"]
+                  "tags": [
+                    "schema",
+                    "foundation"
+                  ]
                 },
                 {
                   "id": "cart.model.schema.cartitem",
@@ -599,11 +2399,17 @@
                   "description": "Line items referencing MealRecipe. Quantity and price snapshot.",
                   "tech": {
                     "database": "Postgres",
-                    "tables": ["CartItem"],
+                    "tables": [
+                      "CartItem"
+                    ],
                     "notes": "FK to MealRecipe (culinary-ops existing table). unit_price_cents denormalized for stable cart math."
                   },
-                  "dependencies": ["cart.model.schema.cart"],
-                  "tags": ["schema"]
+                  "dependencies": [
+                    "cart.model.schema.cart"
+                  ],
+                  "tags": [
+                    "schema"
+                  ]
                 }
               ]
             },
@@ -623,29 +2429,42 @@
                     "framework": "Next.js 14 + Zustand",
                     "notes": "Hydrates from server on page load. Optimistic updates fall back on error."
                   },
-                  "dependencies": ["cart.model.schema.cartitem"],
-                  "tags": ["frontend"]
+                  "dependencies": [
+                    "cart.model.schema.cartitem"
+                  ],
+                  "tags": [
+                    "frontend"
+                  ]
                 },
                 {
                   "id": "cart.model.state.sync",
-                  "name": "Client ↔ server sync",
+                  "name": "Client \u2194 server sync",
                   "status": "to-build",
                   "priority": 1,
                   "description": "Debounced PATCH to backend whenever cart changes. Resolves conflicts by last-write-wins on the server.",
-                  "tech": { "endpoints": ["PATCH /api/cart"], "notes": "Debounce 300ms client-side." },
-                  "dependencies": ["cart.model.state.store"],
-                  "tags": ["frontend", "sync"]
+                  "tech": {
+                    "endpoints": [
+                      "PATCH /api/cart"
+                    ],
+                    "notes": "Debounce 300ms client-side."
+                  },
+                  "dependencies": [
+                    "cart.model.state.store"
+                  ],
+                  "tags": [
+                    "frontend",
+                    "sync"
+                  ]
                 }
               ]
             }
           ]
         },
-
         {
           "id": "cart.ui",
           "name": "Cart UI",
           "priority": 1,
-          "description": "The visible shopping surface. Exists as demo HTML — needs port to React components.",
+          "description": "The visible shopping surface. Exists as demo HTML \u2014 needs port to React components.",
           "submodules": [
             {
               "id": "cart.ui.sidebar",
@@ -657,13 +2476,18 @@
                   "name": "Grouped line items",
                   "status": "designed",
                   "priority": 1,
-                  "description": "Gaya-font category headers ('Entrées | 7 Total'), 46px thumbnails, stacked qty/swap actions, trash-at-qty-1.",
+                  "description": "Gaya-font category headers ('Entr\u00e9es | 7 Total'), 46px thumbnails, stacked qty/swap actions, trash-at-qty-1.",
                   "tech": {
                     "framework": "Next.js 14",
                     "notes": "Design tokens in design-tokens.md. Demo lives in subscriber-hub.html cart sidebar."
                   },
-                  "dependencies": ["cart.model.state.store"],
-                  "tags": ["ui", "ported-from-demo"]
+                  "dependencies": [
+                    "cart.model.state.store"
+                  ],
+                  "tags": [
+                    "ui",
+                    "ported-from-demo"
+                  ]
                 },
                 {
                   "id": "cart.ui.sidebar.savings",
@@ -672,10 +2496,14 @@
                   "priority": 1,
                   "description": "Top-of-sidebar progress bar toward next tier. Free-delivery badge at 8 items.",
                   "tech": {
-                    "notes": "Tier thresholds: 4→5%, 5→8%, 7→11%, 8→Free Delivery, 9→14%, 11→17%, 13→20%. Documented in project_betterday_subscription_current.md."
+                    "notes": "Tier thresholds: 4\u21925%, 5\u21928%, 7\u219211%, 8\u2192Free Delivery, 9\u219214%, 11\u219217%, 13\u219220%. Documented in project_betterday_subscription_current.md."
                   },
-                  "dependencies": ["cart.ui.sidebar.items"],
-                  "tags": ["ui"]
+                  "dependencies": [
+                    "cart.ui.sidebar.items"
+                  ],
+                  "tags": [
+                    "ui"
+                  ]
                 },
                 {
                   "id": "cart.ui.sidebar.notices",
@@ -684,8 +2512,12 @@
                   "priority": 2,
                   "description": "Single-line clickable notices for allergen warnings and items swapped due to menu changes.",
                   "tech": {},
-                  "dependencies": ["cart.ui.sidebar.items"],
-                  "tags": ["ui"]
+                  "dependencies": [
+                    "cart.ui.sidebar.items"
+                  ],
+                  "tags": [
+                    "ui"
+                  ]
                 }
               ]
             },
@@ -700,15 +2532,21 @@
                   "status": "designed",
                   "priority": 2,
                   "description": "Centered modal showing same-category alternatives. 'Replace All' and 'Mix & Match' modes.",
-                  "tech": { "notes": "Demo in menu-overlay.html and swap-item.html. Auto-closes in Mix mode when slots filled." },
-                  "dependencies": ["cart.ui.sidebar.items"],
-                  "tags": ["ui", "ported-from-demo"]
+                  "tech": {
+                    "notes": "Demo in menu-overlay.html and swap-item.html. Auto-closes in Mix mode when slots filled."
+                  },
+                  "dependencies": [
+                    "cart.ui.sidebar.items"
+                  ],
+                  "tags": [
+                    "ui",
+                    "ported-from-demo"
+                  ]
                 }
               ]
             }
           ]
         },
-
         {
           "id": "cart.pricing",
           "name": "Pricing & Savings Tiers",
@@ -730,8 +2568,13 @@
                     "language": "TypeScript",
                     "notes": "Pure function, fully testable. Reads tier thresholds from StoreSetting. Integer cents everywhere."
                   },
-                  "dependencies": ["cart.model.schema.cartitem"],
-                  "tags": ["pricing", "server-authoritative"]
+                  "dependencies": [
+                    "cart.model.schema.cartitem"
+                  ],
+                  "tags": [
+                    "pricing",
+                    "server-authoritative"
+                  ]
                 },
                 {
                   "id": "cart.pricing.engine.free-delivery",
@@ -739,15 +2582,20 @@
                   "status": "to-build",
                   "priority": 2,
                   "description": "FREE_DELIVERY_MEALS = 8. Applies automatically when threshold met.",
-                  "tech": { "notes": "Configurable per store via StoreSetting." },
-                  "dependencies": ["cart.pricing.engine.compute"],
-                  "tags": ["pricing"]
+                  "tech": {
+                    "notes": "Configurable per store via StoreSetting."
+                  },
+                  "dependencies": [
+                    "cart.pricing.engine.compute"
+                  ],
+                  "tags": [
+                    "pricing"
+                  ]
                 }
               ]
             }
           ]
         },
-
         {
           "id": "cart.persistence",
           "name": "Cart Persistence",
@@ -765,9 +2613,15 @@
                   "status": "to-build",
                   "priority": 2,
                   "description": "Unauthenticated user can build a cart. Persists across page reloads.",
-                  "tech": { "notes": "Same shape as server cart, just persisted client-side." },
-                  "dependencies": ["cart.model.state.store"],
-                  "tags": ["frontend"]
+                  "tech": {
+                    "notes": "Same shape as server cart, just persisted client-side."
+                  },
+                  "dependencies": [
+                    "cart.model.state.store"
+                  ],
+                  "tags": [
+                    "frontend"
+                  ]
                 },
                 {
                   "id": "cart.persistence.guest.merge",
@@ -775,9 +2629,17 @@
                   "status": "to-build",
                   "priority": 2,
                   "description": "When a guest logs in, merge their localStorage cart into their server cart (union of items, dedupe by meal_id).",
-                  "tech": { "endpoints": ["POST /api/cart/merge"] },
-                  "dependencies": ["cart.persistence.guest.local"],
-                  "tags": ["sync"]
+                  "tech": {
+                    "endpoints": [
+                      "POST /api/cart/merge"
+                    ]
+                  },
+                  "dependencies": [
+                    "cart.persistence.guest.local"
+                  ],
+                  "tags": [
+                    "sync"
+                  ]
                 }
               ]
             }
@@ -785,13 +2647,12 @@
         }
       ]
     },
-
     {
       "id": "checkout",
       "name": "Checkout",
       "priority": 2,
       "description": "The path from 'I want to order' to 'order placed'. Express checkout, guest path, logged-in path, address, delivery window, coupons, tips, review, place.",
-      "tech_notes": "Stripe Elements for card entry. Stripe Payment Request API for Apple Pay / Google Pay. Own Checkout flow in Next.js — no redirect to Stripe Checkout (we want full brand control).",
+      "tech_notes": "Stripe Elements for card entry. Stripe Payment Request API for Apple Pay / Google Pay. Own Checkout flow in Next.js \u2014 no redirect to Stripe Checkout (we want full brand control).",
       "modules": [
         {
           "id": "checkout.express",
@@ -815,7 +2676,10 @@
                     "notes": "Stripe provides the verification file. Must be served at /.well-known/apple-developer-merchantid-domain-association."
                   },
                   "dependencies": [],
-                  "tags": ["express-checkout", "setup"]
+                  "tags": [
+                    "express-checkout",
+                    "setup"
+                  ]
                 },
                 {
                   "id": "checkout.express.apple.button",
@@ -827,8 +2691,14 @@
                     "vendor": "Stripe Payment Request API",
                     "notes": "Only rendered if browser supports Apple Pay."
                   },
-                  "dependencies": ["checkout.express.apple.setup", "payments.stripe.setup"],
-                  "tags": ["express-checkout", "ui"]
+                  "dependencies": [
+                    "checkout.express.apple.setup",
+                    "payments.stripe.setup"
+                  ],
+                  "tags": [
+                    "express-checkout",
+                    "ui"
+                  ]
                 }
               ]
             },
@@ -843,9 +2713,16 @@
                   "status": "to-build",
                   "priority": 2,
                   "description": "Above-stepper button using Stripe Payment Request API (same primitive as Apple Pay).",
-                  "tech": { "vendor": "Stripe Payment Request API" },
-                  "dependencies": ["payments.stripe.setup"],
-                  "tags": ["express-checkout", "ui"]
+                  "tech": {
+                    "vendor": "Stripe Payment Request API"
+                  },
+                  "dependencies": [
+                    "payments.stripe.setup"
+                  ],
+                  "tags": [
+                    "express-checkout",
+                    "ui"
+                  ]
                 }
               ]
             },
@@ -860,9 +2737,16 @@
                   "status": "to-build",
                   "priority": 3,
                   "description": "Stripe's saved-payment-and-address system. Returning Link users can check out in a few clicks.",
-                  "tech": { "vendor": "Stripe Link", "notes": "Enabled in Stripe Elements config. Free with Stripe." },
-                  "dependencies": ["payments.stripe.setup"],
-                  "tags": ["express-checkout"]
+                  "tech": {
+                    "vendor": "Stripe Link",
+                    "notes": "Enabled in Stripe Elements config. Free with Stripe."
+                  },
+                  "dependencies": [
+                    "payments.stripe.setup"
+                  ],
+                  "tags": [
+                    "express-checkout"
+                  ]
                 }
               ]
             },
@@ -876,16 +2760,21 @@
                   "name": "Evaluate Shop Pay feasibility",
                   "status": "to-build",
                   "priority": 4,
-                  "description": "Shop Pay is Shopify's express checkout. Requires a Shopify-adjacent integration path — may not be feasible without a Shopify storefront. Investigate before committing.",
-                  "tech": { "vendor": "Shopify", "notes": "Open question: does this require Shop Pay Checkout Sheet Kit or a full Shopify storefront?" },
+                  "description": "Shop Pay is Shopify's express checkout. Requires a Shopify-adjacent integration path \u2014 may not be feasible without a Shopify storefront. Investigate before committing.",
+                  "tech": {
+                    "vendor": "Shopify",
+                    "notes": "Open question: does this require Shop Pay Checkout Sheet Kit or a full Shopify storefront?"
+                  },
                   "dependencies": [],
-                  "tags": ["express-checkout", "research"]
+                  "tags": [
+                    "express-checkout",
+                    "research"
+                  ]
                 }
               ]
             }
           ]
         },
-
         {
           "id": "checkout.stepper",
           "name": "Stepper flow",
@@ -903,9 +2792,19 @@
                   "status": "to-build",
                   "priority": 2,
                   "description": "If logged in, list saved addresses. Otherwise show 'enter new address' form. Validates against delivery zone.",
-                  "tech": { "tables": ["CustomerAddress"] },
-                  "dependencies": ["profile", "delivery.zones"],
-                  "tags": ["ui", "address"]
+                  "tech": {
+                    "tables": [
+                      "CustomerAddress"
+                    ]
+                  },
+                  "dependencies": [
+                    "profile",
+                    "delivery.zones"
+                  ],
+                  "tags": [
+                    "ui",
+                    "address"
+                  ]
                 },
                 {
                   "id": "checkout.stepper.address.zone",
@@ -913,9 +2812,17 @@
                   "status": "to-build",
                   "priority": 2,
                   "description": "Check postal code against DeliveryZone table. Reject or offer pickup alternative.",
-                  "tech": { "endpoints": ["POST /api/delivery/zones/validate"] },
-                  "dependencies": ["checkout.stepper.address.picker"],
-                  "tags": ["delivery"]
+                  "tech": {
+                    "endpoints": [
+                      "POST /api/delivery/zones/validate"
+                    ]
+                  },
+                  "dependencies": [
+                    "checkout.stepper.address.picker"
+                  ],
+                  "tags": [
+                    "delivery"
+                  ]
                 }
               ]
             },
@@ -930,9 +2837,20 @@
                   "status": "to-build",
                   "priority": 2,
                   "description": "Shows available delivery dates (respecting cutoff rules and holidays) and time windows per date.",
-                  "tech": { "tables": ["CutoffRule", "Holiday"] },
-                  "dependencies": ["delivery.cutoff-rules", "delivery.holidays"],
-                  "tags": ["ui", "delivery"]
+                  "tech": {
+                    "tables": [
+                      "CutoffRule",
+                      "Holiday"
+                    ]
+                  },
+                  "dependencies": [
+                    "delivery.cutoff-rules",
+                    "delivery.holidays"
+                  ],
+                  "tags": [
+                    "ui",
+                    "delivery"
+                  ]
                 }
               ]
             },
@@ -947,9 +2865,16 @@
                   "status": "to-build",
                   "priority": 2,
                   "description": "Embedded Stripe Elements for card entry. No PCI scope (Stripe handles it).",
-                  "tech": { "vendor": "Stripe Elements" },
-                  "dependencies": ["payments.stripe.setup"],
-                  "tags": ["ui", "payment"]
+                  "tech": {
+                    "vendor": "Stripe Elements"
+                  },
+                  "dependencies": [
+                    "payments.stripe.setup"
+                  ],
+                  "tags": [
+                    "ui",
+                    "payment"
+                  ]
                 },
                 {
                   "id": "checkout.stepper.payment.saved",
@@ -957,9 +2882,18 @@
                   "status": "to-build",
                   "priority": 3,
                   "description": "Logged-in returning customers see saved cards first.",
-                  "tech": { "endpoints": ["GET /api/account/payment-methods"] },
-                  "dependencies": ["payments.saved-methods"],
-                  "tags": ["ui", "payment"]
+                  "tech": {
+                    "endpoints": [
+                      "GET /api/account/payment-methods"
+                    ]
+                  },
+                  "dependencies": [
+                    "payments.saved-methods"
+                  ],
+                  "tags": [
+                    "ui",
+                    "payment"
+                  ]
                 }
               ]
             },
@@ -975,24 +2909,41 @@
                   "priority": 2,
                   "description": "Final list of items, subtotal, discount, fees, tax, tip, total. Big 'Place Order' button.",
                   "tech": {},
-                  "dependencies": ["cart.pricing.engine.compute"],
-                  "tags": ["ui"]
+                  "dependencies": [
+                    "cart.pricing.engine.compute"
+                  ],
+                  "tags": [
+                    "ui"
+                  ]
                 },
                 {
                   "id": "checkout.stepper.review.place",
                   "name": "Place order action",
                   "status": "to-build",
                   "priority": 2,
-                  "description": "POST /api/orders — validates cart, charges Stripe, creates Order + OrderItems + Payment, returns order ID.",
-                  "tech": { "endpoints": ["POST /api/orders"], "tables": ["Order", "OrderItem", "Payment"] },
-                  "dependencies": ["orders.create", "payments.stripe.charge"],
-                  "tags": ["checkout"]
+                  "description": "POST /api/orders \u2014 validates cart, charges Stripe, creates Order + OrderItems + Payment, returns order ID.",
+                  "tech": {
+                    "endpoints": [
+                      "POST /api/orders"
+                    ],
+                    "tables": [
+                      "Order",
+                      "OrderItem",
+                      "Payment"
+                    ]
+                  },
+                  "dependencies": [
+                    "orders.create",
+                    "payments.stripe.charge"
+                  ],
+                  "tags": [
+                    "checkout"
+                  ]
                 }
               ]
             }
           ]
         },
-
         {
           "id": "checkout.coupon",
           "name": "Coupon + Gift Card at Checkout",
@@ -1009,10 +2960,18 @@
                   "name": "Validate coupon endpoint",
                   "status": "to-build",
                   "priority": 2,
-                  "description": "POST /api/cart/apply-coupon — checks coupon rules against the current cart and customer (including order history).",
-                  "tech": { "endpoints": ["POST /api/cart/apply-coupon"] },
-                  "dependencies": ["coupons.engine"],
-                  "tags": ["coupons"]
+                  "description": "POST /api/cart/apply-coupon \u2014 checks coupon rules against the current cart and customer (including order history).",
+                  "tech": {
+                    "endpoints": [
+                      "POST /api/cart/apply-coupon"
+                    ]
+                  },
+                  "dependencies": [
+                    "coupons.engine"
+                  ],
+                  "tags": [
+                    "coupons"
+                  ]
                 }
               ]
             },
@@ -1027,15 +2986,22 @@
                   "status": "to-build",
                   "priority": 3,
                   "description": "Debit gift card balance against order total. Partial balance supported.",
-                  "tech": { "endpoints": ["POST /api/cart/apply-gift-card"] },
-                  "dependencies": ["giftcards.redeem"],
-                  "tags": ["gift-cards"]
+                  "tech": {
+                    "endpoints": [
+                      "POST /api/cart/apply-gift-card"
+                    ]
+                  },
+                  "dependencies": [
+                    "giftcards.redeem"
+                  ],
+                  "tags": [
+                    "gift-cards"
+                  ]
                 }
               ]
             }
           ]
         },
-
         {
           "id": "checkout.tip",
           "name": "Tip Selection",
@@ -1054,14 +3020,17 @@
                   "priority": 3,
                   "description": "Presets: 0%, 10%, 15%, 20%, custom. Updates totals live.",
                   "tech": {},
-                  "dependencies": ["cart.pricing.engine.compute"],
-                  "tags": ["ui"]
+                  "dependencies": [
+                    "cart.pricing.engine.compute"
+                  ],
+                  "tags": [
+                    "ui"
+                  ]
                 }
               ]
             }
           ]
         },
-
         {
           "id": "checkout.confirmation",
           "name": "Confirmation Page",
@@ -1080,8 +3049,12 @@
                   "priority": 2,
                   "description": "Big check mark, order number, summary, 'track your order' link, upsell to create account (guest path only).",
                   "tech": {},
-                  "dependencies": ["checkout.stepper.review.place"],
-                  "tags": ["ui"]
+                  "dependencies": [
+                    "checkout.stepper.review.place"
+                  ],
+                  "tags": [
+                    "ui"
+                  ]
                 },
                 {
                   "id": "checkout.confirmation.page.email",
@@ -1089,9 +3062,15 @@
                   "status": "to-build",
                   "priority": 2,
                   "description": "After successful order, fire a receipt email via Resend.",
-                  "tech": { "vendor": "Resend" },
-                  "dependencies": ["notifications.email.receipt"],
-                  "tags": ["email"]
+                  "tech": {
+                    "vendor": "Resend"
+                  },
+                  "dependencies": [
+                    "notifications.email.receipt"
+                  ],
+                  "tags": [
+                    "email"
+                  ]
                 }
               ]
             }
@@ -1099,25 +3078,601 @@
         }
       ]
     },
-
     {
       "id": "payments",
       "name": "Payments",
       "priority": 2,
       "description": "Stripe Elements for card entry. Stripe Subscriptions for recurring. Tax, tips, refunds, failed-payment retry, payment method management.",
-      "tech_notes": "All money as integer cents. Use Stripe Customer ID as our reference. Stripe Tax for CAN GST. Never store card data ourselves — Stripe holds everything.",
-      "modules": []
+      "tech_notes": "All money as integer cents. Use Stripe Customer ID as our reference. Stripe Tax for CAN GST. Never store card data ourselves \u2014 Stripe holds everything.",
+      "modules": [
+        {
+          "id": "payments.stripe",
+          "name": "Stripe Core",
+          "priority": 1,
+          "description": "All payment processing runs through Stripe. Never store card data ourselves.",
+          "submodules": [
+            {
+              "id": "payments.stripe.setup",
+              "name": "Stripe setup",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "payments.stripe.setup.account",
+                  "name": "Stripe account + test mode",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Create Stripe account, get test keys, configure business info for Canadian tax.",
+                  "tech": {
+                    "vendor": "Stripe",
+                    "notes": "One-time manual setup. Save keys in password manager + env vars."
+                  },
+                  "tags": [
+                    "vendor-setup"
+                  ]
+                },
+                {
+                  "id": "payments.stripe.setup.webhooks",
+                  "name": "Webhook endpoint + signing secret",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "POST /api/webhooks/stripe with signature verification.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "endpoints": [
+                      "POST /api/webhooks/stripe"
+                    ],
+                    "notes": "Stripe sends events for payment_intent.*, customer.subscription.*, etc."
+                  },
+                  "tags": [
+                    "webhook",
+                    "security"
+                  ]
+                },
+                {
+                  "id": "payments.stripe.setup.customer-mapping",
+                  "name": "Stripe customer creation",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "On first checkout, create a Stripe Customer and store stripe_customer_id on our Customer row.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "database": "Prisma + Postgres (Neon)"
+                  },
+                  "dependencies": [
+                    "profile.schema.customer.model"
+                  ],
+                  "tags": [
+                    "integration"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "payments.stripe.elements",
+              "name": "Stripe Elements (card entry)",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "payments.stripe.elements.mount",
+                  "name": "Mount Elements in checkout",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Embedded card input with 3DS support. No PCI scope for us.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "vendor": "Stripe Elements"
+                  },
+                  "dependencies": [
+                    "payments.stripe.setup.account"
+                  ],
+                  "tags": [
+                    "ui",
+                    "payment"
+                  ]
+                },
+                {
+                  "id": "payments.stripe.elements.styling",
+                  "name": "Brand Elements styling",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Match Stripe Elements theme to BetterDay brand.",
+                  "tech": {
+                    "vendor": "Stripe Elements",
+                    "notes": "Appearance API with cream/navy/sky palette."
+                  },
+                  "tags": [
+                    "ui",
+                    "brand"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "payments.stripe.charge",
+              "name": "One-time charge flow",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "payments.stripe.charge.create-intent",
+                  "name": "Create PaymentIntent",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "POST /api/payments/intent \u2014 creates intent with amount + currency, returns client_secret.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "endpoints": [
+                      "POST /api/payments/intent"
+                    ]
+                  },
+                  "dependencies": [
+                    "payments.stripe.setup.customer-mapping"
+                  ],
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "payments.stripe.charge.confirm",
+                  "name": "Confirm + handle 3DS",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Frontend calls stripe.confirmPayment; handle challenge flow.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "dependencies": [
+                    "payments.stripe.charge.create-intent"
+                  ],
+                  "tags": [
+                    "payment"
+                  ]
+                },
+                {
+                  "id": "payments.stripe.charge.idempotency",
+                  "name": "Idempotency keys",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Every charge creation uses an idempotency key tied to the order so retries don't double-charge.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "safety"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "payments.stripe.subscriptions",
+              "name": "Stripe Subscriptions",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "payments.stripe.subscriptions.price",
+                  "name": "Dynamic price objects",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Since build-a-cart changes amount weekly, use dynamic pricing via invoice items instead of fixed Prices.",
+                  "tech": {
+                    "vendor": "Stripe Subscriptions",
+                    "notes": "Alternative: create Price at Friday rollover. TBD which is cleaner."
+                  },
+                  "tags": [
+                    "payment",
+                    "research"
+                  ]
+                },
+                {
+                  "id": "payments.stripe.subscriptions.create",
+                  "name": "Create subscription",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "POST subscription with a Customer, a default payment method, and a billing cycle anchor.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "payments.stripe.subscriptions.update",
+                  "name": "Update subscription (next week)",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "When cart changes for next week, update the upcoming invoice to reflect new total.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "payments.stripe.subscriptions.cancel",
+                  "name": "Cancel subscription",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Immediate or end-of-period cancel.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "payments.methods",
+          "name": "Saved Payment Methods",
+          "priority": 2,
+          "description": "Let returning customers check out with one tap.",
+          "submodules": [
+            {
+              "id": "payments.methods.save",
+              "name": "Save on file",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "payments.methods.save.setup-intent",
+                  "name": "SetupIntent for off-session future use",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Saves card for subscription billing without a charge.",
+                  "tech": {
+                    "vendor": "Stripe"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "payments.methods.save.default",
+                  "name": "Default payment method",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Customer can set which card is default for subscriptions + future orders.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "payments.methods.list",
+              "name": "List + remove",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "payments.methods.list.endpoint",
+                  "name": "GET /api/account/payment-methods",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Return saved cards with last4, brand, expiry, default flag.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "payments.methods.list.remove",
+                  "name": "DELETE /api/account/payment-methods/:id",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Detach payment method from Stripe customer.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "payments.methods.ui",
+              "name": "Payment methods UI",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "payments.methods.ui.list",
+                  "name": "Saved cards list (account hub)",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Card rows showing brand + last4 + expiry + default badge.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "payments.methods.ui.add",
+                  "name": "Add new card flow",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Stripe Elements modal to add a card, uses SetupIntent.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "payments.tax",
+          "name": "Tax",
+          "priority": 2,
+          "description": "Canadian GST handling via Stripe Tax.",
+          "submodules": [
+            {
+              "id": "payments.tax.stripe-tax",
+              "name": "Stripe Tax integration",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "payments.tax.stripe-tax.enable",
+                  "name": "Enable Stripe Tax for Canada",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Register BetterDay for GST, enable Stripe Tax in dashboard, set product tax codes.",
+                  "tech": {
+                    "vendor": "Stripe Tax"
+                  },
+                  "tags": [
+                    "vendor-setup",
+                    "legal"
+                  ]
+                },
+                {
+                  "id": "payments.tax.stripe-tax.calculate",
+                  "name": "Calculate tax on intent creation",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Include customer address; Stripe returns tax amount which we add to order total.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "payments.tax.display",
+              "name": "Tax display",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "payments.tax.display.line-item",
+                  "name": "Line item on receipts",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Always show GST as a separate line on checkout + receipt.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "legal"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "payments.refunds",
+          "name": "Refunds & Credits",
+          "priority": 2,
+          "description": "Issue refunds or in-app credit for problems.",
+          "submodules": [
+            {
+              "id": "payments.refunds.full",
+              "name": "Full refund",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "payments.refunds.full.api",
+                  "name": "POST /api/admin/orders/:id/refund",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Full refund via Stripe; updates Order status to 'refunded'.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "Stripe"
+                  },
+                  "tags": [
+                    "api",
+                    "admin"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "payments.refunds.partial",
+              "name": "Partial refund",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "payments.refunds.partial.api",
+                  "name": "POST /api/admin/orders/:id/refund with amount",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Refund a specific amount, log reason, keep order active.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api",
+                    "admin"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "payments.refunds.credit",
+              "name": "Store credit",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "payments.refunds.credit.issue",
+                  "name": "Issue store credit",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Credit to customer's StoreCredit balance instead of card refund.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "StoreCredit",
+                      "StoreCreditTransaction"
+                    ]
+                  },
+                  "tags": [
+                    "api",
+                    "admin"
+                  ]
+                },
+                {
+                  "id": "payments.refunds.credit.apply",
+                  "name": "Apply credit at checkout",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Customer opts in to use credit balance at checkout; debited at order placement.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "payments.failures",
+          "name": "Payment Failures & Dunning",
+          "priority": 2,
+          "description": "Handling failed charges gracefully.",
+          "submodules": [
+            {
+              "id": "payments.failures.retry",
+              "name": "Retry logic",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "payments.failures.retry.webhook",
+                  "name": "payment_intent.payment_failed webhook handler",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "On failure, mark Payment as failed, notify customer, schedule retry.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "Stripe"
+                  },
+                  "tags": [
+                    "webhook"
+                  ]
+                },
+                {
+                  "id": "payments.failures.retry.schedule",
+                  "name": "Smart retry schedule",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Retry at 1d, 3d, 7d with exponential backoff. After final fail, pause subscription.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "crons": [
+                      "payment retry scheduler"
+                    ]
+                  },
+                  "tags": [
+                    "cron"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "payments.failures.comms",
+              "name": "Customer communication",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "payments.failures.comms.email",
+                  "name": "Failed payment email",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Send 'card on file declined' email with update-card CTA.",
+                  "tech": {
+                    "vendor": "Resend"
+                  },
+                  "tags": [
+                    "email"
+                  ]
+                },
+                {
+                  "id": "payments.failures.comms.sms",
+                  "name": "Failed payment SMS",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Optional SMS for urgent cases (right before cutoff).",
+                  "tech": {
+                    "vendor": "Twilio"
+                  },
+                  "tags": [
+                    "sms"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "payments.failures.ui",
+              "name": "In-app banner",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "payments.failures.ui.banner",
+                  "name": "Persistent 'update your card' banner",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Shown at top of account hub when a payment method needs attention.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
-
     {
       "id": "orders",
       "name": "Orders (One-Time)",
       "priority": 2,
       "description": "Creating, viewing, tracking, and reordering one-time orders. History, detail, status updates.",
-      "tech_notes": "Order and OrderItem tables. Status lifecycle: pending → confirmed → in_production → out_for_delivery → delivered. Snapshots meal data at order time.",
+      "tech_notes": "Order and OrderItem tables. Status lifecycle: pending \u2192 confirmed \u2192 in_production \u2192 out_for_delivery \u2192 delivered. Snapshots meal data at order time.",
       "modules": []
     },
-
     {
       "id": "subscriptions",
       "name": "Subscriptions",
@@ -1126,7 +3681,6 @@
       "tech_notes": "Designed in project_betterday_skip_pause_model.md. Unified cart report query. Single delivery_status enum. No placeholder leakage (fixes the Sprwt problem).",
       "modules": []
     },
-
     {
       "id": "plan-mgmt",
       "name": "Plan Management",
@@ -1135,7 +3689,6 @@
       "tech_notes": "Unified skip/pause/cancel model already designed. Skip is universal week-level action; pause = indefinite only; cancel = terminal. Demo exists in subscriber-hub.html.",
       "modules": []
     },
-
     {
       "id": "delivery",
       "name": "Delivery & Pickup",
@@ -1144,7 +3697,6 @@
       "tech_notes": "DeliveryZone, PickupLocation, Holiday, CutoffRule tables. Calgary zones only at launch.",
       "modules": []
     },
-
     {
       "id": "coupons",
       "name": "Coupons & Discounts",
@@ -1153,7 +3705,6 @@
       "tech_notes": "Coupon, CouponRedemption tables. CustomerMirror.orders_completed_count for live-verify at redemption.",
       "modules": []
     },
-
     {
       "id": "giftcards",
       "name": "Gift Cards",
@@ -1162,7 +3713,6 @@
       "tech_notes": "GiftCard, GiftCardTransaction tables. Stripe for purchase. Resend for delivery email.",
       "modules": []
     },
-
     {
       "id": "rewards",
       "name": "Rewards & Loyalty",
@@ -1171,16 +3721,14 @@
       "tech_notes": "RewardAccount, RewardTransaction, RewardRule tables. Earning rules as config, not code.",
       "modules": []
     },
-
     {
       "id": "referrals",
       "name": "Referrals",
       "priority": 3,
-      "description": "Share link, track referrer → referee, both sides get coupons on successful conversion.",
+      "description": "Share link, track referrer \u2192 referee, both sides get coupons on successful conversion.",
       "tech_notes": "Referral, ReferralReward tables. Coupon engine handles the reward codes.",
       "modules": []
     },
-
     {
       "id": "notifications",
       "name": "Notifications",
@@ -1189,7 +3737,6 @@
       "tech_notes": "Resend for email. Twilio (non-Verify) for SMS delivery updates. FCM for web push (later).",
       "modules": []
     },
-
     {
       "id": "admin",
       "name": "Admin Console",
@@ -1198,7 +3745,6 @@
       "tech_notes": "Can share the same codebase as the customer app, gated by role. Or separate Next.js subapp under /admin.",
       "modules": []
     },
-
     {
       "id": "analytics",
       "name": "Analytics & Reports",
@@ -1207,7 +3753,6 @@
       "tech_notes": "Probably Metabase or a simple built-in dashboard for launch. Real BI can come later.",
       "modules": []
     },
-
     {
       "id": "integrations",
       "name": "Integrations",
@@ -1216,16 +3761,796 @@
       "tech_notes": "Wrap every external dependency in a thin adapter so we can swap vendors.",
       "modules": []
     },
-
     {
       "id": "platform",
       "name": "Platform & Ops",
       "priority": 1,
       "description": "The invisible stuff: logging, monitoring, cron runner, job queue, error tracking, secrets management, deployments, backups.",
       "tech_notes": "Railway or Vercel for hosting. Inngest or pg_cron for jobs. Sentry for errors. Env vars from a vault.",
-      "modules": []
+      "modules": [
+        {
+          "id": "platform.hosting",
+          "name": "Hosting & Deploy",
+          "priority": 1,
+          "description": "Where the webapp and API actually run.",
+          "submodules": [
+            {
+              "id": "platform.hosting.web",
+              "name": "Web hosting",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "platform.hosting.web.vercel",
+                  "name": "Vercel setup for webapp",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Deploy betterday-webapp Next.js app to Vercel. Connect to GitHub for auto-deploy on main.",
+                  "tech": {
+                    "vendor": "Vercel"
+                  },
+                  "tags": [
+                    "infra"
+                  ]
+                },
+                {
+                  "id": "platform.hosting.web.env-vars",
+                  "name": "Environment variables config",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Stripe keys, Twilio, Resend, DB URL, JWT secret, OAuth client IDs, etc.",
+                  "tech": {
+                    "vendor": "Vercel"
+                  },
+                  "tags": [
+                    "infra",
+                    "security"
+                  ]
+                },
+                {
+                  "id": "platform.hosting.web.preview",
+                  "name": "Preview deployments for PRs",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Every PR gets a preview URL. Useful for design review.",
+                  "tech": {
+                    "vendor": "Vercel"
+                  },
+                  "tags": [
+                    "infra",
+                    "dx"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "platform.hosting.api",
+              "name": "API hosting",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "platform.hosting.api.railway",
+                  "name": "Railway or Render for NestJS API",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Host the NestJS backend. Consider: Railway (cheaper, simpler) vs Render (current culinary-ops).",
+                  "tech": {
+                    "vendor": "Railway or Render",
+                    "notes": "Decision pending. Render already has culinary-ops, reusing keeps one dashboard."
+                  },
+                  "tags": [
+                    "infra",
+                    "decision"
+                  ]
+                },
+                {
+                  "id": "platform.hosting.api.region-na",
+                  "name": "North America region",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Ensure API runs in Ohio/Oregon, not Singapore. Culinary-ops currently Singapore (fix separately).",
+                  "tech": {
+                    "vendor": "Render"
+                  },
+                  "tags": [
+                    "infra",
+                    "performance"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "platform.hosting.db",
+              "name": "Database",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "platform.hosting.db.neon",
+                  "name": "Neon Postgres",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Shared DB with culinary-ops. One database, multiple schemas or one schema with clear table prefixes.",
+                  "tech": {
+                    "vendor": "Neon",
+                    "database": "Prisma + Postgres (Neon)"
+                  },
+                  "tags": [
+                    "infra",
+                    "database"
+                  ]
+                },
+                {
+                  "id": "platform.hosting.db.branching",
+                  "name": "Neon branching for preview",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Each PR preview gets a DB branch so migrations can be tested in isolation.",
+                  "tech": {
+                    "vendor": "Neon"
+                  },
+                  "tags": [
+                    "infra",
+                    "dx"
+                  ]
+                },
+                {
+                  "id": "platform.hosting.db.pooling",
+                  "name": "Connection pooling",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Use Neon pooler or PgBouncer for serverless-friendly connection reuse.",
+                  "tech": {
+                    "vendor": "Neon"
+                  },
+                  "tags": [
+                    "infra",
+                    "performance"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "platform.hosting.storage",
+              "name": "Object storage",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "platform.hosting.storage.r2",
+                  "name": "Cloudflare R2 or AWS S3",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "For meal photos, user uploads, generated receipts. Move off culinary-ops local disk.",
+                  "tech": {
+                    "vendor": "Cloudflare R2",
+                    "notes": "R2 has no egress fees, cheaper than S3 for a read-heavy image workload."
+                  },
+                  "tags": [
+                    "infra",
+                    "decision"
+                  ]
+                },
+                {
+                  "id": "platform.hosting.storage.cdn",
+                  "name": "CDN in front of images",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Cloudflare or Vercel image optimization for menu photos.",
+                  "tech": {
+                    "vendor": "Vercel Image"
+                  },
+                  "tags": [
+                    "infra",
+                    "performance"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "platform.ci",
+          "name": "CI/CD",
+          "priority": 1,
+          "description": "Automated testing and deployment pipelines.",
+          "submodules": [
+            {
+              "id": "platform.ci.github-actions",
+              "name": "GitHub Actions",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "platform.ci.github-actions.lint",
+                  "name": "Lint + typecheck",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Run on every PR: eslint, tsc --noEmit, prettier --check.",
+                  "tech": {
+                    "vendor": "GitHub Actions"
+                  },
+                  "tags": [
+                    "ci"
+                  ]
+                },
+                {
+                  "id": "platform.ci.github-actions.test",
+                  "name": "Unit + integration tests",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "vitest or jest runs against a test Postgres.",
+                  "tech": {
+                    "vendor": "GitHub Actions"
+                  },
+                  "tags": [
+                    "ci"
+                  ]
+                },
+                {
+                  "id": "platform.ci.github-actions.prisma-check",
+                  "name": "Prisma validate + migrate check",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Fail PR if migrations are missing or schema is invalid.",
+                  "tech": {
+                    "vendor": "GitHub Actions"
+                  },
+                  "tags": [
+                    "ci",
+                    "database"
+                  ]
+                },
+                {
+                  "id": "platform.ci.github-actions.build",
+                  "name": "Build check",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Run next build + nest build on PRs to catch compile errors.",
+                  "tech": {
+                    "vendor": "GitHub Actions"
+                  },
+                  "tags": [
+                    "ci"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "platform.ci.protection",
+              "name": "Branch protection",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "platform.ci.protection.main",
+                  "name": "Main branch protection rules",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Require PR review, passing CI, linear history on main.",
+                  "tech": {
+                    "vendor": "GitHub"
+                  },
+                  "tags": [
+                    "ci",
+                    "process"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "platform.observability",
+          "name": "Observability",
+          "priority": 2,
+          "description": "Logs, errors, metrics, so we can see what's happening in production.",
+          "submodules": [
+            {
+              "id": "platform.observability.errors",
+              "name": "Error tracking",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "platform.observability.errors.sentry",
+                  "name": "Sentry for web + API",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Capture frontend errors + backend exceptions + performance traces.",
+                  "tech": {
+                    "vendor": "Sentry"
+                  },
+                  "tags": [
+                    "observability"
+                  ]
+                },
+                {
+                  "id": "platform.observability.errors.source-maps",
+                  "name": "Upload source maps",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "CI uploads source maps to Sentry for readable stack traces.",
+                  "tech": {
+                    "vendor": "Sentry"
+                  },
+                  "tags": [
+                    "observability"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "platform.observability.logs",
+              "name": "Structured logging",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "platform.observability.logs.winston",
+                  "name": "Structured logging setup",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "JSON logs via pino or winston, shipped to a central log sink.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "Axiom or Logtail"
+                  },
+                  "tags": [
+                    "observability"
+                  ]
+                },
+                {
+                  "id": "platform.observability.logs.request-id",
+                  "name": "Request ID propagation",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Every API request gets an ID that's threaded through logs + passed to frontend for support.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "observability"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "platform.observability.metrics",
+              "name": "Metrics + dashboards",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "platform.observability.metrics.uptime",
+                  "name": "Uptime monitoring",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "External ping service (Better Uptime or similar) for public endpoints.",
+                  "tech": {
+                    "vendor": "Better Uptime"
+                  },
+                  "tags": [
+                    "observability"
+                  ]
+                },
+                {
+                  "id": "platform.observability.metrics.business",
+                  "name": "Business metrics dashboard",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Orders/hour, MRR, churn. Feeds into analytics category.",
+                  "tech": {
+                    "notes": "Likely Metabase against the prod DB."
+                  },
+                  "tags": [
+                    "observability",
+                    "analytics"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "platform.secrets",
+          "name": "Secrets Management",
+          "priority": 1,
+          "description": "Where API keys, tokens, and other sensitive values live.",
+          "submodules": [
+            {
+              "id": "platform.secrets.vault",
+              "name": "Secret storage",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "platform.secrets.vault.vercel",
+                  "name": "Vercel env vars",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Production secrets in Vercel encrypted env vars. Separate per environment.",
+                  "tech": {
+                    "vendor": "Vercel"
+                  },
+                  "tags": [
+                    "security",
+                    "infra"
+                  ]
+                },
+                {
+                  "id": "platform.secrets.vault.local",
+                  "name": "Local .env.local",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Dev secrets in .env.local, gitignored.",
+                  "tech": {
+                    "notes": "Ship .env.example with placeholders."
+                  },
+                  "tags": [
+                    "security",
+                    "dx"
+                  ]
+                },
+                {
+                  "id": "platform.secrets.vault.rotation",
+                  "name": "Rotation procedure",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Documented process for rotating each secret when needed.",
+                  "tech": {
+                    "notes": "Write runbook in /docs/ops/secret-rotation.md"
+                  },
+                  "tags": [
+                    "security",
+                    "process"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "platform.jobs",
+          "name": "Background Jobs",
+          "priority": 1,
+          "description": "Cron + queue runner for scheduled work (Friday rollover, Thursday cutoff, etc.).",
+          "submodules": [
+            {
+              "id": "platform.jobs.runner",
+              "name": "Job runner choice",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "platform.jobs.runner.decision",
+                  "name": "Runner decision (pg_cron vs Inngest vs BullMQ)",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Pick one. Inngest is serverless-friendly, pg_cron is simplest, BullMQ needs Redis.",
+                  "tech": {
+                    "notes": "Lean Inngest for cleanliness, pg_cron for zero-infra start."
+                  },
+                  "tags": [
+                    "decision",
+                    "infra"
+                  ]
+                },
+                {
+                  "id": "platform.jobs.runner.setup",
+                  "name": "Runner setup",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Install chosen runner, wire into NestJS modules.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "dependencies": [
+                    "platform.jobs.runner.decision"
+                  ],
+                  "tags": [
+                    "infra"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "platform.jobs.scheduled",
+              "name": "Scheduled jobs",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "platform.jobs.scheduled.friday-rollover",
+                  "name": "Friday rollover cron",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Every Friday morning, create next week's WeeklyCartRecord for active subscribers.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "crons": [
+                      "0 6 * * 5 \u2014 Friday rollover"
+                    ]
+                  },
+                  "dependencies": [
+                    "subscriptions.engine.rollover",
+                    "platform.jobs.runner.setup"
+                  ],
+                  "tags": [
+                    "cron"
+                  ]
+                },
+                {
+                  "id": "platform.jobs.scheduled.thursday-cutoff",
+                  "name": "Thursday cutoff cron",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Every Thursday at 23:59, lock 'scheduled' carts into 'confirmed' and charge.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "crons": [
+                      "59 23 * * 4 \u2014 Thursday cutoff"
+                    ]
+                  },
+                  "dependencies": [
+                    "subscriptions.engine.cutoff",
+                    "platform.jobs.runner.setup"
+                  ],
+                  "tags": [
+                    "cron"
+                  ]
+                },
+                {
+                  "id": "platform.jobs.scheduled.payment-retry",
+                  "name": "Payment retry scheduler",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Daily scan for failed payments needing retry per dunning schedule.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "crons": [
+                      "0 9 * * * \u2014 daily payment retry"
+                    ]
+                  },
+                  "dependencies": [
+                    "payments.failures.retry.schedule"
+                  ],
+                  "tags": [
+                    "cron"
+                  ]
+                },
+                {
+                  "id": "platform.jobs.scheduled.menu-advance",
+                  "name": "Weekly menu advance",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Flip next week's menu live on Sunday evening.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "crons": [
+                      "0 23 * * 0 \u2014 menu advance"
+                    ]
+                  },
+                  "dependencies": [
+                    "menu.source.sync.weekly"
+                  ],
+                  "tags": [
+                    "cron"
+                  ]
+                },
+                {
+                  "id": "platform.jobs.scheduled.cleanup",
+                  "name": "Old session cleanup",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Daily sweep of expired Session, OtpCode rows.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "crons": [
+                      "0 4 * * * \u2014 session cleanup"
+                    ]
+                  },
+                  "tags": [
+                    "cron",
+                    "database"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "platform.security",
+          "name": "Security Hardening",
+          "priority": 1,
+          "description": "Baseline security controls.",
+          "submodules": [
+            {
+              "id": "platform.security.headers",
+              "name": "HTTP security headers",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "platform.security.headers.csp",
+                  "name": "Content-Security-Policy",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Strict CSP allowing Stripe, Twilio, Resend, own origins.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "security"
+                  ]
+                },
+                {
+                  "id": "platform.security.headers.hsts",
+                  "name": "HSTS",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Strict-Transport-Security: max-age=31536000; includeSubDomains; preload.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "security"
+                  ]
+                },
+                {
+                  "id": "platform.security.headers.other",
+                  "name": "X-Frame-Options, Referrer-Policy, etc.",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Standard hardening headers.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "security"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "platform.security.cors",
+              "name": "CORS",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "platform.security.cors.policy",
+                  "name": "CORS policy",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Allow only storefront domain + admin domain. Reject everything else.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "security"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "platform.security.rate-limit",
+              "name": "Rate limiting",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "platform.security.rate-limit.global",
+                  "name": "Global rate limits",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Per-IP and per-identity limits on sensitive endpoints.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "dependencies": [
+                    "auth.foundation.middleware.ratelimit"
+                  ],
+                  "tags": [
+                    "security"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "platform.security.audit-log",
+              "name": "Audit logging",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "platform.security.audit-log.schema",
+                  "name": "AuditLog model",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Table: id, actor_id, action, target_type, target_id, metadata, created_at.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "AuditLog"
+                    ]
+                  },
+                  "tags": [
+                    "security",
+                    "schema"
+                  ]
+                },
+                {
+                  "id": "platform.security.audit-log.writer",
+                  "name": "Audit log writer service",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "NestJS service that every mutation calls to log the action.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "dependencies": [
+                    "platform.security.audit-log.schema"
+                  ],
+                  "tags": [
+                    "security"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "platform.backups",
+          "name": "Backups & DR",
+          "priority": 2,
+          "description": "Recovery story if something goes wrong.",
+          "submodules": [
+            {
+              "id": "platform.backups.db",
+              "name": "Database backups",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "platform.backups.db.neon",
+                  "name": "Neon automatic backups",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Neon has point-in-time restore built in. Verify retention window.",
+                  "tech": {
+                    "vendor": "Neon"
+                  },
+                  "tags": [
+                    "dr"
+                  ]
+                },
+                {
+                  "id": "platform.backups.db.weekly-export",
+                  "name": "Weekly full export to cold storage",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Cron that dumps to R2 for independent off-platform backup.",
+                  "tech": {
+                    "crons": [
+                      "0 2 * * 0 \u2014 weekly DB export"
+                    ]
+                  },
+                  "tags": [
+                    "dr"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "platform.backups.runbook",
+              "name": "Recovery runbooks",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "platform.backups.runbook.dr",
+                  "name": "DR runbook",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Step-by-step recovery playbook: DB loss, Vercel outage, Stripe issue, etc.",
+                  "tech": {
+                    "notes": "/docs/ops/runbooks/"
+                  },
+                  "tags": [
+                    "dr",
+                    "process"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
-
     {
       "id": "corporate",
       "name": "Corporate B2B",
@@ -1235,6 +4560,5 @@
       "modules": []
     }
   ],
-
   "journeys": []
 }
