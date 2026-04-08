@@ -1,17 +1,10 @@
 # Project Scope Dashboard — Protocol
 
-**Sub-board under `betterday-foodco/collab`. A Claude-editable, browser-viewable nested project map for the entire BetterDay platform build.**
+**The BetterDay project scope board. A Claude-editable, browser-viewable nested project map for the entire BetterDay platform build. This is the only board in this repo.**
 
-> ⚠️ **You must read `CLAUDE.md` at the repo root before editing anything in this folder.** That file is auto-loaded by Claude Code and contains the Pre-Edit Protocol (pull first, identify yourself, commit format, conflict resolution) that applies to every file in this repo. This document is the schema-specific layer on top of that protocol.
+> ⚠️ **You must read `CLAUDE.md` at the repo root before editing anything here.** That file is auto-loaded by Claude Code and contains the Pre-Edit Protocol (pull first, identify yourself, commit format, conflict resolution) that applies to every file in this repo. This document is the schema-specific layer on top of that protocol.
 
 If you are a Claude Code instance and the user has asked you to update, check, or interact with the "project scope," "scope board," "project map," "scope dashboard," or any similar phrase, follow this protocol.
-
-This file sits alongside the existing collab-board `HOW_TO_USE.md`. The two boards share a repo but have different purposes:
-
-| Board | Purpose | Data file |
-|---|---|---|
-| **Collab board** (root) | Day-to-day coordination: branches, tasks, messages, subtasks | `data.json` |
-| **Project scope** (this folder) | Long-term platform map: every module, submodule, and leaf component | `project-scope/data.json` |
 
 ---
 
@@ -24,8 +17,6 @@ This file sits alongside the existing collab-board `HOW_TO_USE.md`. The two boar
 ---
 
 ## Identify which session you are
-
-Same rule as the root collab board:
 
 ```bash
 cd /Users/us/Downloads/betterday-collab && git config user.name
@@ -65,7 +56,7 @@ cd /Users/us/Downloads/betterday-collab && git config user.name
 
 2. **Read `project-scope/data.json`** with the Read tool.
 
-3. **Edit `project-scope/data.json` only.** Do not touch `project-scope/index.html` unless fixing a renderer bug. Do not touch the root `data.json` (that's the other board).
+3. **Edit `project-scope/data.json` only.** Do not touch `project-scope/index.html` unless fixing a renderer bug.
 
 4. **Update the `meta` block** at the top of `project-scope/data.json`:
    - `last_updated` → current ISO 8601 with timezone offset
@@ -329,7 +320,4 @@ If the user asks to move a node to a different parent:
 - No unflattering remarks about people — this repo is public
 - No editing of `index.html` for content updates — it is a static renderer; use `data.json`
 
-If you're unsure whether something belongs on the scope board or on the collab board, ask the user. Rule of thumb:
-
-- **Collab board:** "this week's work," tasks, branches, messages, short-lived coordination
-- **Scope board:** "the platform we're building," long-lived architectural map
+If you're unsure whether something belongs on the scope board, ask the user. Rule of thumb: the scope board is "the platform we're building" — long-lived, architectural, every feature we plan to ship. Day-to-day task coordination (PR reviews, messages, short-lived work items) should be handled via GitHub issues, PRs, or direct chat, not added to the scope tree.

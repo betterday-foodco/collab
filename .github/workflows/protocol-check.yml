@@ -1,8 +1,9 @@
 name: Protocol Check
 
-# Validates that every commit and data.json edit follows the protocol in CLAUDE.md / HOW_TO_USE.md.
-# Runs on push and pull_request. If anything fails, the push/PR is marked red in GitHub UI,
-# which tells the Claude session (or human) that something skipped the rules.
+# Validates that every commit and data.json edit follows the protocol in CLAUDE.md
+# and project-scope/HOW_TO_USE.md. Runs on push and pull_request. If anything
+# fails, the push/PR is marked red in GitHub UI, which tells the Claude session
+# (or human) that something skipped the rules.
 
 on:
   push:
@@ -22,8 +23,6 @@ jobs:
       - name: Validate commit messages
         run: |
           set -e
-          # For push: check all commits in the push range
-          # For PR: check all commits in the PR
           if [ "${{ github.event_name }}" = "push" ]; then
             if [ -z "${{ github.event.before }}" ] || [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
               RANGE="${{ github.event.after }}"
@@ -35,7 +34,6 @@ jobs:
           fi
 
           echo "Checking commits in range: $RANGE"
-          FAIL=0
 
           git log --format="%H %s" $RANGE | while read sha subject; do
             echo "---"
@@ -44,72 +42,51 @@ jobs:
 
             # Merge commits are exempt
             if echo "$subject" | grep -qE "^Merge "; then
-              echo "  ✓ merge commit, skipped"
+              echo "  ok merge commit, skipped"
               continue
             fi
 
-            # Rule 1: project-scope commits must have "(via <name>)" suffix
+            # Rule: project-scope commits must have "(via <name>)" suffix
             if echo "$subject" | grep -qE "^project-scope:"; then
               if ! echo "$subject" | grep -qE "\(via [A-Za-z]+\)$"; then
-                echo "  ✗ project-scope commits must end with '(via Conner)' or '(via Gurleen)'"
+                echo "  FAIL project-scope commits must end with '(via Conner)' or '(via Gurleen)'"
                 echo "::error::Commit $sha subject missing '(via <name>)' suffix: $subject"
                 exit 1
               else
-                echo "  ✓ project-scope commit with via-suffix"
+                echo "  ok project-scope commit with via-suffix"
               fi
               continue
             fi
 
-            # Rule 2: root data.json commits should use a verb prefix
-            if echo "$subject" | grep -qE "^(update|add|fix|remove|mark|sync|merge|protocol|docs|chore|feat|ci):"; then
-              echo "  ✓ conventional prefix"
+            # Other commits (README, CLAUDE.md, index.html, .github/) should use a verb prefix
+            if echo "$subject" | grep -qE "^(update|add|fix|remove|docs|chore|feat|ci|refactor|merge|retire|cleanup):"; then
+              echo "  ok conventional prefix"
               continue
             fi
 
-            # Allow anything else through with a warning for now (don't fail)
-            echo "  ⚠ non-standard prefix — allowed but noted"
+            # Allow anything else through with a warning
+            echo "  warn non-standard prefix, noted but allowed"
           done
 
-  data-json-meta:
-    name: data.json meta freshness
+  scope-data-meta:
+    name: project-scope/data.json meta + structure
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check root data.json meta
+      - name: Validate project-scope data.json
         run: |
           set -e
-          if [ -f "data.json" ]; then
-            python3 <<'PY'
-          import json, sys, datetime
-          with open("data.json") as f:
-              d = json.load(f)
-          meta = d.get("meta", {})
-          if not meta.get("last_updated"):
-              print("::error file=data.json::meta.last_updated is missing")
-              sys.exit(1)
-          if not meta.get("updated_by"):
-              print("::error file=data.json::meta.updated_by is missing")
-              sys.exit(1)
-          ub = meta["updated_by"]
-          valid = ["Conner", "Gurleen", "Claude (Conner)", "Claude (Gurleen)", "Claude"]
-          if not any(v in ub for v in valid):
-              print(f"::error file=data.json::meta.updated_by='{ub}' is not a recognised identity")
-              sys.exit(1)
-          print(f"✓ root data.json meta ok — {ub} @ {meta['last_updated']}")
-          PY
-          else
-            echo "no root data.json, skipping"
+          if [ ! -f "project-scope/data.json" ]; then
+            echo "::error::project-scope/data.json is missing"
+            exit 1
           fi
-
-      - name: Check project-scope data.json meta
-        run: |
-          set -e
-          if [ -f "project-scope/data.json" ]; then
-            python3 <<'PY'
+          python3 <<'PY'
           import json, sys
           with open("project-scope/data.json") as f:
               d = json.load(f)
+
+          # Meta block
           meta = d.get("meta", {})
           if not meta.get("last_updated"):
               print("::error file=project-scope/data.json::meta.last_updated is missing")
@@ -121,37 +98,78 @@ jobs:
           if "Claude" not in ub and ub not in ("Conner", "Gurleen"):
               print(f"::error file=project-scope/data.json::meta.updated_by='{ub}' is not a recognised identity")
               sys.exit(1)
-          # Validate structure: categories list exists
+
+          # Structure: categories list exists
           if not isinstance(d.get("categories"), list):
               print("::error file=project-scope/data.json::'categories' must be an array")
               sys.exit(1)
-          # Validate legend
+
+          # Legend
           if not d.get("legend", {}).get("priorities") or not d.get("legend", {}).get("statuses"):
               print("::error file=project-scope/data.json::legend.priorities and legend.statuses are required")
               sys.exit(1)
-          # Validate each category has required fields
+
+          # Every category has required fields
           for cat in d["categories"]:
               for req in ("id", "name", "priority"):
                   if req not in cat:
                       print(f"::error file=project-scope/data.json::category missing '{req}': {cat.get('id', '?')}")
                       sys.exit(1)
-          print(f"✓ project-scope/data.json meta ok — {ub}")
-          print(f"  {len(d['categories'])} categories")
-          PY
-          else
-            echo "no project-scope/data.json, skipping"
-          fi
 
-  ids-stable:
-    name: Scope ids are stable (no collisions)
+          # Every leaf has required fields
+          bad = []
+          for cat in d["categories"]:
+              for m in cat.get("modules", []) or []:
+                  for s in m.get("submodules", []) or []:
+                      for c in s.get("components", []) or []:
+                          for req in ("id", "name", "status", "priority", "description"):
+                              if req not in c:
+                                  bad.append((c.get("id", "?"), req))
+          if bad:
+              for bid, field in bad[:20]:
+                  print(f"::error file=project-scope/data.json::leaf '{bid}' missing '{field}'")
+              sys.exit(1)
+
+          # Status vocabulary
+          VALID_STATUS = {"done", "in-progress", "designed", "to-build", "blocked", "skipped"}
+          for cat in d["categories"]:
+              for m in cat.get("modules", []) or []:
+                  for s in m.get("submodules", []) or []:
+                      for c in s.get("components", []) or []:
+                          if c.get("status") not in VALID_STATUS:
+                              print(f"::error file=project-scope/data.json::leaf '{c.get('id')}' has invalid status '{c.get('status')}'")
+                              sys.exit(1)
+
+          # Priority range
+          for cat in d["categories"]:
+              for m in cat.get("modules", []) or []:
+                  for s in m.get("submodules", []) or []:
+                      for c in s.get("components", []) or []:
+                          p = c.get("priority")
+                          if not isinstance(p, int) or p < 1 or p > 5:
+                              print(f"::error file=project-scope/data.json::leaf '{c.get('id')}' has invalid priority '{p}'")
+                              sys.exit(1)
+
+          # Count leaves and categories
+          leaves = sum(
+              len(s.get("components", []) or [])
+              for cat in d["categories"]
+              for m in cat.get("modules", []) or []
+              for s in m.get("submodules", []) or []
+          )
+          print(f"ok meta {ub}")
+          print(f"ok {len(d['categories'])} categories, {leaves} leaves")
+          PY
+
+  ids-unique:
+    name: Unique ids across scope tree
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check project-scope id uniqueness
+      - name: Check id uniqueness
         run: |
-          if [ -f "project-scope/data.json" ]; then
-            python3 <<'PY'
+          python3 <<'PY'
           import json, sys
           with open("project-scope/data.json") as f:
               d = json.load(f)
@@ -171,9 +189,8 @@ jobs:
               else:
                   seen[i] = p
           if dupes:
-              for i, p1, p2 in dupes:
+              for i, p1, p2 in dupes[:20]:
                   print(f"::error file=project-scope/data.json::duplicate id '{i}' at {p1} and {p2}")
               sys.exit(1)
-          print(f"✓ {len(ids)} unique ids across project-scope tree")
+          print(f"ok {len(ids)} unique ids across the tree")
           PY
-          fi

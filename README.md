@@ -1,40 +1,51 @@
-# BetterDay Collab Board
+# BetterDay Project Scope
 
-A lightweight project coordination dashboard for the BetterDay engineering team. Tracks branches, tasks, and async messages between Conner and Gurleen.
+A living, nested project map for the BetterDay platform build — customer-facing storefront, subscription engine, admin console, and everything else. Edited by Claude Code on both Conner's and Gurleen's machines, viewed in a browser-based dashboard.
 
-**Live dashboard:** https://betterday-foodco.github.io/collab/
+**Live dashboard:** https://betterday-foodco.github.io/collab/project-scope/
 
-## What this is
+## What this repo contains
 
-A static HTML page hosted on GitHub Pages that renders the contents of `data.json`. The page is updated by Claude Code instances running in either Conner's or Gurleen's terminal — both sessions follow the same protocol defined in `HOW_TO_USE.md`.
+```
+.
+├── CLAUDE.md                          Protocol auto-loaded by Claude Code sessions in this repo
+├── README.md                          This file
+├── index.html                         Redirect from repo root to /project-scope/
+├── .github/workflows/protocol-check.yml  CI that enforces commit-message + data.json rules on every push
+└── project-scope/
+    ├── data.json                      The tree of categories, modules, submodules, components
+    ├── index.html                     Dashboard renderer (Monday-style nested tree, brand palette, direct GitHub editing)
+    └── HOW_TO_USE.md                  Schema + edit protocol for this specific board
+```
 
-## Files
+## How it works
 
-| File | Purpose | Who edits it |
-|---|---|---|
-| `index.html` | The dashboard renderer | Rarely (only to fix bugs) |
-| `data.json` | All state — branches, tasks, messages | Claude (via either session) |
-| `HOW_TO_USE.md` | Protocol that Claude instances follow | Updated when the protocol changes |
-| `README.md` | This file | Rarely |
+- **data.json** is the source of truth for the scope tree — 499+ leaves across 22 top-level categories (Identity & Auth, Cart, Checkout, Subscriptions, Coupons, Platform & Ops, etc.), each with status, priority, tech notes, dependencies, and free-form notes.
+- **index.html** is a single-file dashboard that renders data.json with a collapsible tree, search, priority filter, side-panel detail view, click-to-edit status pills, and a direct-to-GitHub sync path.
+- **CLAUDE.md** is auto-loaded by Claude Code whenever a session works inside this repo. It contains the Pre-Edit Protocol — pull first, identify yourself, read HOW_TO_USE.md, state your plan, use the correct commit format. Both Conner's and Gurleen's sessions get it in context automatically.
+- **GitHub Action** validates every push: commit messages must start with `project-scope:` and end with `(via Conner)` or `(via Gurleen)`, and data.json must have valid meta + unique IDs.
 
-## How to add an update
+## How to update the scope
 
-Just ask Claude:
+### From Claude
 
-- *"Update the collab board with the changes from PR #X"*
-- *"Add a task for Gurleen to review the par-cart frontend"*
-- *"Send Gurleen a message saying the staging deploy is broken"*
-- *"Check the collab board for anything I need to do"*
+Just ask your Claude Code session:
 
-Claude will pull the repo, edit `data.json`, commit, and push.
+- *"Mark auth.phone.twilio.send as designed"*
+- *"Add a submodule under Rewards for birthday bonus"*
+- *"What's P1 and not done?"*
+- *"Deep-dive the Checkout category"*
 
-## How Gurleen can edit it directly
+Claude will follow CLAUDE.md protocol automatically (pull, identify, read, edit, commit with the right format, push).
 
-If Claude isn't available, anyone with write access can edit `data.json` directly via the GitHub web UI:
+### From the browser
 
-1. Open https://github.com/betterday-foodco/collab/edit/main/data.json
-2. Make changes (it's plain JSON)
-3. Bump `meta.last_updated` to the current timestamp and set `meta.updated_by` to your name
-4. Commit at the bottom of the page
+Open the dashboard, click the gear icon, paste a fine-grained GitHub PAT with Contents: Read/Write on this repo, and click Save. After that, every status change you make in the UI commits directly to GitHub. Setup guide lives in `project-scope/HOW_TO_USE.md`.
 
-The dashboard updates within ~30 seconds of pushing.
+## Who this is for
+
+Two people: Conner and Gurleen. Both have separate Claude Code sessions that push to this repo. The protocol is designed to prevent the two sessions from stepping on each other — pull before every edit, never rename IDs, append-only notes with dated prefixes, one logical change per commit.
+
+## History
+
+This repo began on 2026-04-06 as a collab board for day-to-day coordination (branches, tasks, messages between Conner and Gurleen). On 2026-04-08 it was repurposed into a dedicated project-scope dashboard as the BetterDay platform build grew beyond what ad-hoc task tracking could support. The old collab board content is preserved in git history and the active Flask → culinary-ops migration work was archived into `project-scope/data.json` as the `flask-migration` category.
