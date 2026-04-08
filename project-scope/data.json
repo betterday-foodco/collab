@@ -2,7 +2,7 @@
   "meta": {
     "title": "BetterDay Platform \u2014 Project Scope",
     "subtitle": "By-category module tree for the D2C storefront, subscription engine, and admin console",
-    "last_updated": "2026-04-08T11:09:23-06:00",
+    "last_updated": "2026-04-08T11:15:36-06:00",
     "updated_by": "Claude (Conner)",
     "version": 1,
     "session": 1
@@ -5624,7 +5624,593 @@
       "priority": 2,
       "description": "The coupon engine HMP can't ship. Full restriction set: first-order, after-N-orders, category, zone, email allow/deny, stacking rules.",
       "tech_notes": "Coupon, CouponRedemption tables. CustomerMirror.orders_completed_count for live-verify at redemption.",
-      "modules": []
+      "modules": [
+        {
+          "id": "coupons.schema",
+          "name": "Coupon Data Model",
+          "priority": 2,
+          "description": "The tables that define coupons, restrictions, and track redemption.",
+          "submodules": [
+            {
+              "id": "coupons.schema.coupon",
+              "name": "Coupon table",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "coupons.schema.coupon.model",
+                  "name": "Coupon Prisma model",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Fields: id, code, description, discount_type (percentage|fixed|free_shipping|bogo), discount_value_cents_or_percent, min_spend_cents, max_spend_cents, effective_at, expires_at, max_uses_total, max_uses_per_customer, status (draft|published|expired), display_message, created_at, created_by.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "Coupon"
+                    ]
+                  },
+                  "tags": [
+                    "schema",
+                    "foundation"
+                  ]
+                },
+                {
+                  "id": "coupons.schema.coupon.discount-type-enum",
+                  "name": "Discount type enum",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "percentage, fixed_amount, free_shipping, bogo, attached_free_item.",
+                  "tech": {
+                    "notes": "BOGO and attached free item both add a product to cart at 0 or discounted price."
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "coupons.schema.restrictions",
+              "name": "Restriction tables",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "coupons.schema.restrictions.eligibility",
+                  "name": "CouponEligibility flags",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Columns on Coupon for: new_customers_only, exclude_sale_items, cannot_combine, auto_apply, show_as_clippable, include_in_order_confirmation_email, app_only, exclude_meal_plan_discounted_items.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "notes": "Boolean columns on Coupon, not separate table."
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                },
+                {
+                  "id": "coupons.schema.restrictions.products",
+                  "name": "CouponProduct include/exclude",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Many-to-many: Coupon <-> MealRecipe for include_product_ids and exclude_product_ids.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "CouponProduct"
+                    ]
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                },
+                {
+                  "id": "coupons.schema.restrictions.categories",
+                  "name": "CouponCategory include/exclude",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Category include/exclude tagging.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "CouponCategory"
+                    ]
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                },
+                {
+                  "id": "coupons.schema.restrictions.zones",
+                  "name": "CouponZone include/exclude",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Delivery zone restrictions.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "CouponZone"
+                    ]
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                },
+                {
+                  "id": "coupons.schema.restrictions.emails",
+                  "name": "CouponEmail allow/block lists",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Explicit allowed_emails and excluded_emails lists.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "CouponEmail"
+                    ]
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                },
+                {
+                  "id": "coupons.schema.restrictions.order-count",
+                  "name": "Order count restriction",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "min_order_count, max_order_count on Coupon. 'First order' = min=0 max=0.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "notes": "Validated against CouperMirror.orders_completed_count live at redemption."
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                },
+                {
+                  "id": "coupons.schema.restrictions.subscription",
+                  "name": "Subscription restriction",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "subscription_only | non_subscription_only | any.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)"
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                },
+                {
+                  "id": "coupons.schema.restrictions.payment-method",
+                  "name": "Payment method restriction",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Restrict to specific payment methods (Apple Pay only, etc.).",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)"
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "coupons.schema.attached-products",
+              "name": "Attached products",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "coupons.schema.attached-products.model",
+                  "name": "CouponAttachedProduct model",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Products auto-added to cart when coupon applies (BOGO, free gift).",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "CouponAttachedProduct"
+                    ]
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "coupons.schema.redemption",
+              "name": "Redemption log",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "coupons.schema.redemption.model",
+                  "name": "CouponRedemption model",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Fields: id, coupon_id, customer_id, order_id, redeemed_at, amount_cents, was_first_order, order_count_at_redemption. Unique constraint on (coupon_id, order_id).",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "CouponRedemption"
+                    ]
+                  },
+                  "tags": [
+                    "schema",
+                    "foundation"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "coupons.engine",
+          "name": "Coupon Engine",
+          "priority": 2,
+          "description": "The logic that validates and applies coupons. The thing HMP doesn't have.",
+          "submodules": [
+            {
+              "id": "coupons.engine.validate",
+              "name": "Validation",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "coupons.engine.validate.service",
+                  "name": "CouponValidationService",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Pure function: given a coupon, customer, cart, returns {valid, reason?, discount_cents}. Walks every restriction.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "notes": "Server-authoritative. Client never computes discount."
+                  },
+                  "tags": [
+                    "logic",
+                    "foundation"
+                  ]
+                },
+                {
+                  "id": "coupons.engine.validate.order-count",
+                  "name": "Order count verification",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "For 'first order' or 'after N orders' rules, verify against local CustomerMirror, then live-verify against HMP (during overlap period) or our own orders table.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "notes": "Live-verify only on restriction-sensitive rules."
+                  },
+                  "tags": [
+                    "logic"
+                  ]
+                },
+                {
+                  "id": "coupons.engine.validate.stacking",
+                  "name": "Stacking rules",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Honor cannot_combine flag. Enforce max one code per order unless explicit allow.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "logic"
+                  ]
+                },
+                {
+                  "id": "coupons.engine.validate.usage-limits",
+                  "name": "Usage limit check",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Count existing redemptions in CouponRedemption table and reject if max_uses_total or max_uses_per_customer exceeded.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "logic"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "coupons.engine.apply",
+              "name": "Apply",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "coupons.engine.apply.endpoint",
+                  "name": "POST /api/cart/apply-coupon",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Validates and attaches coupon to cart. Recomputes totals.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "endpoints": [
+                      "POST /api/cart/apply-coupon"
+                    ]
+                  },
+                  "dependencies": [
+                    "coupons.engine.validate.service"
+                  ],
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "coupons.engine.apply.remove",
+                  "name": "POST /api/cart/remove-coupon",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Detach coupon from cart.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "endpoints": [
+                      "POST /api/cart/remove-coupon"
+                    ]
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "coupons.engine.redeem",
+              "name": "Redeem at checkout",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "coupons.engine.redeem.lock",
+                  "name": "Redemption lock",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "At order placement, create CouponRedemption row in same transaction as order. Unique constraint prevents double-use.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "database": "Prisma + Postgres (Neon)"
+                  },
+                  "tags": [
+                    "safety",
+                    "foundation"
+                  ]
+                },
+                {
+                  "id": "coupons.engine.redeem.live-verify",
+                  "name": "Final live verify",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "One more call to validation service at place-order time. If drift detected, reject and refresh mirror.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "safety"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "coupons.engine.create",
+              "name": "Coupon create/edit",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "coupons.engine.create.api",
+                  "name": "Admin coupon CRUD",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "POST/PUT/DELETE /api/admin/coupons with full field support.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "endpoints": [
+                      "POST /api/admin/coupons",
+                      "PUT /api/admin/coupons/:id",
+                      "DELETE /api/admin/coupons/:id"
+                    ]
+                  },
+                  "tags": [
+                    "api",
+                    "admin"
+                  ]
+                },
+                {
+                  "id": "coupons.engine.create.code-generator",
+                  "name": "Auto code generator",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "One-click generate a human-friendly code (FRIEND-A7B9, SAVE20-KX4).",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "util"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "coupons.ui",
+          "name": "Coupon UI",
+          "priority": 2,
+          "description": "Customer-facing and admin-facing surfaces.",
+          "submodules": [
+            {
+              "id": "coupons.ui.checkout",
+              "name": "Checkout coupon field",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "coupons.ui.checkout.input",
+                  "name": "Code entry + Apply button",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Input box with validation feedback.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "coupons.ui.checkout.applied",
+                  "name": "Applied coupon chip",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Shows active coupon with discount amount and remove button.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "coupons.ui.checkout.clippable",
+                  "name": "Clippable coupon cards",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Suggested coupons displayed as clippable cards in the cart area.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "coupons.ui.account",
+              "name": "Account coupons page",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "coupons.ui.account.my-coupons",
+                  "name": "My coupons list",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "List all coupons available to the logged-in customer with expiry + CTA.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "coupons.ui.admin",
+              "name": "Admin coupon UI",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "coupons.ui.admin.list",
+                  "name": "Coupon list",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Searchable list with status, uses, expiry columns.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "admin"
+                  ]
+                },
+                {
+                  "id": "coupons.ui.admin.form",
+                  "name": "Coupon form",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "The huge form: code, discount, validity, restrictions, products, categories, zones, emails, payment methods, attached products. Full CRUD.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "notes": "Mirror of the HMP coupon form design but fully functional."
+                  },
+                  "tags": [
+                    "ui",
+                    "admin"
+                  ]
+                },
+                {
+                  "id": "coupons.ui.admin.stats",
+                  "name": "Coupon stats page",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Per-coupon: uses, redemption rate, revenue generated, customers reached.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "admin"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "coupons.auto-apply",
+          "name": "Auto-Apply Rules",
+          "priority": 3,
+          "description": "Discount rules engine that applies automatically without a code.",
+          "submodules": [
+            {
+              "id": "coupons.auto-apply.rules",
+              "name": "Discount rules",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "coupons.auto-apply.rules.model",
+                  "name": "DiscountRule model",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Cart-level rules: spend X get Y, buy N get free delivery, etc. Separate from coupon codes.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "DiscountRule"
+                    ]
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                },
+                {
+                  "id": "coupons.auto-apply.rules.evaluator",
+                  "name": "Rule evaluator",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Walks all enabled rules, returns matching ones with discount amounts.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "logic"
+                  ]
+                },
+                {
+                  "id": "coupons.auto-apply.rules.admin",
+                  "name": "Discount rules admin UI",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Create/edit rule page with priority ordering.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "admin"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "giftcards",
@@ -5632,7 +6218,383 @@
       "priority": 3,
       "description": "Purchase, schedule delivery, redeem at checkout. Balance tracking, partial redemption.",
       "tech_notes": "GiftCard, GiftCardTransaction tables. Stripe for purchase. Resend for delivery email.",
-      "modules": []
+      "modules": [
+        {
+          "id": "giftcards.schema",
+          "name": "Gift Card Data Model",
+          "priority": 3,
+          "description": "Purchase, deliver, track balance.",
+          "submodules": [
+            {
+              "id": "giftcards.schema.card",
+              "name": "GiftCard table",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "giftcards.schema.card.model",
+                  "name": "GiftCard Prisma model",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Fields: id, code, initial_value_cents, remaining_value_cents, recipient_email, recipient_name, sender_name, message, delivery_at, purchased_by_customer_id, purchase_order_id, issued_at, expires_at, status (active|redeemed|expired|cancelled).",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "GiftCard"
+                    ]
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                },
+                {
+                  "id": "giftcards.schema.card.code-format",
+                  "name": "Code format",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "16-char dash-separated code (XXXX-XXXX-XXXX-XXXX). Unique, random, indexed.",
+                  "tech": {
+                    "notes": "nanoid with custom alphabet, exclude ambiguous chars (O/0, I/1)."
+                  },
+                  "tags": [
+                    "util"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "giftcards.schema.transaction",
+              "name": "GiftCardTransaction",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "giftcards.schema.transaction.model",
+                  "name": "Transaction ledger",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Every debit/credit: id, gift_card_id, order_id, amount_cents, type (redeem|refund|expire), occurred_at.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "GiftCardTransaction"
+                    ]
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "giftcards.purchase",
+          "name": "Purchase Flow",
+          "priority": 3,
+          "description": "Buying a gift card as a product.",
+          "submodules": [
+            {
+              "id": "giftcards.purchase.page",
+              "name": "Gift card product page",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "giftcards.purchase.page.amounts",
+                  "name": "Preset + custom amounts",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "$25/$50/$100/$250 presets + custom amount (configurable min/max).",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "giftcards.purchase.page.recipient",
+                  "name": "Recipient info form",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Name, email, delivery date, custom message, sender name.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "giftcards.purchase.page.multi",
+                  "name": "Multiple recipients (phase 2)",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "One purchase sends cards to multiple people.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "future"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "giftcards.purchase.checkout",
+              "name": "Checkout integration",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "giftcards.purchase.checkout.line-item",
+                  "name": "Gift card as cart line",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Treat gift card purchase as a special cart item (no tax, no delivery).",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "logic"
+                  ]
+                },
+                {
+                  "id": "giftcards.purchase.checkout.issue",
+                  "name": "Issue on payment success",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "On successful payment, create GiftCard row, schedule delivery email.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "giftcards.delivery",
+          "name": "Delivery",
+          "priority": 3,
+          "description": "Getting the card to the recipient.",
+          "submodules": [
+            {
+              "id": "giftcards.delivery.email",
+              "name": "Delivery email",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "giftcards.delivery.email.template",
+                  "name": "Gift card delivery email",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Beautiful template with code, amount, sender, message, redeem CTA.",
+                  "tech": {
+                    "vendor": "Resend"
+                  },
+                  "tags": [
+                    "template"
+                  ]
+                },
+                {
+                  "id": "giftcards.delivery.email.schedule",
+                  "name": "Scheduled send",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Honor delivery_at date; cron delivers on that date.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "crons": [
+                      "gift card delivery"
+                    ]
+                  },
+                  "tags": [
+                    "cron"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "giftcards.redeem",
+          "name": "Redemption",
+          "priority": 3,
+          "description": "Using a gift card at checkout.",
+          "submodules": [
+            {
+              "id": "giftcards.redeem.apply",
+              "name": "Apply at checkout",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "giftcards.redeem.apply.endpoint",
+                  "name": "POST /api/cart/apply-gift-card",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Validates code, debits balance against order total, supports partial.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "endpoints": [
+                      "POST /api/cart/apply-gift-card"
+                    ]
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "giftcards.redeem.apply.ui",
+                  "name": "Gift card entry field",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Separate field from coupons, with balance preview on apply.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "giftcards.redeem.partial",
+              "name": "Partial redemption",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "giftcards.redeem.partial.logic",
+                  "name": "Partial debit logic",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "If gift card covers <100% of order, charge rest to card. Remaining balance stays on gift card.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "logic"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "giftcards.admin",
+          "name": "Admin Operations",
+          "priority": 3,
+          "description": "Staff can issue, cancel, look up gift cards.",
+          "submodules": [
+            {
+              "id": "giftcards.admin.ops",
+              "name": "Admin operations",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "giftcards.admin.ops.issue",
+                  "name": "Manual issue",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Admin can issue a gift card (compensation, promotion) without a purchase.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "admin"
+                  ]
+                },
+                {
+                  "id": "giftcards.admin.ops.lookup",
+                  "name": "Lookup by code",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Support tool to find a card by code and see its transactions.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "admin"
+                  ]
+                },
+                {
+                  "id": "giftcards.admin.ops.cancel",
+                  "name": "Cancel / refund",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Cancel a card (reverses Stripe charge if within window).",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui",
+                    "admin"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "giftcards.settings",
+          "name": "Gift Card Settings",
+          "priority": 4,
+          "description": "Configuration for the gift card program.",
+          "submodules": [
+            {
+              "id": "giftcards.settings.config",
+              "name": "Config",
+              "priority": 4,
+              "components": [
+                {
+                  "id": "giftcards.settings.config.prevent-purchase",
+                  "name": "Prevent new purchases toggle",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Master kill switch for gift card sales.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "admin"
+                  ]
+                },
+                {
+                  "id": "giftcards.settings.config.expiry",
+                  "name": "Default expiration",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Configurable default expiration period in months.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "admin"
+                  ]
+                },
+                {
+                  "id": "giftcards.settings.config.cancel-behavior",
+                  "name": "On order cancel/refund",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "What happens to gift card balance if the source order is refunded.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "admin",
+                    "logic"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "rewards",
@@ -5640,7 +6602,328 @@
       "priority": 3,
       "description": "Points per order, redemption for discounts or free items, tier system, points history.",
       "tech_notes": "RewardAccount, RewardTransaction, RewardRule tables. Earning rules as config, not code.",
-      "modules": []
+      "modules": [
+        {
+          "id": "rewards.schema",
+          "name": "Rewards Data Model",
+          "priority": 3,
+          "description": "Rewards Data Model",
+          "submodules": [
+            {
+              "id": "rewards.schema.account",
+              "name": "RewardAccount",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "rewards.schema.account.model",
+                  "name": "RewardAccount model",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "One per customer. Fields: id, customer_id, points_balance, lifetime_points, tier, tier_progress_points.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "RewardAccount"
+                    ]
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "rewards.schema.txn",
+              "name": "RewardTransaction",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "rewards.schema.txn.model",
+                  "name": "Points ledger",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Every earn/spend/adjust: id, account_id, points_delta, source (order|referral|signup|admin|redemption), reference_id, created_at.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "RewardTransaction"
+                    ]
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "rewards.schema.rules",
+              "name": "RewardRule table",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "rewards.schema.rules.model",
+                  "name": "RewardRule model",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Config rows for earning rules: points per $, signup bonus, referral bonus, review bonus.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "RewardRule"
+                    ]
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rewards.earning",
+          "name": "Earning Points",
+          "priority": 3,
+          "description": "Earning Points",
+          "submodules": [
+            {
+              "id": "rewards.earning.order",
+              "name": "Points per order",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "rewards.earning.order.on-deliver",
+                  "name": "Award on delivery",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Hook into order status transition -> delivered, award points based on order total.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "logic"
+                  ]
+                },
+                {
+                  "id": "rewards.earning.order.clawback",
+                  "name": "Clawback on refund",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "If delivered order is later refunded, reverse the points earned.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "logic"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "rewards.earning.other",
+              "name": "Other earning sources",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "rewards.earning.other.signup",
+                  "name": "Signup bonus",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Configurable bonus on account creation.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "logic"
+                  ]
+                },
+                {
+                  "id": "rewards.earning.other.referral",
+                  "name": "Referral bonus",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Points for successful referral (handled in Referrals category).",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "dependencies": [
+                    "referrals.tracking.convert"
+                  ],
+                  "tags": [
+                    "logic"
+                  ]
+                },
+                {
+                  "id": "rewards.earning.other.review",
+                  "name": "Review bonus",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Points for leaving a product review (phase 2).",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "logic",
+                    "future"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rewards.redemption",
+          "name": "Redemption",
+          "priority": 3,
+          "description": "Redemption",
+          "submodules": [
+            {
+              "id": "rewards.redemption.at-checkout",
+              "name": "Redeem at checkout",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "rewards.redemption.at-checkout.endpoint",
+                  "name": "POST /api/cart/redeem-points",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Debits points balance, applies discount to cart.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                },
+                {
+                  "id": "rewards.redemption.at-checkout.ui",
+                  "name": "Points redemption slider",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Slider showing points available and discount value.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "rewards.redemption.options",
+              "name": "Redemption options",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "rewards.redemption.options.dollar",
+                  "name": "Dollar value redemption",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "X points = $Y off. Simple ratio.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "logic"
+                  ]
+                },
+                {
+                  "id": "rewards.redemption.options.free-meal",
+                  "name": "Free meal redemption",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Y points = free meal (picks from eligible meals).",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "logic",
+                    "future"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rewards.tiers",
+          "name": "Tier System",
+          "priority": 5,
+          "description": "Tier System",
+          "submodules": [
+            {
+              "id": "rewards.tiers.schema",
+              "name": "Tier schema",
+              "priority": 5,
+              "components": [
+                {
+                  "id": "rewards.tiers.schema.model",
+                  "name": "Tier levels",
+                  "status": "to-build",
+                  "priority": 5,
+                  "description": "Bronze/Silver/Gold based on lifetime spend or points. Benefits per tier.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)"
+                  },
+                  "tags": [
+                    "schema",
+                    "future"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rewards.ui",
+          "name": "Rewards UI",
+          "priority": 3,
+          "description": "Rewards UI",
+          "submodules": [
+            {
+              "id": "rewards.ui.balance",
+              "name": "Balance display",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "rewards.ui.balance.card",
+                  "name": "Points balance card",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Shows current balance, lifetime total, how to earn more, redeem CTA.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "rewards.ui.history",
+              "name": "Points history",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "rewards.ui.history.list",
+                  "name": "Transaction history list",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Chronological earn/spend history with reference links.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "referrals",
@@ -5648,7 +6931,268 @@
       "priority": 3,
       "description": "Share link, track referrer \u2192 referee, both sides get coupons on successful conversion.",
       "tech_notes": "Referral, ReferralReward tables. Coupon engine handles the reward codes.",
-      "modules": []
+      "modules": [
+        {
+          "id": "referrals.schema",
+          "name": "Referral Data Model",
+          "priority": 3,
+          "description": "Referral Data Model",
+          "submodules": [
+            {
+              "id": "referrals.schema.referral",
+              "name": "Referral table",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "referrals.schema.referral.model",
+                  "name": "Referral model",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Fields: id, referrer_id, referee_email, referee_customer_id?, code, status (pending|converted|rewarded|expired), created_at, converted_at.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "Referral"
+                    ]
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "referrals.schema.reward",
+              "name": "ReferralReward table",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "referrals.schema.reward.model",
+                  "name": "ReferralReward model",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Tracks what both sides got. Fields: id, referral_id, referrer_coupon_id, referee_coupon_id, referrer_points, referee_points, created_at.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "ReferralReward"
+                    ]
+                  },
+                  "tags": [
+                    "schema"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "referrals.link",
+          "name": "Link Generation",
+          "priority": 3,
+          "description": "Link Generation",
+          "submodules": [
+            {
+              "id": "referrals.link.generate",
+              "name": "Generate referral link",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "referrals.link.generate.service",
+                  "name": "Per-customer referral code",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Generate short code (CONNER-7X9Q) on first referral request; reuse for future shares.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "util"
+                  ]
+                },
+                {
+                  "id": "referrals.link.generate.short-url",
+                  "name": "Short URL",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "/r/:code resolves to landing page with auto-applied referee coupon.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "referrals.link.share",
+              "name": "Share UI",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "referrals.link.share.modal",
+                  "name": "Share modal",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Copy-link / email / Messenger / SMS share options.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "referrals.tracking",
+          "name": "Tracking",
+          "priority": 3,
+          "description": "Tracking",
+          "submodules": [
+            {
+              "id": "referrals.tracking.landing",
+              "name": "Referral landing",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "referrals.tracking.landing.page",
+                  "name": "Landing page with referrer context",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "'Your friend Conner wants you to try BetterDay - here's $15 off'.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "referrals.tracking.landing.cookie",
+                  "name": "Tracking cookie",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Store referral code for 30 days so signup attribution works even after navigation.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "tracking"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "referrals.tracking.convert",
+              "name": "Conversion",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "referrals.tracking.convert.signup",
+                  "name": "Signup attribution",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "On account creation, check for referral cookie and create Referral row.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "logic"
+                  ]
+                },
+                {
+                  "id": "referrals.tracking.convert.first-order",
+                  "name": "First-order conversion",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "On referee's first completed order, flip Referral to converted and issue rewards.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "logic"
+                  ]
+                },
+                {
+                  "id": "referrals.tracking.convert.reward-both",
+                  "name": "Reward both sides",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Generate referrer coupon and/or points. Generate referee coupon on signup, activate on first order.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "dependencies": [
+                    "coupons.engine.create",
+                    "rewards.earning.other.referral"
+                  ],
+                  "tags": [
+                    "logic"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "referrals.settings",
+          "name": "Referral Program Settings",
+          "priority": 3,
+          "description": "Referral Program Settings",
+          "submodules": [
+            {
+              "id": "referrals.settings.config",
+              "name": "Config",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "referrals.settings.config.enable",
+                  "name": "Master enable toggle",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Program on/off.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "admin"
+                  ]
+                },
+                {
+                  "id": "referrals.settings.config.referrer-reward",
+                  "name": "Referrer reward config",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Discount type, amount, valid days, min order, individual-use-only.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "admin"
+                  ]
+                },
+                {
+                  "id": "referrals.settings.config.referee-reward",
+                  "name": "Referee reward config",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Same fields + code prefix and cart welcome message.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "admin"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "notifications",
@@ -6210,7 +7754,430 @@
       "priority": 3,
       "description": "Staff surface. Order management, customer management, menu publishing, coupon management, content, impersonation, support tools.",
       "tech_notes": "Can share the same codebase as the customer app, gated by role. Or separate Next.js subapp under /admin.",
-      "modules": []
+      "modules": [
+        {
+          "id": "admin.auth",
+          "name": "Admin Auth",
+          "priority": 1,
+          "description": "Admin Auth",
+          "submodules": [
+            {
+              "id": "admin.auth.roles",
+              "name": "Role-based access",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "admin.auth.roles.schema",
+                  "name": "Role + Permission model",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Fields: id, name (super_admin|admin|manager|support|kitchen), permissions[].",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "Role",
+                      "Permission",
+                      "RoleAssignment"
+                    ]
+                  },
+                  "tags": [
+                    "schema",
+                    "security"
+                  ]
+                },
+                {
+                  "id": "admin.auth.roles.guard",
+                  "name": "Permission guard",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "NestJS guard that checks role against required permission for each admin endpoint.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "security"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "admin.auth.mfa",
+              "name": "Admin MFA",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "admin.auth.mfa.totp",
+                  "name": "TOTP 2FA",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Required for admin+ roles. TOTP via app like Authy.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "notes": "otplib or speakeasy."
+                  },
+                  "tags": [
+                    "security"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "admin.shell",
+          "name": "Admin Shell",
+          "priority": 2,
+          "description": "Admin Shell",
+          "submodules": [
+            {
+              "id": "admin.shell.layout",
+              "name": "Layout + nav",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "admin.shell.layout.sidebar",
+                  "name": "Admin sidebar",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Left nav with sections: Dashboard, Orders, Subscriptions, Customers, Menu, Marketing, Settings.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "admin.shell.layout.header",
+                  "name": "Admin header",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Store switcher (future multi-store), profile dropdown, quick search.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "admin.shell.dashboard",
+              "name": "Admin dashboard",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "admin.shell.dashboard.kpis",
+                  "name": "Key KPI tiles",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Pending orders, processing, completed, MRR, new customers this week.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "admin.shell.dashboard.recent",
+                  "name": "Recent orders + alerts",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Recent activity feed + warning pills (failed payments, missing punches, etc.).",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "admin.customers",
+          "name": "Customer Management",
+          "priority": 2,
+          "description": "Customer Management",
+          "submodules": [
+            {
+              "id": "admin.customers.list",
+              "name": "Customer list",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "admin.customers.list.search",
+                  "name": "Search by name/email/phone",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Fast search with filters (lifecycle stage, subscription status, last order date).",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "admin.customers.list.bulk",
+                  "name": "Bulk actions",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Bulk tag, send email, cancel subscriptions.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "admin.customers.detail",
+              "name": "Customer detail",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "admin.customers.detail.profile",
+                  "name": "Profile panel",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Name, email, phone, addresses, preferences, lifecycle, notes.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "admin.customers.detail.orders",
+                  "name": "Order history tab",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "All orders, clickable to detail.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "admin.customers.detail.subscription",
+                  "name": "Subscription tab",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Current sub status, weekly carts, skip/pause/cancel actions.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "admin.customers.detail.payments",
+                  "name": "Payments tab",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Saved cards, failed payments, store credit balance.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "admin.customers.detail.notes",
+                  "name": "Internal notes",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Staff-only timestamped notes.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "admin.customers.impersonate",
+              "name": "Impersonation",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "admin.customers.impersonate.endpoint",
+                  "name": "POST /api/admin/impersonate",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Issues a special admin-origin session so support can see what the customer sees.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "notes": "Banner always visible when impersonating. Full audit log."
+                  },
+                  "tags": [
+                    "api",
+                    "security"
+                  ]
+                },
+                {
+                  "id": "admin.customers.impersonate.stop",
+                  "name": "Stop impersonation",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "POST /api/admin/impersonate/stop.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "api"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "admin.menu",
+          "name": "Menu Publishing",
+          "priority": 2,
+          "description": "Menu Publishing",
+          "submodules": [
+            {
+              "id": "admin.menu.publish",
+              "name": "Menu publish workflow",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "admin.menu.publish.draft",
+                  "name": "Weekly menu draft",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Build next week's menu, preview, save draft.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "admin.menu.publish.review",
+                  "name": "Publish review",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Confirm menu before flipping live. Show impact: how many carts will auto-swap.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "admin.menu.publish.flip",
+                  "name": "Publish to live",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Flip next week live, trigger auto-swap in subscription carts.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "dependencies": [
+                    "menu.source.sync.weekly",
+                    "subscriptions.engine.auto-swap.logic"
+                  ],
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "admin.support",
+          "name": "Support Tools",
+          "priority": 3,
+          "description": "Support Tools",
+          "submodules": [
+            {
+              "id": "admin.support.refund",
+              "name": "Refund tool",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "admin.support.refund.ui",
+                  "name": "One-click refund UI",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Select order -> click refund -> confirm amount and reason.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "dependencies": [
+                    "payments.refunds.full.api"
+                  ],
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "admin.support.credit",
+              "name": "Store credit",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "admin.support.credit.issue",
+                  "name": "Issue credit UI",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Pick customer, amount, reason, optional expiry.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "dependencies": [
+                    "payments.refunds.credit.issue"
+                  ],
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "admin.support.manual-order",
+              "name": "Create manual order",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "admin.support.manual-order.form",
+                  "name": "Manual order form",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Staff build a cart on behalf of a customer (phone order flow).",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "analytics",
@@ -6218,7 +8185,315 @@
       "priority": 3,
       "description": "Revenue dashboards, cohort analytics, product/category performance, cart report query for kitchen production.",
       "tech_notes": "Probably Metabase or a simple built-in dashboard for launch. Real BI can come later.",
-      "modules": []
+      "modules": [
+        {
+          "id": "analytics.dashboards",
+          "name": "Core Dashboards",
+          "priority": 3,
+          "description": "Core Dashboards",
+          "submodules": [
+            {
+              "id": "analytics.dashboards.revenue",
+              "name": "Revenue dashboard",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "analytics.dashboards.revenue.kpis",
+                  "name": "Revenue KPIs",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Total revenue, subscription vs one-time split, taxes, delivery fees, discounts, net.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript",
+                    "vendor": "Metabase or custom"
+                  },
+                  "tags": [
+                    "ui",
+                    "analytics"
+                  ]
+                },
+                {
+                  "id": "analytics.dashboards.revenue.trends",
+                  "name": "Revenue trend charts",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Daily/weekly/monthly trend lines. Toggle $ vs %.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "analytics.dashboards.revenue.cohorts",
+                  "name": "Revenue by customer cohort",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Cohort retention and LTV curves.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "analytics.dashboards.customers",
+              "name": "Customer dashboard",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "analytics.dashboards.customers.kpis",
+                  "name": "Customer KPIs",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "New signups, active, churned, reactivated.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "analytics.dashboards.customers.funnel",
+                  "name": "Signup -> first order funnel",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Conversion funnel from account creation to first delivered order.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "analytics.dashboards.products",
+              "name": "Product performance",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "analytics.dashboards.products.top",
+                  "name": "Top products by revenue",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Ranked list with trend sparklines.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "analytics.dashboards.products.category",
+                  "name": "Category performance",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Revenue and volume per menu category.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "analytics.dashboards.marketing",
+              "name": "Marketing dashboards",
+              "priority": 4,
+              "components": [
+                {
+                  "id": "analytics.dashboards.marketing.coupons",
+                  "name": "Coupon performance",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Redemptions, revenue impact, average order value lift per coupon.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                },
+                {
+                  "id": "analytics.dashboards.marketing.referrals",
+                  "name": "Referral performance",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Conversion rate, revenue from referrals, top referrers.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "analytics.reports",
+          "name": "Scheduled Reports",
+          "priority": 4,
+          "description": "Scheduled Reports",
+          "submodules": [
+            {
+              "id": "analytics.reports.scheduled",
+              "name": "Scheduled email reports",
+              "priority": 4,
+              "components": [
+                {
+                  "id": "analytics.reports.scheduled.daily",
+                  "name": "Daily ops report",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Morning email to Amy/Conner with yesterday's key metrics.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "Resend"
+                  },
+                  "tags": [
+                    "reporting"
+                  ]
+                },
+                {
+                  "id": "analytics.reports.scheduled.weekly",
+                  "name": "Weekly summary",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Monday email with week-over-week comparison.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "reporting"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "analytics.reports.export",
+              "name": "Ad-hoc exports",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "analytics.reports.export.csv",
+                  "name": "Export to CSV",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "From any list view, export current filtered results to CSV.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "ui"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "analytics.production",
+          "name": "Production Reports",
+          "priority": 2,
+          "description": "Reports the kitchen uses for production planning.",
+          "submodules": [
+            {
+              "id": "analytics.production.cart-report",
+              "name": "Cart report",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "analytics.production.cart-report.ui",
+                  "name": "Weekly cart report UI",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Admin view of the cart report SQL result: total of each meal needed this week.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "dependencies": [
+                    "subscriptions.engine.cart-report.query"
+                  ],
+                  "tags": [
+                    "ui",
+                    "kitchen"
+                  ]
+                },
+                {
+                  "id": "analytics.production.cart-report.export",
+                  "name": "Export for kitchen",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "PDF or CSV export to hand to Gurleen's team.",
+                  "tech": {
+                    "framework": "Next.js 14 (App Router) + TypeScript"
+                  },
+                  "tags": [
+                    "export",
+                    "kitchen"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "analytics.production.packing-slips",
+              "name": "Packing slips",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "analytics.production.packing-slips.generator",
+                  "name": "Per-order packing slip",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "PDF with customer name, items, delivery info. Batch generate for a day.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "notes": "React PDF or Puppeteer."
+                  },
+                  "tags": [
+                    "kitchen"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "analytics.production.routes",
+              "name": "Route sheet",
+              "priority": 4,
+              "components": [
+                {
+                  "id": "analytics.production.routes.sheet",
+                  "name": "Driver route sheet",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Printable sheet with stops in route order.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "dependencies": [
+                    "delivery.routing.build.integration"
+                  ],
+                  "tags": [
+                    "kitchen"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "integrations",
@@ -6226,7 +8501,452 @@
       "priority": 2,
       "description": "Stripe, Twilio Verify, Resend, Google/Facebook OAuth, culinary-ops bridge, HMP one-shot migration, POS (future), delivery routing (future).",
       "tech_notes": "Wrap every external dependency in a thin adapter so we can swap vendors.",
-      "modules": []
+      "modules": [
+        {
+          "id": "integrations.vendor-setup",
+          "name": "Vendor Accounts",
+          "priority": 1,
+          "description": "Vendor Accounts",
+          "submodules": [
+            {
+              "id": "integrations.vendor-setup.accounts",
+              "name": "Account creation",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "integrations.vendor-setup.accounts.stripe",
+                  "name": "Stripe account",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Create account, verify Canadian business, get test keys, save in password manager.",
+                  "tech": {
+                    "vendor": "Stripe"
+                  },
+                  "tags": [
+                    "vendor-setup",
+                    "manual"
+                  ]
+                },
+                {
+                  "id": "integrations.vendor-setup.accounts.twilio",
+                  "name": "Twilio account + Verify service",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Sign up, buy Canadian number, enable Verify product, save SID.",
+                  "tech": {
+                    "vendor": "Twilio"
+                  },
+                  "tags": [
+                    "vendor-setup",
+                    "manual"
+                  ]
+                },
+                {
+                  "id": "integrations.vendor-setup.accounts.resend",
+                  "name": "Resend account + domain",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Sign up, verify eatbetterday.ca domain (SPF, DKIM, DMARC), generate API key.",
+                  "tech": {
+                    "vendor": "Resend"
+                  },
+                  "tags": [
+                    "vendor-setup",
+                    "manual"
+                  ]
+                },
+                {
+                  "id": "integrations.vendor-setup.accounts.google-oauth",
+                  "name": "Google OAuth app",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Google Cloud Console -> OAuth client ID, configure consent screen, add redirect URIs.",
+                  "tech": {
+                    "vendor": "Google"
+                  },
+                  "tags": [
+                    "vendor-setup",
+                    "manual"
+                  ]
+                },
+                {
+                  "id": "integrations.vendor-setup.accounts.facebook-oauth",
+                  "name": "Facebook OAuth app",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Facebook for Developers -> new app. App review takes weeks, start early.",
+                  "tech": {
+                    "vendor": "Meta"
+                  },
+                  "tags": [
+                    "vendor-setup",
+                    "manual"
+                  ]
+                },
+                {
+                  "id": "integrations.vendor-setup.accounts.sentry",
+                  "name": "Sentry account",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Create project for betterday-webapp.",
+                  "tech": {
+                    "vendor": "Sentry"
+                  },
+                  "tags": [
+                    "vendor-setup",
+                    "manual"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "integrations.culinary-ops",
+          "name": "Culinary-Ops Bridge",
+          "priority": 1,
+          "description": "How the storefront talks to Gurleen's kitchen ops backend.",
+          "submodules": [
+            {
+              "id": "integrations.culinary-ops.read",
+              "name": "Read",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "integrations.culinary-ops.read.menu",
+                  "name": "Menu read bridge",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Direct Prisma queries against MealRecipe/MealComponent/PortionSpec.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "MealRecipe",
+                      "MealComponent",
+                      "PortionSpec"
+                    ]
+                  },
+                  "dependencies": [
+                    "menu.source.bridge.fetch"
+                  ],
+                  "tags": [
+                    "integration",
+                    "culinary-ops"
+                  ]
+                },
+                {
+                  "id": "integrations.culinary-ops.read.availability",
+                  "name": "Availability check",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Read CategoryAvailability to gate which meals appear this week.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "tables": [
+                      "CategoryAvailability"
+                    ]
+                  },
+                  "tags": [
+                    "integration",
+                    "culinary-ops"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "integrations.culinary-ops.write",
+              "name": "Write",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "integrations.culinary-ops.write.order-webhook",
+                  "name": "Order -> culinary-ops webhook",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "POST to existing culinary-ops mealprep-order webhook on order confirmation.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "endpoints": [
+                      "POST culinary-ops /api/webhooks/mealprep-order"
+                    ]
+                  },
+                  "tags": [
+                    "integration",
+                    "culinary-ops"
+                  ]
+                },
+                {
+                  "id": "integrations.culinary-ops.write.cart-report",
+                  "name": "Cart report push",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Push the weekly cart report to culinary-ops for production planning.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "integration",
+                    "culinary-ops"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "integrations.culinary-ops.auth",
+              "name": "Cross-system auth",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "integrations.culinary-ops.auth.service-token",
+                  "name": "Service-to-service token",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Static bearer token for webapp -> culinary-ops API calls. Rotate quarterly.",
+                  "tech": {
+                    "notes": "Stored in Vercel env. Sent as Authorization header."
+                  },
+                  "tags": [
+                    "security"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "integrations.hmp-migration",
+          "name": "HMP Migration",
+          "priority": 2,
+          "description": "One-shot import of HMP customer and order data during cutover.",
+          "submodules": [
+            {
+              "id": "integrations.hmp-migration.discovery",
+              "name": "Discovery",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "integrations.hmp-migration.discovery.probe",
+                  "name": "API endpoint probe",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Validated probe of HMP endpoints to confirm pagination, rate limits, response shapes.",
+                  "tech": {
+                    "notes": "See HMP_TEARDOWN.md. Use rotated key."
+                  },
+                  "tags": [
+                    "migration",
+                    "research"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "integrations.hmp-migration.customers",
+              "name": "Customer import",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "integrations.hmp-migration.customers.pull",
+                  "name": "Pull all customers",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Paginate GET /v1/tenant/customers, store hmp_customer_id on Customer rows.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "HMP"
+                  },
+                  "tags": [
+                    "migration",
+                    "one-shot"
+                  ]
+                },
+                {
+                  "id": "integrations.hmp-migration.customers.addresses",
+                  "name": "Pull customer addresses",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Per-customer address pull.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "HMP"
+                  },
+                  "tags": [
+                    "migration",
+                    "one-shot"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "integrations.hmp-migration.orders",
+              "name": "Order history import",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "integrations.hmp-migration.orders.pull",
+                  "name": "Pull order logs",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "GET /v1/tenant/customers/:id/order-logs per customer, populate OrderMirror.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "HMP"
+                  },
+                  "tags": [
+                    "migration",
+                    "one-shot"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "integrations.hmp-migration.gift-cards",
+              "name": "Gift card honor",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "integrations.hmp-migration.gift-cards.import",
+                  "name": "Import outstanding gift cards",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Pull gift cards from HMP, create equivalents in our system.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript",
+                    "vendor": "HMP"
+                  },
+                  "tags": [
+                    "migration",
+                    "one-shot"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "integrations.hmp-migration.cutover",
+              "name": "Cutover plan",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "integrations.hmp-migration.cutover.dry-run",
+                  "name": "Dry-run import",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Import into a Neon branch DB, compare data shapes, tune script.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "migration"
+                  ]
+                },
+                {
+                  "id": "integrations.hmp-migration.cutover.announce",
+                  "name": "Customer announcement email",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Email all HMP customers explaining the platform change and what to expect.",
+                  "tech": {
+                    "vendor": "Resend"
+                  },
+                  "tags": [
+                    "migration",
+                    "comms"
+                  ]
+                },
+                {
+                  "id": "integrations.hmp-migration.cutover.pilot",
+                  "name": "Pilot cohort",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Move first 10 friendly customers to new platform, monitor for a week.",
+                  "tech": {
+                    "notes": "Manual process."
+                  },
+                  "tags": [
+                    "migration",
+                    "process"
+                  ]
+                },
+                {
+                  "id": "integrations.hmp-migration.cutover.shutoff",
+                  "name": "HMP shutoff",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Final cutover: cancel HMP subscription, redirect all customers.",
+                  "tech": {
+                    "notes": "Final step after pilot succeeds."
+                  },
+                  "tags": [
+                    "migration",
+                    "process"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "integrations.future",
+          "name": "Future Integrations",
+          "priority": 5,
+          "description": "Future Integrations",
+          "submodules": [
+            {
+              "id": "integrations.future.pos",
+              "name": "POS integration",
+              "priority": 5,
+              "components": [
+                {
+                  "id": "integrations.future.pos.clover",
+                  "name": "Clover integration",
+                  "status": "to-build",
+                  "priority": 5,
+                  "description": "If BetterDay opens a physical location, integrate with Clover POS.",
+                  "tech": {
+                    "vendor": "Clover"
+                  },
+                  "tags": [
+                    "future"
+                  ]
+                },
+                {
+                  "id": "integrations.future.pos.square",
+                  "name": "Square integration",
+                  "status": "to-build",
+                  "priority": 5,
+                  "description": "Alternative POS path.",
+                  "tech": {
+                    "vendor": "Square"
+                  },
+                  "tags": [
+                    "future"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "integrations.future.wagepoint",
+              "name": "Wagepoint (HR platform)",
+              "priority": 4,
+              "components": [
+                {
+                  "id": "integrations.future.wagepoint.export",
+                  "name": "Payroll CSV export",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "HR platform exports payroll hours to Wagepoint template.",
+                  "tech": {
+                    "notes": "Lives in hr-platform repo, not betterday-webapp."
+                  },
+                  "tags": [
+                    "hr"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "platform",
@@ -7024,7 +9744,131 @@
       "priority": 5,
       "description": "Gurleen's existing corporate ordering module stays separate for now. A 2.0 integration with the D2C storefront is a future project.",
       "tech_notes": "Already exists in culinary-ops: CorporateCompany, CorporateEmployee, CorporateOrder, CorporateOrderItem, CorporateBenefitLevel, CorporateParLevel, CorporateCompanyPIN, CorporateMagicToken, CompanyInvoice, CorporateCreditNote, CorporateMonthlyStatement, CorporateSetting. Magic-link auth, par-level inventory, monthly statements. Do not touch without coordination.",
-      "modules": []
+      "modules": [
+        {
+          "id": "corporate.existing",
+          "name": "Existing Corporate System",
+          "priority": 5,
+          "description": "Gurleen's existing corporate ordering lives in culinary-ops. Read-only reference.",
+          "submodules": [
+            {
+              "id": "corporate.existing.inventory",
+              "name": "What exists today",
+              "priority": 5,
+              "components": [
+                {
+                  "id": "corporate.existing.inventory.models",
+                  "name": "Corporate Prisma models",
+                  "status": "done",
+                  "priority": 5,
+                  "description": "CorporateCompany, CorporateEmployee, CorporateOrder, CorporateOrderItem, CorporateBenefitLevel, CorporateParLevel, CorporateCompanyPIN, CorporateMagicToken, CompanyInvoice, CorporateCreditNote, CorporateMonthlyStatement, CorporateSetting.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)",
+                    "notes": "All exist in culinary-ops. Do not duplicate."
+                  },
+                  "tags": [
+                    "existing",
+                    "culinary-ops"
+                  ]
+                },
+                {
+                  "id": "corporate.existing.inventory.auth",
+                  "name": "Magic-link auth",
+                  "status": "done",
+                  "priority": 5,
+                  "description": "CorporateMagicToken-based passwordless auth for corporate customers.",
+                  "tech": {
+                    "framework": "NestJS + TypeScript"
+                  },
+                  "tags": [
+                    "existing"
+                  ]
+                },
+                {
+                  "id": "corporate.existing.inventory.par-levels",
+                  "name": "Par levels",
+                  "status": "done",
+                  "priority": 5,
+                  "description": "CorporateParLevel for automatic reordering based on thresholds.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)"
+                  },
+                  "tags": [
+                    "existing"
+                  ]
+                },
+                {
+                  "id": "corporate.existing.inventory.invoicing",
+                  "name": "Invoicing",
+                  "status": "done",
+                  "priority": 5,
+                  "description": "CompanyInvoice, CorporateCreditNote, CorporateMonthlyStatement.",
+                  "tech": {
+                    "database": "Prisma + Postgres (Neon)"
+                  },
+                  "tags": [
+                    "existing"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "corporate.v2",
+          "name": "Corporate 2.0 Integration",
+          "priority": 5,
+          "description": "Future project: unified portal integrating corporate ordering with D2C.",
+          "submodules": [
+            {
+              "id": "corporate.v2.unified",
+              "name": "Unified portal concepts",
+              "priority": 5,
+              "components": [
+                {
+                  "id": "corporate.v2.unified.shared-profile",
+                  "name": "Shared customer profile",
+                  "status": "to-build",
+                  "priority": 5,
+                  "description": "A corporate employee can also be a personal subscriber with one identity.",
+                  "tech": {
+                    "notes": "Requires schema migration to link Customer <-> CorporateEmployee."
+                  },
+                  "tags": [
+                    "future"
+                  ]
+                },
+                {
+                  "id": "corporate.v2.unified.shared-cart",
+                  "name": "Shared cart experience",
+                  "status": "to-build",
+                  "priority": 5,
+                  "description": "Corporate flavor of the same build-a-cart UI with company-rules overlay.",
+                  "tech": {
+                    "notes": "Reuse most of cart/*."
+                  },
+                  "tags": [
+                    "future"
+                  ]
+                },
+                {
+                  "id": "corporate.v2.unified.nav",
+                  "name": "Role switcher",
+                  "status": "to-build",
+                  "priority": 5,
+                  "description": "UI to switch between 'my personal orders' and 'my company account'.",
+                  "tech": {
+                    "notes": "Far future."
+                  },
+                  "tags": [
+                    "future"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "journeys": []
