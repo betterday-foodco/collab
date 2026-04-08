@@ -1,0 +1,179 @@
+name: Protocol Check
+
+# Validates that every commit and data.json edit follows the protocol in CLAUDE.md / HOW_TO_USE.md.
+# Runs on push and pull_request. If anything fails, the push/PR is marked red in GitHub UI,
+# which tells the Claude session (or human) that something skipped the rules.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  commit-messages:
+    name: Commit message format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 50
+
+      - name: Validate commit messages
+        run: |
+          set -e
+          # For push: check all commits in the push range
+          # For PR: check all commits in the PR
+          if [ "${{ github.event_name }}" = "push" ]; then
+            if [ -z "${{ github.event.before }}" ] || [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+              RANGE="${{ github.event.after }}"
+            else
+              RANGE="${{ github.event.before }}..${{ github.event.after }}"
+            fi
+          else
+            RANGE="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          fi
+
+          echo "Checking commits in range: $RANGE"
+          FAIL=0
+
+          git log --format="%H %s" $RANGE | while read sha subject; do
+            echo "---"
+            echo "Commit: $sha"
+            echo "Subject: $subject"
+
+            # Merge commits are exempt
+            if echo "$subject" | grep -qE "^Merge "; then
+              echo "  ✓ merge commit, skipped"
+              continue
+            fi
+
+            # Rule 1: project-scope commits must have "(via <name>)" suffix
+            if echo "$subject" | grep -qE "^project-scope:"; then
+              if ! echo "$subject" | grep -qE "\(via [A-Za-z]+\)$"; then
+                echo "  ✗ project-scope commits must end with '(via Conner)' or '(via Gurleen)'"
+                echo "::error::Commit $sha subject missing '(via <name>)' suffix: $subject"
+                exit 1
+              else
+                echo "  ✓ project-scope commit with via-suffix"
+              fi
+              continue
+            fi
+
+            # Rule 2: root data.json commits should use a verb prefix
+            if echo "$subject" | grep -qE "^(update|add|fix|remove|mark|sync|merge|protocol|docs|chore|feat|ci):"; then
+              echo "  ✓ conventional prefix"
+              continue
+            fi
+
+            # Allow anything else through with a warning for now (don't fail)
+            echo "  ⚠ non-standard prefix — allowed but noted"
+          done
+
+  data-json-meta:
+    name: data.json meta freshness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check root data.json meta
+        run: |
+          set -e
+          if [ -f "data.json" ]; then
+            python3 <<'PY'
+          import json, sys, datetime
+          with open("data.json") as f:
+              d = json.load(f)
+          meta = d.get("meta", {})
+          if not meta.get("last_updated"):
+              print("::error file=data.json::meta.last_updated is missing")
+              sys.exit(1)
+          if not meta.get("updated_by"):
+              print("::error file=data.json::meta.updated_by is missing")
+              sys.exit(1)
+          ub = meta["updated_by"]
+          valid = ["Conner", "Gurleen", "Claude (Conner)", "Claude (Gurleen)", "Claude"]
+          if not any(v in ub for v in valid):
+              print(f"::error file=data.json::meta.updated_by='{ub}' is not a recognised identity")
+              sys.exit(1)
+          print(f"✓ root data.json meta ok — {ub} @ {meta['last_updated']}")
+          PY
+          else
+            echo "no root data.json, skipping"
+          fi
+
+      - name: Check project-scope data.json meta
+        run: |
+          set -e
+          if [ -f "project-scope/data.json" ]; then
+            python3 <<'PY'
+          import json, sys
+          with open("project-scope/data.json") as f:
+              d = json.load(f)
+          meta = d.get("meta", {})
+          if not meta.get("last_updated"):
+              print("::error file=project-scope/data.json::meta.last_updated is missing")
+              sys.exit(1)
+          if not meta.get("updated_by"):
+              print("::error file=project-scope/data.json::meta.updated_by is missing")
+              sys.exit(1)
+          ub = meta["updated_by"]
+          if "Claude" not in ub and ub not in ("Conner", "Gurleen"):
+              print(f"::error file=project-scope/data.json::meta.updated_by='{ub}' is not a recognised identity")
+              sys.exit(1)
+          # Validate structure: categories list exists
+          if not isinstance(d.get("categories"), list):
+              print("::error file=project-scope/data.json::'categories' must be an array")
+              sys.exit(1)
+          # Validate legend
+          if not d.get("legend", {}).get("priorities") or not d.get("legend", {}).get("statuses"):
+              print("::error file=project-scope/data.json::legend.priorities and legend.statuses are required")
+              sys.exit(1)
+          # Validate each category has required fields
+          for cat in d["categories"]:
+              for req in ("id", "name", "priority"):
+                  if req not in cat:
+                      print(f"::error file=project-scope/data.json::category missing '{req}': {cat.get('id', '?')}")
+                      sys.exit(1)
+          print(f"✓ project-scope/data.json meta ok — {ub}")
+          print(f"  {len(d['categories'])} categories")
+          PY
+          else
+            echo "no project-scope/data.json, skipping"
+          fi
+
+  ids-stable:
+    name: Scope ids are stable (no collisions)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check project-scope id uniqueness
+        run: |
+          if [ -f "project-scope/data.json" ]; then
+            python3 <<'PY'
+          import json, sys
+          with open("project-scope/data.json") as f:
+              d = json.load(f)
+          ids = []
+          def walk(node, path="root"):
+              if "id" in node:
+                  ids.append((node["id"], path))
+              for key in ("categories", "modules", "submodules", "components"):
+                  for child in node.get(key, []) or []:
+                      walk(child, f"{path}.{node.get('id','?')}")
+          walk(d)
+          seen = {}
+          dupes = []
+          for i, p in ids:
+              if i in seen:
+                  dupes.append((i, seen[i], p))
+              else:
+                  seen[i] = p
+          if dupes:
+              for i, p1, p2 in dupes:
+                  print(f"::error file=project-scope/data.json::duplicate id '{i}' at {p1} and {p2}")
+              sys.exit(1)
+          print(f"✓ {len(ids)} unique ids across project-scope tree")
+          PY
+          fi

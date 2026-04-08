@@ -797,6 +797,238 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
   ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+  /* ── Connection indicator ─────────────── */
+  .connection-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.82);
+    padding: 5px 11px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .connection-indicator:hover { background: rgba(255,255,255,0.15); }
+  .connection-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #94a3b8;
+    flex-shrink: 0;
+  }
+  .connection-dot.live {
+    background: #10b981;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
+    animation: pulse-live 2.2s infinite;
+  }
+  .connection-dot.error { background: #ef4444; }
+  @keyframes pulse-live {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+    50% { box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+  }
+
+  /* ── Icon buttons (settings, pull) ───── */
+  .icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.9);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    padding: 0;
+  }
+  .icon-btn:hover {
+    background: rgba(255,255,255,0.14);
+    border-color: rgba(255,255,255,0.3);
+  }
+  .icon-btn svg { width: 15px; height: 15px; }
+  .icon-btn.spinning svg { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Form elements (settings modal) ───── */
+  .form-group { margin-bottom: 18px; }
+  .form-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .form-input, .form-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-family: inherit;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .form-input:focus, .form-select:focus {
+    outline: none;
+    border-color: var(--sky);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(78,162,253,0.14);
+  }
+  .form-hint {
+    font-size: 11px;
+    color: var(--text-3);
+    margin-top: 6px;
+    line-height: 1.55;
+  }
+  .form-hint a { color: var(--sky); text-decoration: none; font-weight: 600; }
+  .form-hint a:hover { text-decoration: underline; }
+  .form-hint code {
+    background: var(--bg-2);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: "SF Mono", Monaco, Menlo, monospace;
+    font-size: 10px;
+  }
+  .form-error {
+    font-size: 12px;
+    color: var(--red);
+    margin-top: 8px;
+    font-weight: 600;
+    padding: 8px 10px;
+    background: #fef2f2;
+    border-radius: 6px;
+    border: 1px solid #fecaca;
+  }
+  .form-success {
+    font-size: 12px;
+    color: var(--green);
+    margin-top: 8px;
+    font-weight: 600;
+    padding: 8px 10px;
+    background: #ecfdf5;
+    border-radius: 6px;
+    border: 1px solid #a7f3d0;
+  }
+
+  /* ── Toggle switch ────────────────────── */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 0;
+    gap: 12px;
+  }
+  .toggle-row .toggle-main {
+    flex: 1;
+  }
+  .toggle-row .toggle-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: var(--border-2);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle-switch.on { background: var(--green); }
+  .toggle-switch::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: left 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .toggle-switch.on::after { left: 22px; }
+
+  /* ── Sync status bar ──────────────────── */
+  .sync-status-bar {
+    display: none;
+    background: var(--sky);
+    color: white;
+    padding: 8px 28px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    animation: slide-down 0.2s;
+  }
+  .sync-status-bar.show { display: block; }
+  .sync-status-bar.error { background: var(--red); }
+  .sync-status-bar.success { background: var(--green); }
+  @keyframes slide-down {
+    from { transform: translateY(-100%); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+
+  /* ── First-run welcome banner ─────────── */
+  .welcome-banner {
+    display: none;
+    background: var(--cream);
+    border: 1px solid #e5d4b3;
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin: 18px 28px -8px;
+    align-items: center;
+    gap: 14px;
+  }
+  .welcome-banner.show { display: flex; }
+  .welcome-banner .icon {
+    width: 36px;
+    height: 36px;
+    background: var(--yellow);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--navy);
+    flex-shrink: 0;
+    font-weight: 800;
+    font-size: 16px;
+  }
+  .welcome-banner .text {
+    flex: 1;
+    font-size: 13px;
+    color: var(--navy);
+    line-height: 1.5;
+  }
+  .welcome-banner .text strong { display: block; margin-bottom: 2px; font-size: 14px; }
+  .welcome-banner button {
+    padding: 8px 14px;
+    background: var(--navy);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .welcome-banner button:hover { background: var(--navy-deep); }
+  .welcome-banner .dismiss {
+    background: transparent;
+    color: var(--navy);
+    padding: 4px 8px;
+  }
+  .welcome-banner .dismiss:hover { background: rgba(0,49,65,0.1); }
 </style>
 </head>
 
@@ -814,7 +1046,17 @@
     </div>
     <div class="header-actions">
       <div class="header-meta" id="metaText">—</div>
-      <button class="pending-badge" id="pendingBadge" onclick="openSyncModal()">
+      <div class="connection-indicator" id="connectionIndicator" onclick="openSettingsModal()" title="Click to open settings">
+        <span class="connection-dot" id="connectionDot"></span>
+        <span id="connectionLabel">Not connected</span>
+      </div>
+      <button class="icon-btn" id="pullBtn" onclick="pullLatest()" title="Refresh from GitHub">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      </button>
+      <button class="icon-btn" onclick="openSettingsModal()" title="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <button class="pending-badge" id="pendingBadge" onclick="syncNow()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
         </svg>
@@ -822,6 +1064,20 @@
       </button>
     </div>
   </header>
+
+  <!-- First-run welcome banner -->
+  <div class="welcome-banner" id="welcomeBanner">
+    <div class="icon">!</div>
+    <div class="text">
+      <strong>Set up direct editing</strong>
+      Click the ⚙ settings icon to paste a GitHub token so status clicks push straight to the live site — no more copy-paste.
+    </div>
+    <button onclick="openSettingsModal()">Set up now</button>
+    <button class="dismiss" onclick="dismissWelcome()">Later</button>
+  </div>
+
+  <!-- Sync status bar -->
+  <div class="sync-status-bar" id="syncStatusBar"></div>
 
   <!-- ── Toolbar ─────────────────────────── -->
   <div class="toolbar">
@@ -874,6 +1130,74 @@
   </div>
 </div>
 
+<!-- Settings modal -->
+<div class="modal-backdrop" id="settingsModal" onclick="if(event.target===this) closeSettingsModal()">
+  <div class="modal" style="max-width: 560px">
+    <div class="modal-header">
+      <h2>Dashboard Settings</h2>
+      <button class="action-btn ghost" onclick="closeSettingsModal()" style="padding:6px 10px">Close</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="form-group">
+        <label class="form-label">Who are you?</label>
+        <select class="form-select" id="settingsIdentity">
+          <option value="Conner">Conner</option>
+          <option value="Gurleen">Gurleen</option>
+          <option value="Claude">Claude (generic)</option>
+        </select>
+        <div class="form-hint">Used in commit messages so <code>git log</code> shows who made each change. Example: <code>project-scope: mark auth.phone.twilio.send done (via Conner)</code></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">GitHub Personal Access Token</label>
+        <input type="password" class="form-input" id="settingsToken" placeholder="github_pat_... (stays in your browser)" autocomplete="off" spellcheck="false">
+        <div class="form-hint">
+          Create a <strong>fine-grained</strong> PAT scoped to <code>betterday-foodco/collab</code> only, with <strong>Contents: Read and write</strong> permission. The token is stored in this browser's localStorage — it never leaves your device except to hit the GitHub API directly.
+          <br><br>
+          <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">→ Create a new fine-grained PAT</a>
+        </div>
+        <div id="tokenStatus"></div>
+      </div>
+
+      <div class="form-group">
+        <div class="toggle-row">
+          <div class="toggle-main">
+            <div class="toggle-label">Auto-sync on every click</div>
+            <div class="form-hint" style="margin-top:2px">Off: changes accumulate in the pending badge, you click Sync when ready. On: each click commits after 3 seconds of idle time (debounced).</div>
+          </div>
+          <div class="toggle-switch" id="autoSyncToggle" onclick="toggleAutoSync()"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Pre-edit protocol</label>
+        <div class="form-hint">
+          Every edit triggered from this dashboard automatically:
+          <ol style="margin-top:6px; padding-left:18px; font-size:11px; line-height:1.7">
+            <li>Pulls the latest <code>data.json</code> from GitHub via API</li>
+            <li>Applies your pending changes on top of the latest version</li>
+            <li>Updates <code>meta.last_updated</code> and <code>meta.updated_by</code></li>
+            <li>Commits with the <code>project-scope:</code> prefix and <code>(via &lt;name&gt;)</code> suffix</li>
+            <li>Pushes. If GitHub rejects because someone else committed first (409), the dashboard retries after re-pulling.</li>
+          </ol>
+          This mirrors the CLAUDE.md protocol at the repo root so browser edits and Claude edits both follow the same rules.
+        </div>
+      </div>
+
+      <div class="action-row" style="margin-top: 20px; margin-bottom: 8px">
+        <button class="action-btn ghost" onclick="testGitHubConnection()">Test connection</button>
+        <button class="action-btn ghost" onclick="handleClearToken()">Clear token</button>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="action-btn ghost" onclick="closeSettingsModal()">Cancel</button>
+      <button class="action-btn primary" onclick="saveSettings()">Save settings</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
@@ -889,6 +1213,9 @@ let STATE = {
   activeLeafId: null,
   pending: [], // array of { id, changes: {...}, ts }
   expanded: new Set(), // node ids currently expanded
+  syncing: false,
+  autoSyncTimer: null,
+  fileSha: null,
 };
 
 const PENDING_KEY = "bd-scope-pending-v1";
@@ -922,6 +1249,8 @@ async function load() {
 
   renderTree();
   renderPendingBadge();
+  updateConnectionIndicator();
+  maybeShowWelcome();
 }
 
 /* Apply any pending local changes on top of the loaded data (visual only) */
@@ -1339,6 +1668,7 @@ function queuePending(id, changes) {
     STATE.pending.push({ id, changes, ts: new Date().toISOString() });
   }
   savePending();
+  scheduleAutoSync();
 }
 
 function renderPendingBadge() {
@@ -1538,6 +1868,309 @@ document.addEventListener("keydown", e => {
     else if (document.getElementById("main").classList.contains("panel-open")) closePanel();
   }
 });
+
+/* ─────────────────────────────────────────────
+   LEVEL 2 — Direct GitHub editing
+──────────────────────────────────────────────*/
+const TOKEN_KEY    = "bd-scope-gh-token-v1";
+const IDENTITY_KEY = "bd-scope-identity-v1";
+const AUTOSYNC_KEY = "bd-scope-autosync-v1";
+const WELCOME_KEY  = "bd-scope-welcome-dismissed-v1";
+const GH_OWNER = "betterday-foodco";
+const GH_REPO  = "collab";
+const GH_PATH  = "project-scope/data.json";
+const GH_API   = "https://api.github.com";
+
+/* Token + identity + auto-sync storage */
+function getToken()    { return localStorage.getItem(TOKEN_KEY) || ""; }
+function saveToken(t)  { localStorage.setItem(TOKEN_KEY, t); }
+function clearTokenRaw(){ localStorage.removeItem(TOKEN_KEY); }
+function getIdentity() { return localStorage.getItem(IDENTITY_KEY) || "Conner"; }
+function saveIdentity(n){ localStorage.setItem(IDENTITY_KEY, n); }
+function getAutoSync() { return localStorage.getItem(AUTOSYNC_KEY) === "true"; }
+function saveAutoSync(on){ localStorage.setItem(AUTOSYNC_KEY, on ? "true" : "false"); }
+
+/* Welcome banner */
+function maybeShowWelcome() {
+  if (localStorage.getItem(WELCOME_KEY) === "true") return;
+  if (getToken()) return;
+  document.getElementById("welcomeBanner").classList.add("show");
+}
+function dismissWelcome() {
+  localStorage.setItem(WELCOME_KEY, "true");
+  document.getElementById("welcomeBanner").classList.remove("show");
+}
+
+/* Connection indicator */
+function updateConnectionIndicator() {
+  const dot   = document.getElementById("connectionDot");
+  const label = document.getElementById("connectionLabel");
+  if (!getToken()) {
+    dot.className = "connection-dot";
+    label.textContent = "Not connected — click to setup";
+  } else {
+    dot.className = "connection-dot live";
+    label.textContent = `Live as ${getIdentity()}`;
+  }
+}
+
+/* Sync status bar */
+function showSyncStatus(msg, kind) {
+  const bar = document.getElementById("syncStatusBar");
+  bar.textContent = msg;
+  bar.className = "sync-status-bar show" + (kind ? " " + kind : "");
+  clearTimeout(bar._t);
+  if (kind === "success" || kind === "error") {
+    bar._t = setTimeout(() => bar.classList.remove("show"), 2800);
+  }
+}
+function hideSyncStatus() {
+  document.getElementById("syncStatusBar").classList.remove("show");
+}
+
+/* Settings modal */
+function openSettingsModal() {
+  document.getElementById("settingsToken").value = getToken();
+  document.getElementById("settingsIdentity").value = getIdentity();
+  document.getElementById("autoSyncToggle").classList.toggle("on", getAutoSync());
+  document.getElementById("tokenStatus").innerHTML = "";
+  document.getElementById("settingsModal").classList.add("open");
+}
+function closeSettingsModal() {
+  document.getElementById("settingsModal").classList.remove("open");
+}
+function toggleAutoSync() {
+  document.getElementById("autoSyncToggle").classList.toggle("on");
+}
+function saveSettings() {
+  const token    = document.getElementById("settingsToken").value.trim();
+  const identity = document.getElementById("settingsIdentity").value;
+  const autoSync = document.getElementById("autoSyncToggle").classList.contains("on");
+  if (token) saveToken(token);
+  saveIdentity(identity);
+  saveAutoSync(autoSync);
+  updateConnectionIndicator();
+  closeSettingsModal();
+  dismissWelcome();
+  showToast("Settings saved");
+}
+function handleClearToken() {
+  if (!confirm("Clear your GitHub token? You'll need to paste it again to do direct syncs.")) return;
+  clearTokenRaw();
+  document.getElementById("settingsToken").value = "";
+  updateConnectionIndicator();
+  showToast("Token cleared");
+}
+
+/* GitHub API — low level */
+async function ghFetch(url, opts = {}) {
+  const token = getToken();
+  if (!token) throw new Error("No GitHub token set");
+  const headers = {
+    "Accept": "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28",
+    "Authorization": `Bearer ${token}`,
+    ...(opts.headers || {}),
+  };
+  const r = await fetch(url, { ...opts, headers });
+  if (!r.ok) {
+    const errText = await r.text().catch(() => "");
+    let msg = `GitHub API ${r.status}`;
+    try { const j = JSON.parse(errText); if (j.message) msg = `${r.status}: ${j.message}`; }
+    catch { if (errText) msg += `: ${errText.slice(0, 120)}`; }
+    const err = new Error(msg);
+    err.status = r.status;
+    throw err;
+  }
+  return r.json();
+}
+
+/* Test connection button */
+async function testGitHubConnection() {
+  const token = document.getElementById("settingsToken").value.trim();
+  const statusEl = document.getElementById("tokenStatus");
+  if (!token) {
+    statusEl.innerHTML = '<div class="form-error">Paste a token first.</div>';
+    return;
+  }
+  statusEl.innerHTML = '<div class="form-hint" style="margin-top:8px">Testing…</div>';
+  // Temporarily set token to test it
+  const old = getToken();
+  saveToken(token);
+  try {
+    const user = await ghFetch(`${GH_API}/user`);
+    // Confirm repo access
+    await ghFetch(`${GH_API}/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_PATH}`);
+    statusEl.innerHTML = `<div class="form-success">✓ Connected as <strong>${user.login}</strong>. Repo write access confirmed.</div>`;
+  } catch (err) {
+    // Roll back if test failed
+    if (old) saveToken(old); else clearTokenRaw();
+    statusEl.innerHTML = `<div class="form-error">✗ ${err.message}</div>`;
+  }
+}
+
+/* Fetch data.json via GitHub API (bypasses Pages cache, gives us SHA) */
+async function fetchFromGitHub() {
+  const data = await ghFetch(`${GH_API}/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_PATH}`);
+  // Base64 → UTF-8 → JSON
+  const jsonStr = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ""))));
+  return { json: JSON.parse(jsonStr), sha: data.sha };
+}
+
+/* Commit new content back */
+async function commitToGitHub(newData, message) {
+  // Re-fetch latest sha right before commit to minimize race window
+  const latest = await ghFetch(`${GH_API}/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_PATH}`);
+  const serverSha = latest.sha;
+  const jsonStr = JSON.stringify(newData, null, 2) + "\n";
+  const content = btoa(unescape(encodeURIComponent(jsonStr)));
+  const body = {
+    message,
+    content,
+    sha: serverSha,
+    committer: {
+      name:  `Claude (${getIdentity()})`,
+      email: "claude-bot@eatbetterday.ca"
+    }
+  };
+  return ghFetch(`${GH_API}/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_PATH}`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+}
+
+/* Pull latest — refresh from GitHub without committing */
+async function pullLatest() {
+  const btn = document.getElementById("pullBtn");
+  btn.classList.add("spinning");
+  try {
+    let data;
+    if (getToken()) {
+      const res = await fetchFromGitHub();
+      data = res.json;
+    } else {
+      const r = await fetch("data.json?t=" + Date.now());
+      data = await r.json();
+    }
+    STATE.data = data;
+    applyPendingOverlay();
+    renderTree();
+    const meta = STATE.data.meta;
+    document.getElementById("metaText").innerHTML =
+      `<span style="color:var(--yellow)">●</span> updated ${new Date(meta.last_updated).toLocaleString()} by ${meta.updated_by}`;
+    showToast("Refreshed from GitHub");
+  } catch (err) {
+    showToast(`Pull failed: ${err.message}`);
+  } finally {
+    btn.classList.remove("spinning");
+  }
+}
+
+/* Find node in any data object (not bound to STATE) */
+function findNodeInData(data, id) {
+  for (const cat of data.categories) {
+    if (cat.id === id) return cat;
+    for (const mod of (cat.modules || [])) {
+      if (mod.id === id) return mod;
+      for (const sub of (mod.submodules || [])) {
+        if (sub.id === id) return sub;
+        for (const comp of (sub.components || [])) {
+          if (comp.id === id) return comp;
+        }
+      }
+    }
+  }
+  return null;
+}
+
+/* Build a commit message from pending changes */
+function buildCommitMessage() {
+  const n = STATE.pending.length;
+  if (n === 0) return `project-scope: sync (via ${getIdentity()})`;
+  if (n === 1) {
+    const p = STATE.pending[0];
+    const node = findNodeById(p.id);
+    const name = node ? node.name : p.id;
+    const changes = Object.entries(p.changes).map(([k,v]) => `${k}=${typeof v === 'string' ? v : JSON.stringify(v)}`).join(", ");
+    return `project-scope: update ${p.id} (${changes}) (via ${getIdentity()})`.slice(0, 200);
+  }
+  return `project-scope: sync ${n} changes from dashboard (via ${getIdentity()})`;
+}
+
+/* Unified sync entry point
+   - No token → fall back to copy-paste modal
+   - Token → commit directly to GitHub */
+async function syncNow() {
+  if (!STATE.pending.length) {
+    showToast("Nothing to sync");
+    return;
+  }
+  if (!getToken()) {
+    openSyncModal();
+    return;
+  }
+  if (STATE.syncing) return;
+
+  STATE.syncing = true;
+  const badge = document.getElementById("pendingBadge");
+  const originalHtml = badge.innerHTML;
+  badge.innerHTML = `<span>Syncing…</span>`;
+  showSyncStatus("Pulling latest from GitHub…", "");
+
+  try {
+    // 1. Pull latest
+    const { json: latest } = await fetchFromGitHub();
+
+    // 2. Apply pending on top
+    STATE.pending.forEach(p => {
+      const node = findNodeInData(latest, p.id);
+      if (node) Object.assign(node, p.changes);
+    });
+
+    // 3. Update meta
+    latest.meta.last_updated = new Date().toISOString();
+    latest.meta.updated_by   = `Claude (${getIdentity()})`;
+
+    // 4. Commit
+    showSyncStatus("Committing to GitHub…", "");
+    const msg = buildCommitMessage();
+    await commitToGitHub(latest, msg);
+
+    // 5. Success — clear pending, refresh state
+    STATE.pending = [];
+    savePending();
+    STATE.data = latest;
+    walkAll(n => delete n.__pending);
+    renderTree();
+    document.getElementById("metaText").innerHTML =
+      `<span style="color:var(--yellow)">●</span> just synced by Claude (${getIdentity()})`;
+    showSyncStatus("✓ Synced — GitHub Pages will refresh in ~30s", "success");
+
+  } catch (err) {
+    if (err.status === 409) {
+      showSyncStatus("Conflict detected — someone else committed. Pull latest and try again.", "error");
+      await pullLatest();
+    } else if (err.status === 401 || err.status === 403) {
+      showSyncStatus("Token invalid or no permission — opening settings", "error");
+      openSettingsModal();
+    } else {
+      showSyncStatus(`Sync failed: ${err.message}`, "error");
+    }
+  } finally {
+    STATE.syncing = false;
+    badge.innerHTML = originalHtml;
+    renderPendingBadge();
+  }
+}
+
+/* Auto-sync scheduler — debounced, 3s after last change */
+function scheduleAutoSync() {
+  if (!getAutoSync() || !getToken()) return;
+  if (STATE.autoSyncTimer) clearTimeout(STATE.autoSyncTimer);
+  STATE.autoSyncTimer = setTimeout(() => {
+    if (STATE.pending.length && !STATE.syncing) syncNow();
+  }, 3000);
+}
 
 /* Kick off */
 load().catch(err => {

@@ -2,6 +2,8 @@
 
 **Sub-board under `betterday-foodco/collab`. A Claude-editable, browser-viewable nested project map for the entire BetterDay platform build.**
 
+> ⚠️ **You must read `CLAUDE.md` at the repo root before editing anything in this folder.** That file is auto-loaded by Claude Code and contains the Pre-Edit Protocol (pull first, identify yourself, commit format, conflict resolution) that applies to every file in this repo. This document is the schema-specific layer on top of that protocol.
+
 If you are a Claude Code instance and the user has asked you to update, check, or interact with the "project scope," "scope board," "project map," "scope dashboard," or any similar phrase, follow this protocol.
 
 This file sits alongside the existing collab-board `HOW_TO_USE.md`. The two boards share a repo but have different purposes:
@@ -93,6 +95,25 @@ cd /Users/us/Downloads/betterday-collab && git config user.name
    - "What's P1 and not done?" → leaves where `priority === 1` and `status !== "done"`
    - "What is `<category>` blocked on?" → leaves where `status === "blocked"` under that category
    - "What's next?" → leaves where all `dependencies` are `done` and status is `to-build` or `designed`
+
+---
+
+## Level 2 — Direct browser editing (live)
+
+The dashboard now supports **direct GitHub commits from the browser**. A user clicks a status pill, the change is queued in localStorage, and when they hit "Sync" the dashboard:
+
+1. Fetches the latest `project-scope/data.json` from GitHub via the Contents API (gets the current `sha`)
+2. Applies pending changes on top of the fetched version (not the stale local copy)
+3. Updates `meta.last_updated` and `meta.updated_by` to `"Claude (<identity>)"`
+4. Builds a commit message in the format `project-scope: <summary> (via <identity>)`
+5. PUTs the new content back to GitHub with the `sha`
+6. On 409 conflict, auto-pulls latest and prompts the user to retry
+
+This means **clicks from the browser follow the same commit protocol as Claude edits**. The GitHub Action (`.github/workflows/protocol-check.yml`) enforces the commit message format server-side — any commit missing the `(via Conner|Gurleen)` suffix is rejected.
+
+Users set up direct editing by clicking the ⚙ settings icon in the dashboard header and pasting a fine-grained GitHub PAT. The token is scoped to this repo only, stored in the browser's localStorage, and never leaves the device except to hit the GitHub API directly.
+
+If no token is set, the dashboard falls back to the **copy-for-Claude modal** below — the same user-paste-into-Claude flow that existed before Level 2.
 
 ---
 
