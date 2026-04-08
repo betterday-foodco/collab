@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BetterDay — Project Scope</title>
+<style>
+  :root {
+    /* BetterDay brand */
+    --cream:      #FAEBDA;
+    --cream-2:    #f5e4ce;
+    --sky:        #4EA2FD;
+    --sky-dark:   #2f8be8;
+    --navy:       #003141;
+    --navy-deep:  #012030;
+    --yellow:     #FFC600;
+    --purple:     #C8A4F5;
+    --green:      #10b981;
+    --red:        #ef4444;
+    --amber:      #f59e0b;
+
+    /* Neutrals */
+    --text:       #0f172a;
+    --text-2:     #475569;
+    --text-3:     #94a3b8;
+    --border:     #e2e8f0;
+    --border-2:   #cbd5e1;
+    --bg:         #f8fafc;
+    --bg-2:       #f1f5f9;
+    --card:       #ffffff;
+
+    --shadow:     0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+    --shadow-md:  0 4px 12px rgba(15,23,42,0.08);
+    --shadow-lg:  0 12px 32px rgba(15,23,42,0.12);
+
+    --radius:     12px;
+    --radius-sm:  8px;
+    --radius-lg:  20px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    overflow: hidden;
+  }
+
+  /* ── Layout ───────────────────────────────── */
+  .app {
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    height: 100vh;
+  }
+
+  header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
+    color: white;
+    padding: 18px 28px;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    z-index: 5;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .brand-mark {
+    width: 44px;
+    height: 44px;
+    background: var(--yellow);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--navy);
+    font-weight: 800;
+    font-size: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .brand-title h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .brand-title .sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    margin-top: 2px;
+  }
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.8);
+  }
+  .header-meta .dot { color: var(--yellow); }
+  .header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .pending-badge {
+    display: none;
+    background: var(--yellow);
+    color: var(--navy);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transition: transform 0.12s;
+  }
+  .pending-badge:hover { transform: translateY(-1px); }
+  .pending-badge.visible { display: inline-flex; gap: 6px; align-items: center; }
+
+  /* ── Toolbar ──────────────────────────────── */
+  .toolbar {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .tabs { display: flex; gap: 4px; }
+  .tab {
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-2);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .tab:hover { background: var(--bg-2); color: var(--text); }
+  .tab.active {
+    background: var(--navy);
+    color: white;
+  }
+  .tab.stub {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .tab.stub:hover { background: transparent; color: var(--text-2); }
+  .tab .coming {
+    font-size: 10px;
+    opacity: 0.7;
+    margin-left: 4px;
+  }
+
+  .search-wrap {
+    flex: 1;
+    min-width: 240px;
+    max-width: 420px;
+    position: relative;
+  }
+  .search-wrap input {
+    width: 100%;
+    padding: 8px 14px 8px 36px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-family: inherit;
+    background: var(--bg);
+    transition: all 0.15s;
+  }
+  .search-wrap input:focus {
+    outline: none;
+    border-color: var(--sky);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(78,162,253,0.12);
+  }
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    color: var(--text-3);
+    pointer-events: none;
+  }
+
+  .filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .filter-chip {
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: white;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-2);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .filter-chip:hover { border-color: var(--navy); color: var(--navy); }
+  .filter-chip.active {
+    background: var(--navy);
+    color: white;
+    border-color: var(--navy);
+  }
+
+  /* ── Main content + panel ────────────────── */
+  main {
+    display: grid;
+    grid-template-columns: 1fr 0fr;
+    transition: grid-template-columns 0.28s ease;
+    overflow: hidden;
+  }
+  main.panel-open {
+    grid-template-columns: 1fr 520px;
+  }
+
+  .tree-scroll {
+    overflow-y: auto;
+    padding: 24px 28px 120px;
+  }
+
+  /* ── Tree ─────────────────────────────────── */
+  .category {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 14px;
+    overflow: hidden;
+    transition: box-shadow 0.15s;
+  }
+  .category:hover { box-shadow: var(--shadow); }
+
+  .cat-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .cat-header:hover { background: var(--bg); }
+
+  .chev {
+    width: 18px;
+    height: 18px;
+    color: var(--text-3);
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+  .expanded > .cat-header > .chev,
+  .expanded > .node-row > .chev {
+    transform: rotate(90deg);
+  }
+
+  .cat-title {
+    flex: 1;
+    min-width: 0;
+  }
+  .cat-title .name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .cat-title .desc {
+    font-size: 12px;
+    color: var(--text-2);
+    margin-top: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .priority-pill {
+    flex-shrink: 0;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    white-space: nowrap;
+  }
+  .priority-pill.p1 { background: #003141; }
+  .priority-pill.p2 { background: #4EA2FD; }
+  .priority-pill.p3 { background: #C8A4F5; color: #2d1a4d; }
+  .priority-pill.p4 { background: #FFC600; color: #3d2e00; }
+  .priority-pill.p5 { background: #94a3b8; }
+
+  .progress {
+    flex-shrink: 0;
+    min-width: 120px;
+  }
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--bg-2);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--sky), var(--navy));
+    border-radius: 999px;
+    transition: width 0.3s;
+  }
+  .progress-label {
+    font-size: 11px;
+    color: var(--text-3);
+    margin-top: 4px;
+    text-align: right;
+  }
+
+  .count-pill {
+    flex-shrink: 0;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--bg-2);
+    color: var(--text-2);
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .info-btn {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--text-2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .info-btn:hover {
+    background: var(--navy);
+    color: white;
+    border-color: var(--navy);
+  }
+  .info-btn svg { width: 14px; height: 14px; }
+
+  .cat-body {
+    display: none;
+    padding: 0 20px 16px 52px;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .category.expanded > .cat-body { display: block; }
+
+  /* Nested nodes (modules, submodules) */
+  .node {
+    border-left: 2px solid var(--border-2);
+    margin-top: 10px;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    background: white;
+  }
+  .node-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .node-row:hover { background: var(--bg-2); }
+  .node-row .name {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .node-row .desc {
+    color: var(--text-2);
+    font-weight: 400;
+    margin-left: 6px;
+  }
+  .node-body {
+    display: none;
+    padding: 4px 0 10px 24px;
+  }
+  .node.expanded > .node-body { display: block; }
+
+  /* Leaf (component) row */
+  .leaf {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 14px 8px 20px;
+    margin: 2px 0;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.1s;
+    border-left: 2px solid transparent;
+  }
+  .leaf:hover {
+    background: var(--bg);
+    border-left-color: var(--sky);
+  }
+  .leaf.active {
+    background: var(--cream);
+    border-left-color: var(--navy);
+  }
+  .leaf .name {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .status-pill {
+    flex-shrink: 0;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: white;
+    white-space: nowrap;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    transition: transform 0.1s;
+  }
+  .status-pill:hover { transform: scale(1.05); }
+  .status-done        { background: #10b981; }
+  .status-in-progress { background: #3b82f6; }
+  .status-designed    { background: #a78bfa; }
+  .status-to-build    { background: #94a3b8; }
+  .status-blocked     { background: #f59e0b; }
+  .status-skipped     { background: #64748b; }
+
+  .empty-notice {
+    padding: 10px 16px;
+    color: var(--text-3);
+    font-size: 12px;
+    font-style: italic;
+  }
+
+  /* ── Side panel ──────────────────────────── */
+  .panel {
+    background: var(--card);
+    border-left: 1px solid var(--border);
+    overflow-y: auto;
+    display: none;
+    flex-direction: column;
+  }
+  main.panel-open .panel {
+    display: flex;
+  }
+  .panel-header {
+    position: sticky;
+    top: 0;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 22px 14px;
+    z-index: 2;
+  }
+  .panel-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--text-2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .panel-close:hover { background: var(--bg-2); color: var(--text); }
+  .panel-close svg { width: 14px; height: 14px; }
+
+  .panel-breadcrumb {
+    font-size: 11px;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+    padding-right: 40px;
+  }
+  .panel-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    padding-right: 40px;
+  }
+  .panel-chips {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .panel-body {
+    padding: 20px 22px 80px;
+  }
+  .panel-section {
+    margin-bottom: 22px;
+  }
+  .panel-section h3 {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  .panel-section p, .panel-section li {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.55;
+  }
+  .panel-section ul { padding-left: 18px; }
+  .panel-section ul li { margin-bottom: 3px; }
+
+  .tech-grid {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 6px 12px;
+    font-size: 12px;
+  }
+  .tech-grid .k {
+    color: var(--text-3);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    padding-top: 2px;
+  }
+  .tech-grid .v {
+    color: var(--text);
+    word-break: break-word;
+  }
+  .tech-grid code {
+    background: var(--bg-2);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: "SF Mono", Monaco, Menlo, monospace;
+    font-size: 11px;
+  }
+
+  .action-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  .action-btn {
+    padding: 9px 16px;
+    border-radius: var(--radius-sm);
+    border: none;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .action-btn.primary {
+    background: var(--sky);
+    color: white;
+  }
+  .action-btn.primary:hover { background: var(--sky-dark); }
+  .action-btn.success {
+    background: var(--green);
+    color: white;
+  }
+  .action-btn.success:hover { filter: brightness(0.95); }
+  .action-btn.ghost {
+    background: white;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .action-btn.ghost:hover { background: var(--bg-2); }
+
+  .status-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  .status-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+    padding: 6px;
+    min-width: 170px;
+    z-index: 100;
+    display: none;
+  }
+  .status-menu.open { display: block; }
+  .status-menu button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 10px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+    font-family: inherit;
+    color: var(--text);
+  }
+  .status-menu button:hover { background: var(--bg); }
+  .status-menu .swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+
+  .notes-editor {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--text);
+    resize: vertical;
+    background: var(--bg);
+  }
+  .notes-editor:focus {
+    outline: none;
+    border-color: var(--sky);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(78,162,253,0.12);
+  }
+  .save-note-btn {
+    margin-top: 8px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+    border: none;
+    background: var(--navy);
+    color: white;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .save-note-btn:hover { background: var(--navy-deep); }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: var(--bg-2);
+    color: var(--text-2);
+    font-size: 10px;
+    font-weight: 600;
+    margin-right: 4px;
+    margin-top: 4px;
+  }
+
+  /* ── Modal for Copy-for-Claude ────────────── */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    width: 92%;
+    max-width: 640px;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-lg);
+  }
+  .modal-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-header h2 {
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .modal-body {
+    padding: 16px 22px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .modal-body p {
+    font-size: 13px;
+    color: var(--text-2);
+    margin-bottom: 12px;
+  }
+  .modal-body pre {
+    background: var(--navy);
+    color: #e2e8f0;
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+    font-family: "SF Mono", Monaco, Menlo, monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .modal-footer {
+    padding: 14px 22px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  /* ── Toast ─────────────────────────────────── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--navy);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 2000;
+    pointer-events: none;
+  }
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  .hidden-by-search { display: none !important; }
+
+  /* ── Stub tab placeholder ────────────────── */
+  .stub-view {
+    padding: 60px 28px;
+    text-align: center;
+    color: var(--text-3);
+  }
+  .stub-view h2 {
+    font-size: 18px;
+    color: var(--text-2);
+    margin-bottom: 8px;
+  }
+  .stub-view p {
+    font-size: 13px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <!-- ── Header ───────────────────────────── -->
+  <header>
+    <div class="brand">
+      <div class="brand-mark">BD</div>
+      <div class="brand-title">
+        <h1>BetterDay — Project Scope</h1>
+        <div class="sub" id="subtitleText">Loading…</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="header-meta" id="metaText">—</div>
+      <button class="pending-badge" id="pendingBadge" onclick="openSyncModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </svg>
+        <span id="pendingCount">0</span> pending — Sync
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Toolbar ─────────────────────────── -->
+  <div class="toolbar">
+    <div class="tabs">
+      <button class="tab active" data-tab="tree" onclick="switchTab('tree')">Tree</button>
+      <button class="tab stub" data-tab="board">Board <span class="coming">soon</span></button>
+      <button class="tab stub" data-tab="journey">Journeys <span class="coming">session 3</span></button>
+      <button class="tab stub" data-tab="matrix">Matrix <span class="coming">session 4</span></button>
+    </div>
+
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Search modules, components, tech notes…" oninput="applySearch()">
+    </div>
+
+    <div class="filters" id="priorityFilters">
+      <button class="filter-chip active" data-priority="all" onclick="setPriorityFilter('all')">All</button>
+      <button class="filter-chip" data-priority="1" onclick="setPriorityFilter('1')">P1</button>
+      <button class="filter-chip" data-priority="2" onclick="setPriorityFilter('2')">P2</button>
+      <button class="filter-chip" data-priority="3" onclick="setPriorityFilter('3')">P3</button>
+      <button class="filter-chip" data-priority="4" onclick="setPriorityFilter('4')">P4</button>
+      <button class="filter-chip" data-priority="5" onclick="setPriorityFilter('5')">P5</button>
+    </div>
+  </div>
+
+  <!-- ── Main ─────────────────────────────── -->
+  <main id="main">
+    <div class="tree-scroll" id="treeRoot"></div>
+    <aside class="panel" id="panel"></aside>
+  </main>
+</div>
+
+<!-- Sync modal -->
+<div class="modal-backdrop" id="syncModal" onclick="if(event.target===this) closeSyncModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Sync pending changes to Claude</h2>
+      <button class="action-btn ghost" onclick="closeSyncModal()" style="padding:6px 10px">Close</button>
+    </div>
+    <div class="modal-body">
+      <p>Copy the block below and paste it into your Claude session. Claude will apply the changes to <code>data.json</code> and push to git, so Gurleen sees them on refresh.</p>
+      <pre id="syncBlock"></pre>
+    </div>
+    <div class="modal-footer">
+      <button class="action-btn ghost" onclick="clearPending()">Discard changes</button>
+      <button class="action-btn primary" id="copyBtn" onclick="copySyncBlock()">Copy to clipboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ─────────────────────────────────────────────
+   State
+──────────────────────────────────────────────*/
+let STATE = {
+  data: null,
+  search: "",
+  priorityFilter: "all",
+  currentTab: "tree",
+  activeLeafId: null,
+  pending: [], // array of { id, changes: {...}, ts }
+  expanded: new Set(), // node ids currently expanded
+};
+
+const PENDING_KEY = "bd-scope-pending-v1";
+const EXPANDED_KEY = "bd-scope-expanded-v1";
+
+/* ─────────────────────────────────────────────
+   Load
+──────────────────────────────────────────────*/
+async function load() {
+  // Load pending from localStorage
+  try {
+    const raw = localStorage.getItem(PENDING_KEY);
+    if (raw) STATE.pending = JSON.parse(raw);
+  } catch {}
+  try {
+    const raw = localStorage.getItem(EXPANDED_KEY);
+    if (raw) STATE.expanded = new Set(JSON.parse(raw));
+  } catch {}
+
+  // Fetch data.json (cache-bust so we always see latest)
+  const r = await fetch("data.json?t=" + Date.now());
+  STATE.data = await r.json();
+
+  applyPendingOverlay();
+
+  document.getElementById("subtitleText").textContent = STATE.data.meta.subtitle || "";
+  const meta = STATE.data.meta;
+  const when = new Date(meta.last_updated).toLocaleString();
+  document.getElementById("metaText").innerHTML =
+    `<span class="dot">●</span> updated ${when} by ${meta.updated_by}`;
+
+  renderTree();
+  renderPendingBadge();
+}
+
+/* Apply any pending local changes on top of the loaded data (visual only) */
+function applyPendingOverlay() {
+  if (!STATE.pending.length) return;
+  STATE.pending.forEach(p => {
+    const node = findNodeById(p.id);
+    if (!node) return;
+    Object.assign(node, p.changes);
+    node.__pending = true;
+  });
+}
+
+function savePending() {
+  localStorage.setItem(PENDING_KEY, JSON.stringify(STATE.pending));
+  renderPendingBadge();
+}
+function saveExpanded() {
+  localStorage.setItem(EXPANDED_KEY, JSON.stringify([...STATE.expanded]));
+}
+
+/* ─────────────────────────────────────────────
+   Tree traversal helpers
+──────────────────────────────────────────────*/
+function walkAll(fn) {
+  STATE.data.categories.forEach(cat => {
+    fn(cat, "category");
+    (cat.modules || []).forEach(mod => {
+      fn(mod, "module");
+      (mod.submodules || []).forEach(sub => {
+        fn(sub, "submodule");
+        (sub.components || []).forEach(comp => fn(comp, "component"));
+      });
+    });
+  });
+}
+
+function findNodeById(id) {
+  let found = null;
+  walkAll(n => { if (!found && n.id === id) found = n; });
+  return found;
+}
+
+function getAllLeaves(node) {
+  const leaves = [];
+  if (node.modules) node.modules.forEach(m => leaves.push(...getAllLeaves(m)));
+  else if (node.submodules) node.submodules.forEach(s => leaves.push(...getAllLeaves(s)));
+  else if (node.components) node.components.forEach(c => leaves.push(c));
+  else if (!node.modules && !node.submodules && !node.components) leaves.push(node);
+  return leaves;
+}
+
+function computeProgress(node) {
+  const leaves = getAllLeaves(node);
+  if (!leaves.length) return { done: 0, total: 0, pct: 0 };
+  const done = leaves.filter(l => l.status === "done").length;
+  const inProg = leaves.filter(l => l.status === "in-progress").length;
+  const total = leaves.length;
+  const pct = Math.round(((done + inProg * 0.5) / total) * 100);
+  return { done, total, pct };
+}
+
+function getMinPriority(node) {
+  const leaves = getAllLeaves(node);
+  if (!leaves.length) return node.priority || 5;
+  return leaves.reduce((min, l) => Math.min(min, l.priority || 5), 5);
+}
+
+/* ─────────────────────────────────────────────
+   Rendering — Tree
+──────────────────────────────────────────────*/
+function renderTree() {
+  const root = document.getElementById("treeRoot");
+  root.innerHTML = "";
+  STATE.data.categories.forEach(cat => {
+    root.appendChild(renderCategory(cat));
+  });
+  applySearch();
+}
+
+function renderCategory(cat) {
+  const div = document.createElement("div");
+  div.className = "category";
+  div.dataset.id = cat.id;
+  if (STATE.expanded.has(cat.id)) div.classList.add("expanded");
+
+  const hasContent = (cat.modules && cat.modules.length) > 0;
+  const prog = computeProgress(cat);
+  const effectivePriority = getMinPriority(cat);
+
+  div.innerHTML = `
+    <div class="cat-header" onclick="toggleNode('${cat.id}', this.parentElement)">
+      ${svgChev()}
+      <div class="cat-title">
+        <div class="name">${esc(cat.name)}</div>
+        <div class="desc">${esc(cat.description || "")}</div>
+      </div>
+      <span class="priority-pill p${effectivePriority}">${priorityLabel(effectivePriority)}</span>
+      ${hasContent ? `
+        <div class="progress">
+          <div class="progress-bar"><div class="progress-fill" style="width:${prog.pct}%"></div></div>
+          <div class="progress-label">${prog.done}/${prog.total} done</div>
+        </div>` : `<span class="count-pill">not yet scoped</span>`}
+      <button class="info-btn" onclick="event.stopPropagation(); openPanelForNode('${cat.id}')" title="Details">
+        ${svgInfo()}
+      </button>
+    </div>
+    <div class="cat-body" id="body-${cat.id}"></div>
+  `;
+
+  const body = div.querySelector(".cat-body");
+  if (hasContent) {
+    cat.modules.forEach(mod => body.appendChild(renderNode(mod, "module")));
+  } else {
+    body.innerHTML = `<div class="empty-notice">Not yet fleshed out. Will be expanded in a future session.</div>`;
+  }
+
+  return div;
+}
+
+function renderNode(node, type) {
+  const div = document.createElement("div");
+  div.className = "node";
+  div.dataset.id = node.id;
+  if (STATE.expanded.has(node.id)) div.classList.add("expanded");
+
+  const children = node.submodules || node.components || [];
+  const hasChildren = children.length > 0;
+  const prog = computeProgress(node);
+  const effectivePriority = getMinPriority(node);
+
+  const isLeafParent = !!node.components;
+
+  div.innerHTML = `
+    <div class="node-row" onclick="toggleNode('${node.id}', this.parentElement)">
+      ${hasChildren ? svgChev() : `<span style="width:18px;display:inline-block"></span>`}
+      <div class="name">${esc(node.name)}${node.description ? `<span class="desc"> — ${esc(node.description)}</span>` : ""}</div>
+      <span class="priority-pill p${effectivePriority}">${priorityLabel(effectivePriority)}</span>
+      ${prog.total ? `<span class="count-pill">${prog.done}/${prog.total}</span>` : ""}
+      <button class="info-btn" onclick="event.stopPropagation(); openPanelForNode('${node.id}')" title="Details">
+        ${svgInfo()}
+      </button>
+    </div>
+    <div class="node-body"></div>
+  `;
+
+  const body = div.querySelector(".node-body");
+  if (isLeafParent) {
+    node.components.forEach(c => body.appendChild(renderLeaf(c)));
+  } else if (hasChildren) {
+    children.forEach(child => body.appendChild(renderNode(child, "submodule")));
+  }
+
+  return div;
+}
+
+function renderLeaf(leaf) {
+  const div = document.createElement("div");
+  div.className = "leaf";
+  div.dataset.id = leaf.id;
+  if (STATE.activeLeafId === leaf.id) div.classList.add("active");
+
+  const priority = leaf.priority || 5;
+
+  div.innerHTML = `
+    <div class="name">${esc(leaf.name)}</div>
+    <span class="priority-pill p${priority}">${priorityLabel(priority)}</span>
+    <button class="status-pill status-${leaf.status}" onclick="event.stopPropagation(); openStatusMenu(event, '${leaf.id}')">
+      ${statusLabel(leaf.status)}${leaf.__pending ? " •" : ""}
+    </button>
+  `;
+
+  div.addEventListener("click", () => openPanelForNode(leaf.id));
+  return div;
+}
+
+function toggleNode(id, el) {
+  if (el.classList.contains("expanded")) {
+    el.classList.remove("expanded");
+    STATE.expanded.delete(id);
+  } else {
+    el.classList.add("expanded");
+    STATE.expanded.add(id);
+  }
+  saveExpanded();
+}
+
+/* ─────────────────────────────────────────────
+   Side panel
+──────────────────────────────────────────────*/
+function openPanelForNode(id) {
+  const node = findNodeById(id);
+  if (!node) return;
+  STATE.activeLeafId = id;
+  const panel = document.getElementById("panel");
+  const main = document.getElementById("main");
+  main.classList.add("panel-open");
+
+  const breadcrumb = buildBreadcrumb(id);
+  const priority = getMinPriority(node);
+  const isLeaf = !node.modules && !node.submodules && !node.components;
+  const hasChildren = (node.modules?.length || node.submodules?.length || node.components?.length) > 0;
+
+  let bodyHtml = "";
+
+  // Actions row (leaves only)
+  if (isLeaf) {
+    const curStatus = node.status || "to-build";
+    bodyHtml += `
+      <div class="action-row">
+        <button class="action-btn primary" onclick="quickStart('${id}')">▶ Start working</button>
+        <button class="action-btn success" onclick="quickDone('${id}')">✓ Mark done</button>
+        <div class="status-dropdown">
+          <button class="action-btn ghost" onclick="toggleStatusDropdown(event)">Status: ${statusLabel(curStatus)} ▾</button>
+          <div class="status-menu" id="panelStatusMenu">
+            ${Object.keys(STATE.data.legend.statuses).map(s => `
+              <button onclick="setStatus('${id}','${s}')">
+                <span class="swatch" style="background:${STATE.data.legend.statuses[s].color}"></span>
+                ${STATE.data.legend.statuses[s].label}
+              </button>`).join("")}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Description
+  if (node.description) {
+    bodyHtml += `
+      <div class="panel-section">
+        <h3>Description</h3>
+        <p>${esc(node.description)}</p>
+      </div>
+    `;
+  }
+
+  // Tech notes (category-level)
+  if (node.tech_notes) {
+    bodyHtml += `
+      <div class="panel-section">
+        <h3>Stack / architecture notes</h3>
+        <p>${esc(node.tech_notes)}</p>
+      </div>
+    `;
+  }
+
+  // Tech block (leaf-level)
+  if (isLeaf && node.tech && Object.keys(node.tech).length) {
+    const t = node.tech;
+    const rows = [];
+    if (t.language)  rows.push(["Language", t.language]);
+    if (t.framework) rows.push(["Framework", t.framework]);
+    if (t.database)  rows.push(["Database", t.database]);
+    if (t.vendor)    rows.push(["Vendor", t.vendor]);
+    if (t.tables && t.tables.length)    rows.push(["Tables", t.tables.map(x => `<code>${esc(x)}</code>`).join(" ")]);
+    if (t.endpoints && t.endpoints.length) rows.push(["Endpoints", t.endpoints.map(x => `<code>${esc(x)}</code>`).join("<br>")]);
+    if (t.crons && t.crons.length)      rows.push(["Crons", t.crons.join("<br>")]);
+    if (t.notes)     rows.push(["Notes", esc(t.notes)]);
+
+    if (rows.length) {
+      bodyHtml += `
+        <div class="panel-section">
+          <h3>Technical details</h3>
+          <div class="tech-grid">
+            ${rows.map(([k, v]) => `<div class="k">${k}</div><div class="v">${v}</div>`).join("")}
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  // Dependencies
+  if (node.dependencies && node.dependencies.length) {
+    bodyHtml += `
+      <div class="panel-section">
+        <h3>Dependencies</h3>
+        <ul>${node.dependencies.map(d => `<li><code>${esc(d)}</code></li>`).join("")}</ul>
+      </div>
+    `;
+  }
+
+  // Tags
+  if (node.tags && node.tags.length) {
+    bodyHtml += `
+      <div class="panel-section">
+        <h3>Tags</h3>
+        <div>${node.tags.map(t => `<span class="tag">${esc(t)}</span>`).join("")}</div>
+      </div>
+    `;
+  }
+
+  // Children summary (non-leaf)
+  if (hasChildren) {
+    const leaves = getAllLeaves(node);
+    const byStatus = {};
+    leaves.forEach(l => { byStatus[l.status] = (byStatus[l.status] || 0) + 1; });
+    bodyHtml += `
+      <div class="panel-section">
+        <h3>Child items (${leaves.length} leaves)</h3>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${Object.entries(byStatus).map(([s, n]) => `
+            <span class="status-pill status-${s}">${statusLabel(s)} · ${n}</span>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  // Notes editor (all nodes)
+  bodyHtml += `
+    <div class="panel-section">
+      <h3>Notes</h3>
+      <textarea class="notes-editor" id="notesEditor" placeholder="Add a note about this item…">${esc(node.notes || "")}</textarea>
+      <button class="save-note-btn" onclick="saveNote('${id}')">Save note</button>
+    </div>
+  `;
+
+  panel.innerHTML = `
+    <div class="panel-header">
+      <button class="panel-close" onclick="closePanel()">${svgX()}</button>
+      <div class="panel-breadcrumb">${esc(breadcrumb)}</div>
+      <div class="panel-title">${esc(node.name)}</div>
+      <div class="panel-chips">
+        <span class="priority-pill p${priority}">${priorityLabel(priority)}</span>
+        ${isLeaf ? `<span class="status-pill status-${node.status}">${statusLabel(node.status)}</span>` : ""}
+      </div>
+    </div>
+    <div class="panel-body">${bodyHtml}</div>
+  `;
+
+  // Highlight the active leaf
+  document.querySelectorAll(".leaf").forEach(el => {
+    el.classList.toggle("active", el.dataset.id === id);
+  });
+}
+
+function closePanel() {
+  document.getElementById("main").classList.remove("panel-open");
+  STATE.activeLeafId = null;
+  document.querySelectorAll(".leaf.active").forEach(el => el.classList.remove("active"));
+}
+
+function buildBreadcrumb(id) {
+  const crumbs = [];
+  STATE.data.categories.forEach(cat => {
+    if (cat.id === id) { crumbs.push(cat.name); return; }
+    (cat.modules || []).forEach(mod => {
+      if (mod.id === id) { crumbs.push(cat.name, mod.name); return; }
+      (mod.submodules || []).forEach(sub => {
+        if (sub.id === id) { crumbs.push(cat.name, mod.name, sub.name); return; }
+        (sub.components || []).forEach(comp => {
+          if (comp.id === id) { crumbs.push(cat.name, mod.name, sub.name, comp.name); return; }
+        });
+      });
+    });
+  });
+  return crumbs.join(" → ");
+}
+
+/* ─────────────────────────────────────────────
+   Status change + notes + pending queue
+──────────────────────────────────────────────*/
+function setStatus(id, status) {
+  const node = findNodeById(id);
+  if (!node) return;
+  node.status = status;
+  node.__pending = true;
+  queuePending(id, { status });
+  renderTree();
+  openPanelForNode(id);
+  showToast(`Status → ${statusLabel(status)}`);
+  document.getElementById("panelStatusMenu")?.classList.remove("open");
+}
+
+function quickStart(id) {
+  const node = findNodeById(id);
+  if (!node) return;
+  node.status = "in-progress";
+  node.__pending = true;
+  const now = new Date().toISOString();
+  queuePending(id, { status: "in-progress", started_at: now });
+  renderTree();
+  openPanelForNode(id);
+  showToast("Marked as in progress");
+}
+
+function quickDone(id) {
+  const node = findNodeById(id);
+  if (!node) return;
+  node.status = "done";
+  node.__pending = true;
+  const now = new Date().toISOString();
+  queuePending(id, { status: "done", completed_at: now });
+  renderTree();
+  openPanelForNode(id);
+  showToast("Marked as done");
+}
+
+function saveNote(id) {
+  const textarea = document.getElementById("notesEditor");
+  if (!textarea) return;
+  const node = findNodeById(id);
+  node.notes = textarea.value;
+  node.__pending = true;
+  queuePending(id, { notes: textarea.value });
+  showToast("Note saved (pending sync)");
+}
+
+function queuePending(id, changes) {
+  const existing = STATE.pending.find(p => p.id === id);
+  if (existing) {
+    Object.assign(existing.changes, changes);
+    existing.ts = new Date().toISOString();
+  } else {
+    STATE.pending.push({ id, changes, ts: new Date().toISOString() });
+  }
+  savePending();
+}
+
+function renderPendingBadge() {
+  const b = document.getElementById("pendingBadge");
+  const count = STATE.pending.length;
+  document.getElementById("pendingCount").textContent = count;
+  b.classList.toggle("visible", count > 0);
+}
+
+/* ─────────────────────────────────────────────
+   Sync modal
+──────────────────────────────────────────────*/
+function openSyncModal() {
+  if (!STATE.pending.length) return;
+  const block = buildSyncBlock();
+  document.getElementById("syncBlock").textContent = block;
+  document.getElementById("syncModal").classList.add("open");
+}
+function closeSyncModal() {
+  document.getElementById("syncModal").classList.remove("open");
+}
+function buildSyncBlock() {
+  const meta = STATE.data.meta;
+  const lines = [
+    "[PROJECT-SCOPE UPDATE]",
+    "Apply the following changes to betterday-collab/project-scope/data.json and push.",
+    "Use the existing HOW_TO_USE protocol: pull first, update meta.last_updated and meta.updated_by,",
+    `commit with message starting 'project-scope:' and including '(via ${(meta.updated_by || "").replace(/^Claude \(|\)$/g, "") || "Conner"})'.`,
+    "",
+  ];
+  STATE.pending.forEach(p => {
+    const node = findNodeById(p.id);
+    const name = node ? node.name : "(unknown node)";
+    lines.push(`• ${p.id} — "${name}"`);
+    Object.entries(p.changes).forEach(([k, v]) => {
+      lines.push(`    ${k}: ${typeof v === "string" ? JSON.stringify(v) : v}`);
+    });
+  });
+  return lines.join("\n");
+}
+function copySyncBlock() {
+  const text = document.getElementById("syncBlock").textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById("copyBtn");
+    btn.textContent = "✓ Copied";
+    setTimeout(() => (btn.textContent = "Copy to clipboard"), 1500);
+  });
+}
+function clearPending() {
+  if (!confirm("Discard all pending changes? They will not be synced.")) return;
+  STATE.pending = [];
+  savePending();
+  // Reload state from data.json to drop overlay
+  load();
+  closeSyncModal();
+  showToast("Pending changes discarded");
+}
+
+/* ─────────────────────────────────────────────
+   Status dropdown (in panel)
+──────────────────────────────────────────────*/
+function toggleStatusDropdown(e) {
+  e.stopPropagation();
+  document.getElementById("panelStatusMenu")?.classList.toggle("open");
+}
+function openStatusMenu(e, id) {
+  e.stopPropagation();
+  // simple inline change: cycle through statuses
+  const order = ["to-build", "designed", "in-progress", "blocked", "done", "skipped"];
+  const node = findNodeById(id);
+  const i = order.indexOf(node.status);
+  const next = order[(i + 1) % order.length];
+  setStatus(id, next);
+}
+
+/* ─────────────────────────────────────────────
+   Search + filters
+──────────────────────────────────────────────*/
+function applySearch() {
+  const q = document.getElementById("searchInput").value.toLowerCase().trim();
+  STATE.search = q;
+  const priority = STATE.priorityFilter;
+
+  document.querySelectorAll(".category").forEach(cat => {
+    let catMatches = 0;
+    const catNode = findNodeById(cat.dataset.id);
+    const catPriority = getMinPriority(catNode);
+
+    cat.querySelectorAll(".node, .leaf").forEach(el => {
+      const node = findNodeById(el.dataset.id);
+      const textHay = collectText(node).toLowerCase();
+      const nodePriority = getMinPriority(node);
+
+      const matchSearch = !q || textHay.includes(q);
+      const matchPriority = priority === "all" || String(nodePriority) === priority || nodePriority <= Number(priority);
+
+      if (matchSearch && matchPriority) {
+        el.classList.remove("hidden-by-search");
+        catMatches++;
+      } else {
+        el.classList.add("hidden-by-search");
+      }
+    });
+
+    const catHayMatches = !q || collectText(catNode).toLowerCase().includes(q);
+    const catPriorityMatch = priority === "all" || catPriority <= Number(priority);
+
+    if ((catHayMatches || catMatches) && catPriorityMatch) {
+      cat.classList.remove("hidden-by-search");
+      if (q || priority !== "all") cat.classList.add("expanded");
+    } else {
+      cat.classList.add("hidden-by-search");
+    }
+  });
+}
+
+function collectText(node) {
+  if (!node) return "";
+  const parts = [node.name, node.description, node.tech_notes, node.notes];
+  if (node.tech) {
+    parts.push(Object.values(node.tech).flat().join(" "));
+  }
+  if (node.tags) parts.push(node.tags.join(" "));
+  (node.modules || []).forEach(m => parts.push(collectText(m)));
+  (node.submodules || []).forEach(s => parts.push(collectText(s)));
+  (node.components || []).forEach(c => parts.push(collectText(c)));
+  return parts.filter(Boolean).join(" ");
+}
+
+function setPriorityFilter(p) {
+  STATE.priorityFilter = p;
+  document.querySelectorAll(".filter-chip").forEach(el => {
+    el.classList.toggle("active", el.dataset.priority === p);
+  });
+  applySearch();
+}
+
+/* ─────────────────────────────────────────────
+   Tab switching (only Tree works in session 1)
+──────────────────────────────────────────────*/
+function switchTab(name) {
+  if (name !== "tree") {
+    showToast("Coming in a future session");
+    return;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Misc UI helpers
+──────────────────────────────────────────────*/
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+function priorityLabel(p) {
+  return ({ 1: "P1 Foundation", 2: "P2 Core", 3: "P3 Launch", 4: "P4 Post-launch", 5: "P5 Future" })[p] || "—";
+}
+function statusLabel(s) {
+  return ({
+    "done": "Done",
+    "in-progress": "In progress",
+    "designed": "Designed",
+    "to-build": "To build",
+    "blocked": "Blocked",
+    "skipped": "Skipped"
+  })[s] || s;
+}
+
+function esc(s) {
+  if (s == null) return "";
+  return String(s).replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m]);
+}
+
+function svgChev() {
+  return `<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
+}
+function svgInfo() {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
+}
+function svgX() {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+}
+
+/* Close dropdowns on outside click */
+document.addEventListener("click", () => {
+  document.getElementById("panelStatusMenu")?.classList.remove("open");
+});
+
+/* Keyboard: Esc closes panel/modal */
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    if (document.getElementById("syncModal").classList.contains("open")) closeSyncModal();
+    else if (document.getElementById("main").classList.contains("panel-open")) closePanel();
+  }
+});
+
+/* Kick off */
+load().catch(err => {
+  document.getElementById("treeRoot").innerHTML = `
+    <div class="stub-view">
+      <h2>Couldn't load data.json</h2>
+      <p>${esc(err.message)}</p>
+      <p style="margin-top:12px">If you're opening this file directly from disk, some browsers block fetch() on file://. Try serving via a local server or view it through GitHub Pages.</p>
+    </div>`;
+});
+</script>
+</body>
+</html>

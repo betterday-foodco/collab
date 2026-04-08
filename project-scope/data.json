@@ -1,0 +1,1240 @@
+{
+  "meta": {
+    "title": "BetterDay Platform — Project Scope",
+    "subtitle": "By-category module tree for the D2C storefront, subscription engine, and admin console",
+    "last_updated": "2026-04-08T10:30:00-06:00",
+    "updated_by": "Claude (Conner)",
+    "version": 1,
+    "session": 1
+  },
+
+  "legend": {
+    "priorities": {
+      "1": { "label": "P1 — Foundation", "color": "#003141", "description": "Immediate. Must exist before any other work happens." },
+      "2": { "label": "P2 — Core", "color": "#4EA2FD", "description": "Next layer. Built on P1, required for a functional platform." },
+      "3": { "label": "P3 — Launch polish", "color": "#C8A4F5", "description": "Required for a credible launch." },
+      "4": { "label": "P4 — Post-launch soon", "color": "#FFC600", "description": "Not needed day one but wanted within a month." },
+      "5": { "label": "P5 — Future", "color": "#9ca3af", "description": "Out of scope for 2026. Explore later." }
+    },
+    "statuses": {
+      "done":        { "label": "Done",        "color": "#10b981", "description": "Built, tested, and live (or ready to be)." },
+      "in-progress": { "label": "In progress", "color": "#3b82f6", "description": "Actively being worked on now." },
+      "designed":    { "label": "Designed",    "color": "#a78bfa", "description": "Schema / demo / prior design exists, ready to implement." },
+      "to-build":    { "label": "To build",    "color": "#9ca3af", "description": "Identified and in scope, not started." },
+      "blocked":     { "label": "Blocked",     "color": "#f59e0b", "description": "Cannot proceed until a dependency or decision resolves." },
+      "skipped":     { "label": "Skipped",     "color": "#64748b", "description": "Consciously dropped from scope. Kept visible for context." }
+    }
+  },
+
+  "categories": [
+    {
+      "id": "marketing",
+      "name": "Marketing & Public Site",
+      "priority": 2,
+      "description": "Unauthenticated public pages: homepage, menu teaser, story, FAQ, legal, SEO. The face of BetterDay.",
+      "tech_notes": "Next.js 14 App Router, SSG/SSR hybrid. Port from existing betterday-v2_81.html. Shared brand system.",
+      "modules": []
+    },
+
+    {
+      "id": "auth",
+      "name": "Identity & Auth",
+      "priority": 1,
+      "description": "Who is logging in, how they prove it, and the sessions that keep them logged in. The gatekeeper for everything downstream.",
+      "tech_notes": "Own our own auth. NestJS module in culinary-ops. Postgres (Prisma) for AuthIdentity/Session/OtpCode/OAuthLink. Twilio Verify for SMS. Resend for email. Google + Facebook OAuth with our own app registrations. JWT access tokens (15 min) + opaque refresh tokens (30 days) in httpOnly cookies. argon2id for password hashing.",
+      "modules": [
+        {
+          "id": "auth.foundation",
+          "name": "Auth Foundation",
+          "priority": 1,
+          "description": "Schemas, middleware, and primitives every other auth module depends on.",
+          "submodules": [
+            {
+              "id": "auth.foundation.schema",
+              "name": "Prisma schema — auth tables",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "auth.foundation.schema.identity",
+                  "name": "AuthIdentity model",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Primary auth row. One per phone or email. Holds password hash, verification timestamps, last login.",
+                  "tech": {
+                    "language": "Prisma",
+                    "database": "Postgres (Neon, culinary-ops DB)",
+                    "tables": ["AuthIdentity"],
+                    "notes": "Fields: id, email?, phone?, password_hash?, email_verified_at?, phone_verified_at?, created_at, last_login_at"
+                  },
+                  "dependencies": [],
+                  "tags": ["foundation", "schema"]
+                },
+                {
+                  "id": "auth.foundation.schema.session",
+                  "name": "Session model",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Refresh-token sessions. One row per active login.",
+                  "tech": {
+                    "language": "Prisma",
+                    "database": "Postgres",
+                    "tables": ["Session"],
+                    "notes": "Fields: id, identity_id, refresh_token_hash, user_agent, ip_address, expires_at, revoked_at?"
+                  },
+                  "dependencies": ["auth.foundation.schema.identity"],
+                  "tags": ["foundation", "schema"]
+                },
+                {
+                  "id": "auth.foundation.schema.otp",
+                  "name": "OtpCode model",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "One-time codes for SMS or email OTP. Short TTL, hashed values, attempt counter.",
+                  "tech": {
+                    "language": "Prisma",
+                    "database": "Postgres",
+                    "tables": ["OtpCode"],
+                    "notes": "Fields: id, identity_id?, destination, channel (sms|email), code_hash, attempts, expires_at, consumed_at?"
+                  },
+                  "dependencies": ["auth.foundation.schema.identity"],
+                  "tags": ["foundation", "schema"]
+                },
+                {
+                  "id": "auth.foundation.schema.oauth",
+                  "name": "OAuthLink model",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Links third-party identity providers (Google, Facebook) to an AuthIdentity.",
+                  "tech": {
+                    "language": "Prisma",
+                    "database": "Postgres",
+                    "tables": ["OAuthLink"],
+                    "notes": "Fields: id, identity_id, provider, provider_id, email, linked_at. @@unique([provider, provider_id])"
+                  },
+                  "dependencies": ["auth.foundation.schema.identity"],
+                  "tags": ["foundation", "schema"]
+                }
+              ]
+            },
+            {
+              "id": "auth.foundation.middleware",
+              "name": "Auth middleware + guards",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "auth.foundation.middleware.jwt",
+                  "name": "JWT signer + verifier",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Sign short-lived access tokens, verify on every protected request. Refresh flow.",
+                  "tech": {
+                    "language": "TypeScript",
+                    "framework": "NestJS",
+                    "notes": "jsonwebtoken or jose. 15-minute access token, 30-day refresh. Our own signing secret from env."
+                  },
+                  "dependencies": ["auth.foundation.schema.session"],
+                  "tags": ["foundation", "security"]
+                },
+                {
+                  "id": "auth.foundation.middleware.guard",
+                  "name": "AuthGuard decorator",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Decorator to protect API routes. Extracts identity from JWT, attaches to request context.",
+                  "tech": {
+                    "language": "TypeScript",
+                    "framework": "NestJS",
+                    "notes": "@UseGuards(AuthGuard) on protected controllers."
+                  },
+                  "dependencies": ["auth.foundation.middleware.jwt"],
+                  "tags": ["foundation", "security"]
+                },
+                {
+                  "id": "auth.foundation.middleware.ratelimit",
+                  "name": "Rate limiter",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Per-IP and per-identity rate limits on login, signup, OTP send, password reset.",
+                  "tech": {
+                    "framework": "NestJS",
+                    "notes": "@nestjs/throttler or a Redis-backed custom limiter."
+                  },
+                  "dependencies": ["auth.foundation.middleware.guard"],
+                  "tags": ["foundation", "security"]
+                }
+              ]
+            }
+          ]
+        },
+
+        {
+          "id": "auth.phone",
+          "name": "Phone OTP Login",
+          "priority": 1,
+          "description": "Passwordless login with a 6-digit SMS code. The default sign-in method for most customers.",
+          "submodules": [
+            {
+              "id": "auth.phone.twilio",
+              "name": "Twilio Verify integration",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "auth.phone.twilio.send",
+                  "name": "Send OTP endpoint",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "POST /api/auth/phone/start — normalizes phone, looks up or creates AuthIdentity, triggers Twilio Verify send, returns otp_id.",
+                  "tech": {
+                    "language": "TypeScript",
+                    "framework": "NestJS",
+                    "vendor": "Twilio Verify",
+                    "endpoints": ["POST /api/auth/phone/start"],
+                    "tables": ["AuthIdentity", "OtpCode"],
+                    "notes": "Twilio Verify SID in env. Uses their service — we don't manage code generation or storage ourselves."
+                  },
+                  "dependencies": ["auth.foundation.schema.identity", "auth.foundation.schema.otp"],
+                  "tags": ["phone-auth"]
+                },
+                {
+                  "id": "auth.phone.twilio.verify",
+                  "name": "Verify OTP endpoint",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "POST /api/auth/phone/verify — checks code with Twilio, marks phone verified, creates session, returns JWT + refresh token.",
+                  "tech": {
+                    "language": "TypeScript",
+                    "framework": "NestJS",
+                    "vendor": "Twilio Verify",
+                    "endpoints": ["POST /api/auth/phone/verify"],
+                    "tables": ["Session", "OtpCode", "AuthIdentity"]
+                  },
+                  "dependencies": ["auth.phone.twilio.send"],
+                  "tags": ["phone-auth"]
+                }
+              ]
+            },
+            {
+              "id": "auth.phone.ui",
+              "name": "Phone login UI",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "auth.phone.ui.form",
+                  "name": "Phone input + country code",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Phone number input with masked formatting and country selector. Defaults to Canada.",
+                  "tech": {
+                    "language": "TypeScript / React",
+                    "framework": "Next.js 14",
+                    "notes": "libphonenumber-js for validation and formatting."
+                  },
+                  "dependencies": [],
+                  "tags": ["ui"]
+                },
+                {
+                  "id": "auth.phone.ui.code",
+                  "name": "6-digit code entry",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Auto-advancing 6-box code entry with paste support and resend link.",
+                  "tech": {
+                    "language": "TypeScript / React",
+                    "notes": "Resend button disabled for 30s after a send."
+                  },
+                  "dependencies": ["auth.phone.ui.form"],
+                  "tags": ["ui"]
+                }
+              ]
+            }
+          ]
+        },
+
+        {
+          "id": "auth.email",
+          "name": "Email + Password Login",
+          "priority": 1,
+          "description": "Traditional email/password signup and login. Required for customers who don't want to share a phone number.",
+          "submodules": [
+            {
+              "id": "auth.email.signup",
+              "name": "Signup flow",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "auth.email.signup.endpoint",
+                  "name": "POST /api/auth/email/signup",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Create AuthIdentity with argon2id password hash, send verification email, create session.",
+                  "tech": {
+                    "language": "TypeScript",
+                    "framework": "NestJS",
+                    "vendor": "Resend",
+                    "endpoints": ["POST /api/auth/email/signup"],
+                    "tables": ["AuthIdentity", "Session"],
+                    "notes": "argon2id with sensible work factors. Verification email sent via Resend."
+                  },
+                  "dependencies": ["auth.foundation.schema.identity"],
+                  "tags": ["email-auth"]
+                },
+                {
+                  "id": "auth.email.signup.verify",
+                  "name": "Email verification link",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "One-time link that marks email_verified_at. Expires in 24h.",
+                  "tech": {
+                    "endpoints": ["GET /api/auth/email/verify?token=..."],
+                    "tables": ["AuthIdentity"]
+                  },
+                  "dependencies": ["auth.email.signup.endpoint"],
+                  "tags": ["email-auth"]
+                }
+              ]
+            },
+            {
+              "id": "auth.email.login",
+              "name": "Login flow",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "auth.email.login.endpoint",
+                  "name": "POST /api/auth/login",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Verify password, create session, return tokens. Handles 'must_reset_password' case for HMP legacy migrants.",
+                  "tech": {
+                    "language": "TypeScript",
+                    "framework": "NestJS",
+                    "endpoints": ["POST /api/auth/login"],
+                    "tables": ["AuthIdentity", "Session"],
+                    "notes": "Returns 401 with reason='must_reset_password' when legacy HMP user has no local hash."
+                  },
+                  "dependencies": ["auth.foundation.middleware.jwt"],
+                  "tags": ["email-auth"]
+                }
+              ]
+            },
+            {
+              "id": "auth.email.migration",
+              "name": "HMP legacy migration flow",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "auth.email.migration.detect",
+                  "name": "Legacy detection",
+                  "status": "designed",
+                  "priority": 2,
+                  "description": "On login attempt for unknown email, check HMP /v1/tenant/customers. If found, trigger password reset email instead of 401.",
+                  "tech": {
+                    "notes": "Uses HMP customer lookup. Marks AuthIdentity with legacy flag once created.",
+                    "vendor": "HMP tenant API"
+                  },
+                  "dependencies": ["auth.email.login.endpoint"],
+                  "tags": ["migration", "hmp"]
+                },
+                {
+                  "id": "auth.email.migration.reset",
+                  "name": "'Set new password' email",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "One-time email explaining the platform upgrade and linking to password reset.",
+                  "tech": {
+                    "vendor": "Resend",
+                    "notes": "Custom template separate from normal password reset."
+                  },
+                  "dependencies": ["auth.email.migration.detect"],
+                  "tags": ["migration", "email-template"]
+                }
+              ]
+            }
+          ]
+        },
+
+        {
+          "id": "auth.oauth",
+          "name": "OAuth (Google, Facebook)",
+          "priority": 2,
+          "description": "Sign in with Google or Facebook. Uses our own registered OAuth apps so the consent screen shows 'BetterDay', not 'Happy Meal Prep'.",
+          "submodules": [
+            {
+              "id": "auth.oauth.google",
+              "name": "Google OAuth",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "auth.oauth.google.app",
+                  "name": "Register Google OAuth app",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Create BetterDay OAuth client in Google Cloud Console. Redirect URI → /api/auth/oauth/google/callback.",
+                  "tech": {
+                    "vendor": "Google Cloud",
+                    "notes": "One-time setup. Consent screen branding review if we need production access."
+                  },
+                  "dependencies": [],
+                  "tags": ["oauth", "setup"]
+                },
+                {
+                  "id": "auth.oauth.google.callback",
+                  "name": "Callback endpoint",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Exchange code → token → profile. Upsert OAuthLink, AuthIdentity. Create session.",
+                  "tech": {
+                    "language": "TypeScript",
+                    "framework": "NestJS",
+                    "endpoints": ["GET /api/auth/oauth/google/callback"],
+                    "tables": ["OAuthLink", "AuthIdentity", "Session"]
+                  },
+                  "dependencies": ["auth.oauth.google.app", "auth.foundation.schema.oauth"],
+                  "tags": ["oauth"]
+                }
+              ]
+            },
+            {
+              "id": "auth.oauth.facebook",
+              "name": "Facebook OAuth",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "auth.oauth.facebook.app",
+                  "name": "Register Facebook app",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Facebook for Developers → new app. Review required for production email scope.",
+                  "tech": { "vendor": "Meta", "notes": "App review is slower than Google. Start early." },
+                  "dependencies": [],
+                  "tags": ["oauth", "setup"]
+                },
+                {
+                  "id": "auth.oauth.facebook.callback",
+                  "name": "Callback endpoint",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Same shape as Google callback.",
+                  "tech": {
+                    "framework": "NestJS",
+                    "endpoints": ["GET /api/auth/oauth/facebook/callback"]
+                  },
+                  "dependencies": ["auth.oauth.facebook.app", "auth.foundation.schema.oauth"],
+                  "tags": ["oauth"]
+                }
+              ]
+            }
+          ]
+        },
+
+        {
+          "id": "auth.session",
+          "name": "Session Management",
+          "priority": 1,
+          "description": "Active-session lifecycle, refresh token rotation, logout, multi-device support.",
+          "submodules": [
+            {
+              "id": "auth.session.refresh",
+              "name": "Refresh token rotation",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "auth.session.refresh.endpoint",
+                  "name": "POST /api/auth/refresh",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Trade opaque refresh token for new access token. Rotate refresh token on every use.",
+                  "tech": {
+                    "endpoints": ["POST /api/auth/refresh"],
+                    "tables": ["Session"],
+                    "notes": "Refresh stored as httpOnly cookie. Rotation detects replay — if old token used after rotation, revoke entire session chain."
+                  },
+                  "dependencies": ["auth.foundation.middleware.jwt"],
+                  "tags": ["session", "security"]
+                }
+              ]
+            },
+            {
+              "id": "auth.session.logout",
+              "name": "Logout",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "auth.session.logout.current",
+                  "name": "Logout current session",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Revoke the current refresh token, clear cookie.",
+                  "tech": { "endpoints": ["POST /api/auth/logout"] },
+                  "dependencies": ["auth.session.refresh.endpoint"],
+                  "tags": ["session"]
+                },
+                {
+                  "id": "auth.session.logout.all",
+                  "name": "Logout all devices",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Revoke every session for this identity. Used after password change or suspected compromise.",
+                  "tech": { "endpoints": ["POST /api/auth/logout-all"] },
+                  "dependencies": ["auth.session.logout.current"],
+                  "tags": ["session", "security"]
+                }
+              ]
+            },
+            {
+              "id": "auth.session.devices",
+              "name": "Active devices list",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "auth.session.devices.list",
+                  "name": "List + revoke sessions UI",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Account page showing all active sessions with user agent, IP, last active. Per-session revoke button.",
+                  "tech": {
+                    "endpoints": ["GET /api/account/sessions", "DELETE /api/account/sessions/:id"],
+                    "tables": ["Session"]
+                  },
+                  "dependencies": ["auth.session.logout.current"],
+                  "tags": ["ui", "account"]
+                }
+              ]
+            }
+          ]
+        },
+
+        {
+          "id": "auth.recovery",
+          "name": "Account Recovery",
+          "priority": 2,
+          "description": "Forgot password, password reset, lost-phone recovery.",
+          "submodules": [
+            {
+              "id": "auth.recovery.forgot",
+              "name": "Forgot password",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "auth.recovery.forgot.request",
+                  "name": "POST /api/auth/forgot-password",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Accept email, send reset link via Resend. Always respond 200 even if email doesn't exist (no user enumeration).",
+                  "tech": { "vendor": "Resend", "endpoints": ["POST /api/auth/forgot-password"] },
+                  "dependencies": ["auth.foundation.schema.identity"],
+                  "tags": ["recovery"]
+                },
+                {
+                  "id": "auth.recovery.forgot.reset",
+                  "name": "POST /api/auth/reset-password",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Accept token + new password, verify, update hash, revoke all existing sessions.",
+                  "tech": { "endpoints": ["POST /api/auth/reset-password"], "tables": ["AuthIdentity", "Session"] },
+                  "dependencies": ["auth.recovery.forgot.request"],
+                  "tags": ["recovery"]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "profile",
+      "name": "Customer Profile",
+      "priority": 2,
+      "description": "Profile info, preferences, dietary restrictions, saved payment methods, communication settings.",
+      "tech_notes": "NestJS module + Next.js account pages. Talks to Customer, CustomerAddress, AuthIdentity tables.",
+      "modules": []
+    },
+
+    {
+      "id": "menu",
+      "name": "Menu & Catalog",
+      "priority": 2,
+      "description": "Public and logged-in browsing of the weekly menu. Meal detail pages, filters, allergens, macros.",
+      "tech_notes": "Reads from culinary-ops MealRecipe/MealComponent tables. No duplicate data — the kitchen ops schema is the source of truth for meals.",
+      "modules": []
+    },
+
+    {
+      "id": "cart",
+      "name": "Cart & Build-a-Cart",
+      "priority": 2,
+      "description": "The signature BetterDay feature. Dynamic cart replaces rigid plan tiers. Customer builds any cart size; savings scale with cart, not commitment length.",
+      "tech_notes": "Cart / CartItem tables in culinary-ops Postgres. Prior design: subscriber-hub.html, menu-overlay.html, swap panel demo. Savings tiers: 4→5%, 5→8%, 7→11%, 8→Free Delivery, 9→14%, 11→17%, 13→20%.",
+      "modules": [
+        {
+          "id": "cart.model",
+          "name": "Cart Data Model",
+          "priority": 1,
+          "description": "Tables and state primitives for a customer's live cart.",
+          "submodules": [
+            {
+              "id": "cart.model.schema",
+              "name": "Prisma schema — cart tables",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "cart.model.schema.cart",
+                  "name": "Cart model",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "One active cart per customer. Converts to an Order at checkout.",
+                  "tech": {
+                    "database": "Postgres",
+                    "tables": ["Cart"],
+                    "notes": "Fields: id, customer_id, status (active|abandoned|converted), created_at, updated_at"
+                  },
+                  "dependencies": [],
+                  "tags": ["schema", "foundation"]
+                },
+                {
+                  "id": "cart.model.schema.cartitem",
+                  "name": "CartItem model",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Line items referencing MealRecipe. Quantity and price snapshot.",
+                  "tech": {
+                    "database": "Postgres",
+                    "tables": ["CartItem"],
+                    "notes": "FK to MealRecipe (culinary-ops existing table). unit_price_cents denormalized for stable cart math."
+                  },
+                  "dependencies": ["cart.model.schema.cart"],
+                  "tags": ["schema"]
+                }
+              ]
+            },
+            {
+              "id": "cart.model.state",
+              "name": "Cart state management",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "cart.model.state.store",
+                  "name": "Frontend cart store",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "React state (Zustand or context) for the cart. Mirrors server state, optimistic updates on add/remove.",
+                  "tech": {
+                    "language": "TypeScript",
+                    "framework": "Next.js 14 + Zustand",
+                    "notes": "Hydrates from server on page load. Optimistic updates fall back on error."
+                  },
+                  "dependencies": ["cart.model.schema.cartitem"],
+                  "tags": ["frontend"]
+                },
+                {
+                  "id": "cart.model.state.sync",
+                  "name": "Client ↔ server sync",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Debounced PATCH to backend whenever cart changes. Resolves conflicts by last-write-wins on the server.",
+                  "tech": { "endpoints": ["PATCH /api/cart"], "notes": "Debounce 300ms client-side." },
+                  "dependencies": ["cart.model.state.store"],
+                  "tags": ["frontend", "sync"]
+                }
+              ]
+            }
+          ]
+        },
+
+        {
+          "id": "cart.ui",
+          "name": "Cart UI",
+          "priority": 1,
+          "description": "The visible shopping surface. Exists as demo HTML — needs port to React components.",
+          "submodules": [
+            {
+              "id": "cart.ui.sidebar",
+              "name": "Cart sidebar",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "cart.ui.sidebar.items",
+                  "name": "Grouped line items",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Gaya-font category headers ('Entrées | 7 Total'), 46px thumbnails, stacked qty/swap actions, trash-at-qty-1.",
+                  "tech": {
+                    "framework": "Next.js 14",
+                    "notes": "Design tokens in design-tokens.md. Demo lives in subscriber-hub.html cart sidebar."
+                  },
+                  "dependencies": ["cart.model.state.store"],
+                  "tags": ["ui", "ported-from-demo"]
+                },
+                {
+                  "id": "cart.ui.sidebar.savings",
+                  "name": "Savings tier strip",
+                  "status": "designed",
+                  "priority": 1,
+                  "description": "Top-of-sidebar progress bar toward next tier. Free-delivery badge at 8 items.",
+                  "tech": {
+                    "notes": "Tier thresholds: 4→5%, 5→8%, 7→11%, 8→Free Delivery, 9→14%, 11→17%, 13→20%. Documented in project_betterday_subscription_current.md."
+                  },
+                  "dependencies": ["cart.ui.sidebar.items"],
+                  "tags": ["ui"]
+                },
+                {
+                  "id": "cart.ui.sidebar.notices",
+                  "name": "Allergen + menu-change notice pills",
+                  "status": "designed",
+                  "priority": 2,
+                  "description": "Single-line clickable notices for allergen warnings and items swapped due to menu changes.",
+                  "tech": {},
+                  "dependencies": ["cart.ui.sidebar.items"],
+                  "tags": ["ui"]
+                }
+              ]
+            },
+            {
+              "id": "cart.ui.swap",
+              "name": "Swap panel (modal)",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "cart.ui.swap.grid",
+                  "name": "3-wide swap grid",
+                  "status": "designed",
+                  "priority": 2,
+                  "description": "Centered modal showing same-category alternatives. 'Replace All' and 'Mix & Match' modes.",
+                  "tech": { "notes": "Demo in menu-overlay.html and swap-item.html. Auto-closes in Mix mode when slots filled." },
+                  "dependencies": ["cart.ui.sidebar.items"],
+                  "tags": ["ui", "ported-from-demo"]
+                }
+              ]
+            }
+          ]
+        },
+
+        {
+          "id": "cart.pricing",
+          "name": "Pricing & Savings Tiers",
+          "priority": 1,
+          "description": "Server-authoritative price math so customer can't manipulate totals client-side.",
+          "submodules": [
+            {
+              "id": "cart.pricing.engine",
+              "name": "Pricing engine",
+              "priority": 1,
+              "components": [
+                {
+                  "id": "cart.pricing.engine.compute",
+                  "name": "Compute cart totals",
+                  "status": "to-build",
+                  "priority": 1,
+                  "description": "Pure function: given cart items + config, return subtotal, tier discount %, delivery fee, tax estimate, total.",
+                  "tech": {
+                    "language": "TypeScript",
+                    "notes": "Pure function, fully testable. Reads tier thresholds from StoreSetting. Integer cents everywhere."
+                  },
+                  "dependencies": ["cart.model.schema.cartitem"],
+                  "tags": ["pricing", "server-authoritative"]
+                },
+                {
+                  "id": "cart.pricing.engine.free-delivery",
+                  "name": "Free-delivery threshold logic",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "FREE_DELIVERY_MEALS = 8. Applies automatically when threshold met.",
+                  "tech": { "notes": "Configurable per store via StoreSetting." },
+                  "dependencies": ["cart.pricing.engine.compute"],
+                  "tags": ["pricing"]
+                }
+              ]
+            }
+          ]
+        },
+
+        {
+          "id": "cart.persistence",
+          "name": "Cart Persistence",
+          "priority": 2,
+          "description": "Guest cart in localStorage, logged-in cart in DB, merge on login.",
+          "submodules": [
+            {
+              "id": "cart.persistence.guest",
+              "name": "Guest cart (localStorage)",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "cart.persistence.guest.local",
+                  "name": "LocalStorage cart",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Unauthenticated user can build a cart. Persists across page reloads.",
+                  "tech": { "notes": "Same shape as server cart, just persisted client-side." },
+                  "dependencies": ["cart.model.state.store"],
+                  "tags": ["frontend"]
+                },
+                {
+                  "id": "cart.persistence.guest.merge",
+                  "name": "Merge on login",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "When a guest logs in, merge their localStorage cart into their server cart (union of items, dedupe by meal_id).",
+                  "tech": { "endpoints": ["POST /api/cart/merge"] },
+                  "dependencies": ["cart.persistence.guest.local"],
+                  "tags": ["sync"]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "checkout",
+      "name": "Checkout",
+      "priority": 2,
+      "description": "The path from 'I want to order' to 'order placed'. Express checkout, guest path, logged-in path, address, delivery window, coupons, tips, review, place.",
+      "tech_notes": "Stripe Elements for card entry. Stripe Payment Request API for Apple Pay / Google Pay. Own Checkout flow in Next.js — no redirect to Stripe Checkout (we want full brand control).",
+      "modules": [
+        {
+          "id": "checkout.express",
+          "name": "Express Checkout",
+          "priority": 2,
+          "description": "The single biggest conversion lever for a D2C storefront. Above-the-fold one-tap buttons that skip most of the form.",
+          "submodules": [
+            {
+              "id": "checkout.express.apple",
+              "name": "Apple Pay",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "checkout.express.apple.setup",
+                  "name": "Apple Pay merchant setup",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Verify domain with Apple, register merchant ID, host verification file.",
+                  "tech": {
+                    "vendor": "Apple + Stripe",
+                    "notes": "Stripe provides the verification file. Must be served at /.well-known/apple-developer-merchantid-domain-association."
+                  },
+                  "dependencies": [],
+                  "tags": ["express-checkout", "setup"]
+                },
+                {
+                  "id": "checkout.express.apple.button",
+                  "name": "Apple Pay button component",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Above-stepper button. Launches Apple Pay sheet with cart total, captures address + payment in one tap.",
+                  "tech": {
+                    "vendor": "Stripe Payment Request API",
+                    "notes": "Only rendered if browser supports Apple Pay."
+                  },
+                  "dependencies": ["checkout.express.apple.setup", "payments.stripe.setup"],
+                  "tags": ["express-checkout", "ui"]
+                }
+              ]
+            },
+            {
+              "id": "checkout.express.google",
+              "name": "Google Pay",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "checkout.express.google.button",
+                  "name": "Google Pay button component",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Above-stepper button using Stripe Payment Request API (same primitive as Apple Pay).",
+                  "tech": { "vendor": "Stripe Payment Request API" },
+                  "dependencies": ["payments.stripe.setup"],
+                  "tags": ["express-checkout", "ui"]
+                }
+              ]
+            },
+            {
+              "id": "checkout.express.link",
+              "name": "Stripe Link",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "checkout.express.link.enable",
+                  "name": "Enable Stripe Link",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Stripe's saved-payment-and-address system. Returning Link users can check out in a few clicks.",
+                  "tech": { "vendor": "Stripe Link", "notes": "Enabled in Stripe Elements config. Free with Stripe." },
+                  "dependencies": ["payments.stripe.setup"],
+                  "tags": ["express-checkout"]
+                }
+              ]
+            },
+            {
+              "id": "checkout.express.shop",
+              "name": "Shop Pay",
+              "priority": 4,
+              "components": [
+                {
+                  "id": "checkout.express.shop.eval",
+                  "name": "Evaluate Shop Pay feasibility",
+                  "status": "to-build",
+                  "priority": 4,
+                  "description": "Shop Pay is Shopify's express checkout. Requires a Shopify-adjacent integration path — may not be feasible without a Shopify storefront. Investigate before committing.",
+                  "tech": { "vendor": "Shopify", "notes": "Open question: does this require Shop Pay Checkout Sheet Kit or a full Shopify storefront?" },
+                  "dependencies": [],
+                  "tags": ["express-checkout", "research"]
+                }
+              ]
+            }
+          ]
+        },
+
+        {
+          "id": "checkout.stepper",
+          "name": "Stepper flow",
+          "priority": 2,
+          "description": "Traditional multi-step form for customers who don't use express. Below the express row.",
+          "submodules": [
+            {
+              "id": "checkout.stepper.address",
+              "name": "Address step",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "checkout.stepper.address.picker",
+                  "name": "Address picker / new address form",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "If logged in, list saved addresses. Otherwise show 'enter new address' form. Validates against delivery zone.",
+                  "tech": { "tables": ["CustomerAddress"] },
+                  "dependencies": ["profile", "delivery.zones"],
+                  "tags": ["ui", "address"]
+                },
+                {
+                  "id": "checkout.stepper.address.zone",
+                  "name": "Delivery zone validation",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Check postal code against DeliveryZone table. Reject or offer pickup alternative.",
+                  "tech": { "endpoints": ["POST /api/delivery/zones/validate"] },
+                  "dependencies": ["checkout.stepper.address.picker"],
+                  "tags": ["delivery"]
+                }
+              ]
+            },
+            {
+              "id": "checkout.stepper.window",
+              "name": "Delivery window step",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "checkout.stepper.window.picker",
+                  "name": "Delivery date + window picker",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Shows available delivery dates (respecting cutoff rules and holidays) and time windows per date.",
+                  "tech": { "tables": ["CutoffRule", "Holiday"] },
+                  "dependencies": ["delivery.cutoff-rules", "delivery.holidays"],
+                  "tags": ["ui", "delivery"]
+                }
+              ]
+            },
+            {
+              "id": "checkout.stepper.payment",
+              "name": "Payment step",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "checkout.stepper.payment.stripe",
+                  "name": "Stripe Elements card entry",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Embedded Stripe Elements for card entry. No PCI scope (Stripe handles it).",
+                  "tech": { "vendor": "Stripe Elements" },
+                  "dependencies": ["payments.stripe.setup"],
+                  "tags": ["ui", "payment"]
+                },
+                {
+                  "id": "checkout.stepper.payment.saved",
+                  "name": "Saved payment method picker",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Logged-in returning customers see saved cards first.",
+                  "tech": { "endpoints": ["GET /api/account/payment-methods"] },
+                  "dependencies": ["payments.saved-methods"],
+                  "tags": ["ui", "payment"]
+                }
+              ]
+            },
+            {
+              "id": "checkout.stepper.review",
+              "name": "Review step",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "checkout.stepper.review.summary",
+                  "name": "Order summary card",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Final list of items, subtotal, discount, fees, tax, tip, total. Big 'Place Order' button.",
+                  "tech": {},
+                  "dependencies": ["cart.pricing.engine.compute"],
+                  "tags": ["ui"]
+                },
+                {
+                  "id": "checkout.stepper.review.place",
+                  "name": "Place order action",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "POST /api/orders — validates cart, charges Stripe, creates Order + OrderItems + Payment, returns order ID.",
+                  "tech": { "endpoints": ["POST /api/orders"], "tables": ["Order", "OrderItem", "Payment"] },
+                  "dependencies": ["orders.create", "payments.stripe.charge"],
+                  "tags": ["checkout"]
+                }
+              ]
+            }
+          ]
+        },
+
+        {
+          "id": "checkout.coupon",
+          "name": "Coupon + Gift Card at Checkout",
+          "priority": 2,
+          "description": "Apply coupon codes and gift card balances at checkout. Lives in cart summary area.",
+          "submodules": [
+            {
+              "id": "checkout.coupon.apply",
+              "name": "Apply coupon field",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "checkout.coupon.apply.validate",
+                  "name": "Validate coupon endpoint",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "POST /api/cart/apply-coupon — checks coupon rules against the current cart and customer (including order history).",
+                  "tech": { "endpoints": ["POST /api/cart/apply-coupon"] },
+                  "dependencies": ["coupons.engine"],
+                  "tags": ["coupons"]
+                }
+              ]
+            },
+            {
+              "id": "checkout.coupon.giftcard",
+              "name": "Gift card redemption",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "checkout.coupon.giftcard.apply",
+                  "name": "Apply gift card code",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Debit gift card balance against order total. Partial balance supported.",
+                  "tech": { "endpoints": ["POST /api/cart/apply-gift-card"] },
+                  "dependencies": ["giftcards.redeem"],
+                  "tags": ["gift-cards"]
+                }
+              ]
+            }
+          ]
+        },
+
+        {
+          "id": "checkout.tip",
+          "name": "Tip Selection",
+          "priority": 3,
+          "description": "Optional tip for the driver. Preset buttons + custom amount.",
+          "submodules": [
+            {
+              "id": "checkout.tip.ui",
+              "name": "Tip UI",
+              "priority": 3,
+              "components": [
+                {
+                  "id": "checkout.tip.ui.selector",
+                  "name": "Tip selector component",
+                  "status": "to-build",
+                  "priority": 3,
+                  "description": "Presets: 0%, 10%, 15%, 20%, custom. Updates totals live.",
+                  "tech": {},
+                  "dependencies": ["cart.pricing.engine.compute"],
+                  "tags": ["ui"]
+                }
+              ]
+            }
+          ]
+        },
+
+        {
+          "id": "checkout.confirmation",
+          "name": "Confirmation Page",
+          "priority": 2,
+          "description": "Post-place-order landing. Order summary, expected delivery, receipt email sent.",
+          "submodules": [
+            {
+              "id": "checkout.confirmation.page",
+              "name": "Thank-you page",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "checkout.confirmation.page.ui",
+                  "name": "Confirmation UI",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Big check mark, order number, summary, 'track your order' link, upsell to create account (guest path only).",
+                  "tech": {},
+                  "dependencies": ["checkout.stepper.review.place"],
+                  "tags": ["ui"]
+                },
+                {
+                  "id": "checkout.confirmation.page.email",
+                  "name": "Trigger receipt email",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "After successful order, fire a receipt email via Resend.",
+                  "tech": { "vendor": "Resend" },
+                  "dependencies": ["notifications.email.receipt"],
+                  "tags": ["email"]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "payments",
+      "name": "Payments",
+      "priority": 2,
+      "description": "Stripe Elements for card entry. Stripe Subscriptions for recurring. Tax, tips, refunds, failed-payment retry, payment method management.",
+      "tech_notes": "All money as integer cents. Use Stripe Customer ID as our reference. Stripe Tax for CAN GST. Never store card data ourselves — Stripe holds everything.",
+      "modules": []
+    },
+
+    {
+      "id": "orders",
+      "name": "Orders (One-Time)",
+      "priority": 2,
+      "description": "Creating, viewing, tracking, and reordering one-time orders. History, detail, status updates.",
+      "tech_notes": "Order and OrderItem tables. Status lifecycle: pending → confirmed → in_production → out_for_delivery → delivered. Snapshots meal data at order time.",
+      "modules": []
+    },
+
+    {
+      "id": "subscriptions",
+      "name": "Subscriptions",
+      "priority": 2,
+      "description": "Weekly subscription engine. Friday rollover creates next week's WeeklyCartRecord. Thursday cutoff locks and charges. Auto dish-swap on menu changes.",
+      "tech_notes": "Designed in project_betterday_skip_pause_model.md. Unified cart report query. Single delivery_status enum. No placeholder leakage (fixes the Sprwt problem).",
+      "modules": []
+    },
+
+    {
+      "id": "plan-mgmt",
+      "name": "Plan Management",
+      "priority": 2,
+      "description": "Skip, pause, cancel, and related lifecycle actions on an active subscription. Retention gauntlet on cancel.",
+      "tech_notes": "Unified skip/pause/cancel model already designed. Skip is universal week-level action; pause = indefinite only; cancel = terminal. Demo exists in subscriber-hub.html.",
+      "modules": []
+    },
+
+    {
+      "id": "delivery",
+      "name": "Delivery & Pickup",
+      "priority": 2,
+      "description": "Delivery zones, pickup locations, scheduling, delivery windows, holidays, route hints for fulfillment.",
+      "tech_notes": "DeliveryZone, PickupLocation, Holiday, CutoffRule tables. Calgary zones only at launch.",
+      "modules": []
+    },
+
+    {
+      "id": "coupons",
+      "name": "Coupons & Discounts",
+      "priority": 2,
+      "description": "The coupon engine HMP can't ship. Full restriction set: first-order, after-N-orders, category, zone, email allow/deny, stacking rules.",
+      "tech_notes": "Coupon, CouponRedemption tables. CustomerMirror.orders_completed_count for live-verify at redemption.",
+      "modules": []
+    },
+
+    {
+      "id": "giftcards",
+      "name": "Gift Cards",
+      "priority": 3,
+      "description": "Purchase, schedule delivery, redeem at checkout. Balance tracking, partial redemption.",
+      "tech_notes": "GiftCard, GiftCardTransaction tables. Stripe for purchase. Resend for delivery email.",
+      "modules": []
+    },
+
+    {
+      "id": "rewards",
+      "name": "Rewards & Loyalty",
+      "priority": 3,
+      "description": "Points per order, redemption for discounts or free items, tier system, points history.",
+      "tech_notes": "RewardAccount, RewardTransaction, RewardRule tables. Earning rules as config, not code.",
+      "modules": []
+    },
+
+    {
+      "id": "referrals",
+      "name": "Referrals",
+      "priority": 3,
+      "description": "Share link, track referrer → referee, both sides get coupons on successful conversion.",
+      "tech_notes": "Referral, ReferralReward tables. Coupon engine handles the reward codes.",
+      "modules": []
+    },
+
+    {
+      "id": "notifications",
+      "name": "Notifications",
+      "priority": 2,
+      "description": "Transactional email (receipts, password reset, delivery updates), SMS delivery alerts, push notifications, in-app toasts.",
+      "tech_notes": "Resend for email. Twilio (non-Verify) for SMS delivery updates. FCM for web push (later).",
+      "modules": []
+    },
+
+    {
+      "id": "admin",
+      "name": "Admin Console",
+      "priority": 3,
+      "description": "Staff surface. Order management, customer management, menu publishing, coupon management, content, impersonation, support tools.",
+      "tech_notes": "Can share the same codebase as the customer app, gated by role. Or separate Next.js subapp under /admin.",
+      "modules": []
+    },
+
+    {
+      "id": "analytics",
+      "name": "Analytics & Reports",
+      "priority": 3,
+      "description": "Revenue dashboards, cohort analytics, product/category performance, cart report query for kitchen production.",
+      "tech_notes": "Probably Metabase or a simple built-in dashboard for launch. Real BI can come later.",
+      "modules": []
+    },
+
+    {
+      "id": "integrations",
+      "name": "Integrations",
+      "priority": 2,
+      "description": "Stripe, Twilio Verify, Resend, Google/Facebook OAuth, culinary-ops bridge, HMP one-shot migration, POS (future), delivery routing (future).",
+      "tech_notes": "Wrap every external dependency in a thin adapter so we can swap vendors.",
+      "modules": []
+    },
+
+    {
+      "id": "platform",
+      "name": "Platform & Ops",
+      "priority": 1,
+      "description": "The invisible stuff: logging, monitoring, cron runner, job queue, error tracking, secrets management, deployments, backups.",
+      "tech_notes": "Railway or Vercel for hosting. Inngest or pg_cron for jobs. Sentry for errors. Env vars from a vault.",
+      "modules": []
+    },
+
+    {
+      "id": "corporate",
+      "name": "Corporate B2B",
+      "priority": 5,
+      "description": "Gurleen's existing corporate ordering module stays separate for now. A 2.0 integration with the D2C storefront is a future project.",
+      "tech_notes": "Already exists in culinary-ops: CorporateCompany, CorporateEmployee, CorporateOrder, CorporateOrderItem, CorporateBenefitLevel, CorporateParLevel, CorporateCompanyPIN, CorporateMagicToken, CompanyInvoice, CorporateCreditNote, CorporateMonthlyStatement, CorporateSetting. Magic-link auth, par-level inventory, monthly statements. Do not touch without coordination.",
+      "modules": []
+    }
+  ],
+
+  "journeys": []
+}
