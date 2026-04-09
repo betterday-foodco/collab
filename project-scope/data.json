@@ -2,7 +2,7 @@
   "meta": {
     "title": "BetterDay Platform — Project Scope",
     "subtitle": "By-category module tree for the D2C storefront, subscription engine, and admin console",
-    "last_updated": "2026-04-09T03:18:12-06:00",
+    "last_updated": "2026-04-09T08:37:15-06:00",
     "updated_by": "Claude (Conner)",
     "version": 1,
     "session": 1,
@@ -18,6 +18,18 @@
       "detail_file": "project-scope/NEXT_UP.md",
       "generated_at": "2026-04-09T03:13:01-06:00",
       "generated_by": "Claude (Conner) — coupons chat"
+    },
+    "next_up_meal_edit": {
+      "focus": "diet_plan customer join (Phase 1 — Customer.diet_plan_id + public menu-cats endpoint + persist diet selector choice)",
+      "summary": "Diet-plan classifier shipped via PR #10 with 159 meals classified on the Neon dev branch. Admin meal edit + Tier 1 new-meal form + menu-cats category dropdown all live. Diet selector HTML prototype already designed on client-website. Phase 1 closes the customer-side loop: add Customer.diet_plan_id to schema.commerce.prisma, build an unauthenticated GET /api/public/menu-categories endpoint, and build POST /api/commerce/customers/me/diet-plan to persist the selector choice. Phase 2 builds the customer-facing menu filter endpoint. Phase 3 wires the HTML prototype to the new backend. Phase 4 is cleanup debt (net_weight_kg drop, menu-builder diet inference fix, protected SystemTag rows, production backfill).",
+      "phase_1_leaves": [
+        "profile.schema.customer.model",
+        "profile.ui.customer-info.dietary",
+        "menu.api.filters.dietary"
+      ],
+      "detail_file": "project-scope/NEXT_UP_MEAL_EDIT.md",
+      "generated_at": "2026-04-09T08:37:15-06:00",
+      "generated_by": "Claude (Conner) — meal-edit chat"
     }
   },
   "legend": {
@@ -1631,7 +1643,7 @@
                     "schema",
                     "foundation"
                   ],
-                  "notes": "2026-04-09 (Conner): Shipped in Migration 1 (20260408234132_init) on culinary-ops conner/universal-brand-folder. ARCHITECTURAL DIVERGENCE from this scope board's AuthIdentity-linked design: auth fields live DIRECTLY on Customer (no separate AuthIdentity table), because commerce auth is 100% passwordless. No password_hash field by design - magic link + phone OTP + Apple/Google OAuth only. See memory: project_betterday_passwordless_auth. The auth.foundation.schema.* nodes in this scope board still describe the old AuthIdentity design and need to be reconciled in a dedicated future pass.",
+                  "notes": "2026-04-09 (Conner): Shipped in Migration 1 (20260408234132_init) on culinary-ops conner/universal-brand-folder. ARCHITECTURAL DIVERGENCE from this scope board's AuthIdentity-linked design: auth fields live DIRECTLY on Customer (no separate AuthIdentity table), because commerce auth is 100% passwordless. No password_hash field by design - magic link + phone OTP + Apple/Google OAuth only. See memory: project_betterday_passwordless_auth. The auth.foundation.schema.* nodes in this scope board still describe the old AuthIdentity design and need to be reconciled in a dedicated future pass.\n\n2026-04-09 (Conner, meal-edit chat): Next field to add here is Customer.diet_plan_id — a soft FK to SystemTag(type='diets') in the culinary-ops DB. Cannot be a hard Prisma FK because the two models live in separate Neon projects; app-layer validation against the two hardcoded UUIDs (Omnivore fc0a70f3-644b-4248-b9c1-65882cc503de, Plant-Based 9c68ba40-f59d-40a8-8210-bdc1f3cd3973). Nullable at first, flip to NOT NULL after customer backfill. See NEXT_UP_MEAL_EDIT.md Phase 1 and the ADR at conner/data-model/decisions/2026-04-08-mandatory-diet-plan-on-dishes.md.",
                   "completed_at": "2026-04-09T03:10:00-06:00"
                 },
                 {
@@ -1939,7 +1951,8 @@
                   },
                   "tags": [
                     "ui"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner, meal-edit chat): This component should read from Customer.diet_plan_id (the field being added in Phase 1) rather than inferring from the dietary_tags array. Once the field exists, show the current choice as the default-selected card and let the customer re-open the diet selector at conner/client-website/onboarding/index.html to change it. See NEXT_UP_MEAL_EDIT.md Phase 1 and subscriptions.signup.onboarding.dietary for the HTML prototype that will power both the initial selection and the re-selection flow."
                 }
               ]
             },
