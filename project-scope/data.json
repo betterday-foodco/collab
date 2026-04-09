@@ -2181,7 +2181,7 @@
                 {
                   "id": "menu.api.filters.dietary",
                   "name": "GET /api/menu/filter?diet=vegan",
-                  "status": "to-build",
+                  "status": "designed",
                   "priority": 2,
                   "description": "Filter by dietary tag or allergen.",
                   "tech": {
@@ -2189,7 +2189,8 @@
                   },
                   "tags": [
                     "api"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): Data layer to back this filter landed on the culinary-ops side. MealRecipe.diet_plan_id is now a NOT NULL FK to SystemTag where type='diets' (two rows: Omnivore fc0a70f3-644b-4248-b9c1-65882cc503de and Plant-Based 9c68ba40-f59d-40a8-8210-bdc1f3cd3973). 159 meals classified on the conner-local-dev Neon branch: 88 Omnivore + 71 Plant-Based, 0 nulls. 47 meat->plant variant pairings established one-directionally via linked_meal_id. The customer-facing filter endpoint itself still needs building, but the query it runs is now a single-column WHERE instead of string matching on dietary_tags arrays. See culinary-ops PR #10 (meal-edit-menu-cats-refactor) and ADR 2026-04-08-mandatory-diet-plan-on-dishes.md for the full design."
                 }
               ]
             }
@@ -2233,7 +2234,8 @@
                   "tags": [
                     "ui",
                     "ported"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): The SystemTag table (type=menu-cats) is now the single source of truth for valid category values across admin and customer-facing surfaces. Current tags: Entree, Breakfast, Snacks, Sandwich & Wraps, Protein Pack. Admin meal list page and meal edit page both consume the same api.getTags() call filtered to type='menu-cats', so any new tab added in /settings/tags propagates to both the admin dropdown and (eventually) the customer menu tabs. Bulk backfill applied to the 142 priced Meat/Vegan meals on the conner-local-dev Neon branch -> all now category=Entree. Final category distribution: Entree 142, Breakfast 10, Snacks 7. When this component is ready to build, consume from menu-cats, not a hardcoded list. Customer website will eventually need a public unauthenticated version of /api/tags (currently JWT-guarded) to read this without admin auth."
                 },
                 {
                   "id": "menu.browse.grid.sort-filter",
@@ -8899,7 +8901,8 @@
                   "tags": [
                     "integration",
                     "culinary-ops"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): When this bridge gets built, it MUST filter on MealRecipe.diet_plan_id (NOT NULL FK to SystemTag, values are Omnivore / Plant-Based as of 2026-04-09). Do not use MealRecipe.dietary_tags String[] for the meat-vs-plant cut -- that field is for badges (Dairy Free, Gluten Friendly, etc.), not the classifier. Do not use MealRecipe.category either -- that is now purely meal-type (Entree/Breakfast/Snacks), no longer the meat/vegan split. linked_meal_id is unidirectional meat->plant only; use the Prisma variant_meals reverse relation to discover the omnivore dishes pointing at a given plant-based dish (supports N-to-1, e.g. one Vegan Alfredo paired with Shrimp/Chicken/Beef Alfredo). See culinary-ops PR #10 and ADR 2026-04-08-mandatory-diet-plan-on-dishes.md."
                 },
                 {
                   "id": "integrations.culinary-ops.read.availability",
