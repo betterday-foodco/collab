@@ -2,7 +2,7 @@
   "meta": {
     "title": "BetterDay Platform \u2014 Project Scope",
     "subtitle": "By-category module tree for the D2C storefront, subscription engine, and admin console",
-    "last_updated": "2026-04-09T02:38:48-06:00",
+    "last_updated": "2026-04-09T03:04:11-06:00",
     "updated_by": "Claude (Conner)",
     "version": 1,
     "session": 1
@@ -694,7 +694,7 @@
                 {
                   "id": "marketing.brand.tokens.colors",
                   "name": "Colour tokens",
-                  "status": "designed",
+                  "status": "done",
                   "priority": 2,
                   "description": "Cream #FAEBDA, sky #4EA2FD, navy #003141, yellow #FFC600, purple #C8A4F5. Plus greens.",
                   "tech": {
@@ -703,34 +703,41 @@
                   },
                   "tags": [
                     "brand"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): Shipped in brand/ at repo root on culinary-ops conner/universal-brand-folder. Three synced views: brand/colors.json (machine-readable), brand/tokens.css (CSS custom properties + @font-face), brand/design-tokens.md (human reference). 12 brand colors + semantic functional tokens. Purple-dark corrected from #7C3AED to #7453A2 in commit 1577e68.",
+                  "completed_at": "2026-04-09T03:00:00-06:00"
                 },
                 {
                   "id": "marketing.brand.tokens.fonts",
                   "name": "Typography tokens",
-                  "status": "designed",
+                  "status": "done",
                   "priority": 2,
-                  "description": "BDSupper (meal names), Gaya (section headers), Sofia Pro (body/UI), Inter (system).",
+                  "description": "BDSupper (meal names), Gaya (section headers), Sofia Pro (body/UI), Fastpen (accent).",
                   "tech": {
                     "framework": "Next.js 14 (App Router) + TypeScript",
-                    "notes": "self-hosted WOFF2, preload critical subsets."
+                    "notes": "Self-hosted .otf files in brand/fonts/. brand/typography.json defines families + scale + weights. brand/tokens.css has the @font-face declarations for standalone HTML consumers."
                   },
                   "tags": [
                     "brand"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): Shipped 5 font files in brand/fonts/ (BDSupperBold.otf, Gaya.otf, SofiaProSoftRegular.otf, SofiaProSoftBold.otf, Fastpen.otf). Fastpen added as a signature/accent face. Inter dropped in favor of Sofia Pro Soft as body face. Not converted to WOFF2 yet \u2014 still .otf.",
+                  "completed_at": "2026-04-09T03:00:00-06:00"
                 },
                 {
                   "id": "marketing.brand.tokens.radius",
                   "name": "Radius + shadow tokens",
-                  "status": "designed",
+                  "status": "done",
                   "priority": 2,
                   "description": "20px card radius, 100px pill radius, 7px 7px hover shadow.",
                   "tech": {
-                    "framework": "Tailwind config"
+                    "framework": "Tailwind config",
+                    "notes": "Captured as CSS custom properties in brand/tokens.css: --radius-card, --radius-button, --radius-badge, --shadow-card, --shadow-card-hover, --shadow-sidebar."
                   },
                   "tags": [
                     "brand"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): Shipped alongside colors + typography in brand/tokens.css.",
+                  "completed_at": "2026-04-09T03:00:00-06:00"
                 },
                 {
                   "id": "marketing.brand.tokens.spacing",
@@ -828,15 +835,17 @@
                 {
                   "id": "marketing.brand.assets.logo",
                   "name": "Logo files",
-                  "status": "designed",
+                  "status": "done",
                   "priority": 2,
-                  "description": "SVG + PNG at multiple sizes, light + dark variants.",
+                  "description": "PNG wordmark variants (Centered + Left Justified, Cream/Blue/Navy fills).",
                   "tech": {
-                    "notes": "Store in /public/brand/ or CDN."
+                    "notes": "Committed to brand/logos/ in culinary-ops repo. 6 PNG files across two subfolders. SVG variants still pending \u2014 not a blocker."
                   },
                   "tags": [
                     "brand"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): Shipped 6 PNG files under brand/logos/Logo (Centered)/ and brand/logos/Logo (Left Justified)/ \u2014 Blue, Cream, Navy variants in each layout. SVG versions still to-do but don't block anything today.",
+                  "completed_at": "2026-04-09T03:00:00-06:00"
                 },
                 {
                   "id": "marketing.brand.assets.favicon",
@@ -5850,6 +5859,130 @@
                   "notes": "2026-04-09 (Conner): Migration 5 did not create a separate CouponRedemption table. Instead, redemption data lives on the existing CustomerCoupon model: amount_discounted (savings snapshot), redeemed_order_id (FK to CustomerOrder), redeemed_at (timestamp), plus the new UTM-style attribution fields source_channel, source_campaign, source_content, referrer_url. Different architecture than originally planned but covers the same reporting needs. See backend/prisma/commerce/migrations/20260409060452_coupon_power_up/ in the culinary-ops repo."
                 }
               ]
+            },
+            {
+              "id": "coupons.schema.tiers",
+              "name": "Tiered discounts",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "coupons.schema.tiers.model",
+                  "name": "CouponTier model",
+                  "status": "done",
+                  "priority": 2,
+                  "description": "New child table for tiered spend discounts. One Coupon can have multiple tiers with min_spend thresholds, each with its own discount type, value, and optional free delivery flag. Evaluated highest-matching-tier-first at checkout. Built in Migration 5 (coupon_power_up).",
+                  "completed_at": "2026-04-09T03:04:11-06:00"
+                }
+              ]
+            },
+            {
+              "id": "coupons.schema.attribution",
+              "name": "Attribution tracking",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "coupons.schema.attribution.source-channel",
+                  "name": "Source channel enum on CustomerCoupon",
+                  "status": "done",
+                  "priority": 2,
+                  "description": "CouponSourceChannel enum (email, sms, landing_page, in_app, in_cart, direct, referral, partner, flyer, influencer, unknown). Populated at redemption time. Enables per-channel reporting.",
+                  "completed_at": "2026-04-09T03:04:11-06:00"
+                },
+                {
+                  "id": "coupons.schema.attribution.source-campaign",
+                  "name": "Source campaign on CustomerCoupon",
+                  "status": "done",
+                  "priority": 2,
+                  "description": "Free-text utm_campaign equivalent. Slices channel-level reporting into individual campaigns (e.g. spring_launch_2026).",
+                  "completed_at": "2026-04-09T03:04:11-06:00"
+                },
+                {
+                  "id": "coupons.schema.attribution.source-content",
+                  "name": "Source content on CustomerCoupon",
+                  "status": "done",
+                  "priority": 2,
+                  "description": "Free-text utm_content equivalent. Tracks which specific creative, influencer, or ad variant drove a redemption.",
+                  "completed_at": "2026-04-09T03:04:11-06:00"
+                },
+                {
+                  "id": "coupons.schema.attribution.referrer-url",
+                  "name": "Referrer URL on CustomerCoupon",
+                  "status": "done",
+                  "priority": 2,
+                  "description": "HTTP referrer at redemption time (web only). Captures organic discovery paths that were not tagged with UTM params.",
+                  "completed_at": "2026-04-09T03:04:11-06:00"
+                }
+              ]
+            },
+            {
+              "id": "coupons.schema.referral",
+              "name": "Dual-sided referral",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "coupons.schema.referral.referrer-link",
+                  "name": "Referrer customer FK on Coupon",
+                  "status": "done",
+                  "priority": 2,
+                  "description": "referrer_customer_id field on Coupon linking a coupon to the customer who generated or sent it. On delete: SET NULL. Enables referral programs where redeeming a friend's code credits both parties.",
+                  "completed_at": "2026-04-09T03:04:11-06:00"
+                },
+                {
+                  "id": "coupons.schema.referral.credit-amount",
+                  "name": "Referrer credit amount on Coupon",
+                  "status": "done",
+                  "priority": 2,
+                  "description": "referrer_credit Decimal field. The credit the referring customer receives when someone else redeems this coupon.",
+                  "completed_at": "2026-04-09T03:04:11-06:00"
+                },
+                {
+                  "id": "coupons.schema.referral.credit-type",
+                  "name": "Referrer credit type on Coupon",
+                  "status": "done",
+                  "priority": 2,
+                  "description": "referrer_credit_type field (reuses CouponType enum). Whether the referrer gets a percentage, fixed dollar amount, free item, or free delivery credit.",
+                  "completed_at": "2026-04-09T03:04:11-06:00"
+                }
+              ]
+            },
+            {
+              "id": "coupons.schema.segment-targeting",
+              "name": "Customer segment targeting",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "coupons.schema.segment-targeting.tags",
+                  "name": "Customer tag include/exclude on Coupon",
+                  "status": "done",
+                  "priority": 2,
+                  "description": "target_customer_tags and exclude_customer_tags String[] fields. Restricts coupon to, or excludes, customers with specific admin-assigned tags like VIP or frequent-edits.",
+                  "completed_at": "2026-04-09T03:04:11-06:00"
+                },
+                {
+                  "id": "coupons.schema.segment-targeting.ltv-range",
+                  "name": "Lifetime spend range on Coupon",
+                  "status": "done",
+                  "priority": 2,
+                  "description": "min_lifetime_spend and max_lifetime_spend Decimal fields. Restricts coupon to customers within an LTV band. Enables VIP perks at the high end and win-back offers at the low end.",
+                  "completed_at": "2026-04-09T03:04:11-06:00"
+                },
+                {
+                  "id": "coupons.schema.segment-targeting.member-since-range",
+                  "name": "Member-since range on Coupon",
+                  "status": "done",
+                  "priority": 2,
+                  "description": "min_member_since_days and max_member_since_days Int fields. Targets customer cohorts by account age (e.g. customers who signed up in the last 30 days).",
+                  "completed_at": "2026-04-09T03:04:11-06:00"
+                },
+                {
+                  "id": "coupons.schema.segment-targeting.customer-statuses",
+                  "name": "Customer status targeting on Coupon",
+                  "status": "done",
+                  "priority": 2,
+                  "description": "target_customer_statuses CustomerStatus[] field. Restricts by active, paused_indefinite, cancelled, unclaimed states. Enables win-back targeting specifically at cancelled accounts.",
+                  "completed_at": "2026-04-09T03:04:11-06:00"
+                }
+              ]
             }
           ]
         },
@@ -6216,6 +6349,87 @@
                     "ui",
                     "admin"
                   ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "coupons.dotw",
+          "name": "Deal of the Week",
+          "priority": 2,
+          "description": "Scheduled weekly featured discounts on specific meals. Thin wrapper over the coupon engine \u2014 most fields are preset (purpose=deal_of_the_week, auto_apply=true, show_as_clippable=true), admin only picks the dish(es), delivery week, and discount amount. See conner/dotw-scheduler-mockup.html in culinary-ops for the scheduler UI prototype.",
+          "tech_notes": "Implemented as a subset of the Coupon table using the new purpose enum and delivery_week_sunday column added in Migration 5. No separate DOTW table. Validation rule: at checkout, if coupon.purpose == deal_of_the_week then order.delivery_week_sunday must match coupon.delivery_week_sunday. See project_dotw_preorder_rules memory for the three governing rules (week binding, pre-order visibility filter, cart price ceiling).",
+          "submodules": [
+            {
+              "id": "coupons.dotw.schema",
+              "name": "DOTW schema fields",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "coupons.dotw.schema.purpose-enum",
+                  "name": "CouponPurpose.deal_of_the_week",
+                  "status": "done",
+                  "priority": 2,
+                  "description": "The deal_of_the_week value in the CouponPurpose enum. Distinguishes DOTW coupons from manual, auto_applied, welcome, winback, birthday, abandoned_cart, and referral coupons. Added in Migration 5.",
+                  "completed_at": "2026-04-09T03:04:11-06:00"
+                },
+                {
+                  "id": "coupons.dotw.schema.delivery-week-binding",
+                  "name": "delivery_week_sunday column on Coupon",
+                  "status": "done",
+                  "priority": 2,
+                  "description": "Nullable Date column. When set, the coupon only applies to orders whose delivery week matches this Sunday. Enables pre-scheduling DOTWs months ahead and avoiding the pre-order leak edge case where a current-week DOTW would silently apply to future-week orders.",
+                  "completed_at": "2026-04-09T03:04:11-06:00"
+                }
+              ]
+            },
+            {
+              "id": "coupons.dotw.engine",
+              "name": "DOTW validation logic",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "coupons.dotw.engine.validate-week-match",
+                  "name": "Delivery week matching rule",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Backend validator check: if coupon.purpose == deal_of_the_week, require order.delivery_week_sunday == coupon.delivery_week_sunday, else reject with a WRONG_DELIVERY_WEEK error. Prevents current-week DOTWs from applying to future-week pre-orders."
+                }
+              ]
+            },
+            {
+              "id": "coupons.dotw.ui",
+              "name": "DOTW admin UI",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "coupons.dotw.ui.scheduler-mockup",
+                  "name": "DOTW scheduler HTML mockup",
+                  "status": "designed",
+                  "priority": 2,
+                  "description": "Self-contained HTML prototype at conner/dotw-scheduler-mockup.html in the culinary-ops repo. 8-week rolling calendar view, editable presets panel, modal meal picker, and coupon JSON export. Demonstrates the locked-preset approach (purpose + auto_apply + show_as_clippable + category + tags all pre-filled, admin only picks dish + discount + display message)."
+                },
+                {
+                  "id": "coupons.dotw.ui.scheduler-admin",
+                  "name": "Real DOTW scheduler in admin UI",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "Production implementation of the scheduler prototype. Lives in the admin console. Calls the DOTW backend API to create/edit DOTW coupons. Depends on coupons.dotw.api.scheduler-backend."
+                }
+              ]
+            },
+            {
+              "id": "coupons.dotw.api",
+              "name": "DOTW backend API",
+              "priority": 2,
+              "components": [
+                {
+                  "id": "coupons.dotw.api.scheduler-backend",
+                  "name": "DOTW CRUD endpoints",
+                  "status": "to-build",
+                  "priority": 2,
+                  "description": "POST/GET/PATCH/DELETE endpoints for DOTW coupons. Thin wrapper over the generic Coupon CRUD but with locked presets (purpose=deal_of_the_week, auto_apply=true, show_as_clippable=true, category=seasonal by default). Admin only supplies dish, discount, and delivery_week_sunday."
                 }
               ]
             }
