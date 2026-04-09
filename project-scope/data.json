@@ -2,7 +2,7 @@
   "meta": {
     "title": "BetterDay Platform \u2014 Project Scope",
     "subtitle": "By-category module tree for the D2C storefront, subscription engine, and admin console",
-    "last_updated": "2026-04-08T13:11:25-06:00",
+    "last_updated": "2026-04-09T02:38:48-06:00",
     "updated_by": "Claude (Conner)",
     "version": 1,
     "session": 1
@@ -5639,7 +5639,7 @@
                 {
                   "id": "coupons.schema.coupon.model",
                   "name": "Coupon Prisma model",
-                  "status": "to-build",
+                  "status": "done",
                   "priority": 2,
                   "description": "Fields: id, code, description, discount_type (percentage|fixed|free_shipping|bogo), discount_value_cents_or_percent, min_spend_cents, max_spend_cents, effective_at, expires_at, max_uses_total, max_uses_per_customer, status (draft|published|expired), display_message, created_at, created_by.",
                   "tech": {
@@ -5651,12 +5651,13 @@
                   "tags": [
                     "schema",
                     "foundation"
-                  ]
+                  ],
+                  "completed_at": "2026-04-09T02:38:48-06:00"
                 },
                 {
                   "id": "coupons.schema.coupon.discount-type-enum",
                   "name": "Discount type enum",
-                  "status": "to-build",
+                  "status": "done",
                   "priority": 2,
                   "description": "percentage, fixed_amount, free_shipping, bogo, attached_free_item.",
                   "tech": {
@@ -5664,7 +5665,8 @@
                   },
                   "tags": [
                     "schema"
-                  ]
+                  ],
+                  "completed_at": "2026-04-09T02:38:48-06:00"
                 }
               ]
             },
@@ -5676,7 +5678,7 @@
                 {
                   "id": "coupons.schema.restrictions.eligibility",
                   "name": "CouponEligibility flags",
-                  "status": "to-build",
+                  "status": "done",
                   "priority": 2,
                   "description": "Columns on Coupon for: new_customers_only, exclude_sale_items, cannot_combine, auto_apply, show_as_clippable, include_in_order_confirmation_email, app_only, exclude_meal_plan_discounted_items.",
                   "tech": {
@@ -5685,12 +5687,13 @@
                   },
                   "tags": [
                     "schema"
-                  ]
+                  ],
+                  "completed_at": "2026-04-09T02:38:48-06:00"
                 },
                 {
                   "id": "coupons.schema.restrictions.products",
                   "name": "CouponProduct include/exclude",
-                  "status": "to-build",
+                  "status": "done",
                   "priority": 2,
                   "description": "Many-to-many: Coupon <-> MealRecipe for include_product_ids and exclude_product_ids.",
                   "tech": {
@@ -5701,12 +5704,13 @@
                   },
                   "tags": [
                     "schema"
-                  ]
+                  ],
+                  "completed_at": "2026-04-09T02:38:48-06:00"
                 },
                 {
                   "id": "coupons.schema.restrictions.categories",
                   "name": "CouponCategory include/exclude",
-                  "status": "to-build",
+                  "status": "done",
                   "priority": 2,
                   "description": "Category include/exclude tagging.",
                   "tech": {
@@ -5717,7 +5721,8 @@
                   },
                   "tags": [
                     "schema"
-                  ]
+                  ],
+                  "completed_at": "2026-04-09T02:38:48-06:00"
                 },
                 {
                   "id": "coupons.schema.restrictions.zones",
@@ -5738,7 +5743,7 @@
                 {
                   "id": "coupons.schema.restrictions.emails",
                   "name": "CouponEmail allow/block lists",
-                  "status": "to-build",
+                  "status": "done",
                   "priority": 3,
                   "description": "Explicit allowed_emails and excluded_emails lists.",
                   "tech": {
@@ -5749,12 +5754,13 @@
                   },
                   "tags": [
                     "schema"
-                  ]
+                  ],
+                  "completed_at": "2026-04-09T02:38:48-06:00"
                 },
                 {
                   "id": "coupons.schema.restrictions.order-count",
                   "name": "Order count restriction",
-                  "status": "to-build",
+                  "status": "done",
                   "priority": 2,
                   "description": "min_order_count, max_order_count on Coupon. 'First order' = min=0 max=0.",
                   "tech": {
@@ -5763,12 +5769,13 @@
                   },
                   "tags": [
                     "schema"
-                  ]
+                  ],
+                  "completed_at": "2026-04-09T02:38:48-06:00"
                 },
                 {
                   "id": "coupons.schema.restrictions.subscription",
                   "name": "Subscription restriction",
-                  "status": "to-build",
+                  "status": "done",
                   "priority": 2,
                   "description": "subscription_only | non_subscription_only | any.",
                   "tech": {
@@ -5776,12 +5783,13 @@
                   },
                   "tags": [
                     "schema"
-                  ]
+                  ],
+                  "completed_at": "2026-04-09T02:38:48-06:00"
                 },
                 {
                   "id": "coupons.schema.restrictions.payment-method",
                   "name": "Payment method restriction",
-                  "status": "to-build",
+                  "status": "skipped",
                   "priority": 3,
                   "description": "Restrict to specific payment methods (Apple Pay only, etc.).",
                   "tech": {
@@ -5789,7 +5797,8 @@
                   },
                   "tags": [
                     "schema"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): Explicitly disabled in the coupon feature picker. Per the coupon stacking policy, coupons deliberately stack on subscription discounts to incentivize first-time subscription sign-ups \u2014 payment-method restriction is over-engineering for the current scope and not part of Migration 5 (coupon_power_up). Keep as skipped until there's a clear business case."
                 }
               ]
             },
@@ -5801,7 +5810,7 @@
                 {
                   "id": "coupons.schema.attached-products.model",
                   "name": "CouponAttachedProduct model",
-                  "status": "to-build",
+                  "status": "done",
                   "priority": 3,
                   "description": "Products auto-added to cart when coupon applies (BOGO, free gift).",
                   "tech": {
@@ -5812,7 +5821,8 @@
                   },
                   "tags": [
                     "schema"
-                  ]
+                  ],
+                  "completed_at": "2026-04-09T02:38:48-06:00"
                 }
               ]
             },
@@ -5824,7 +5834,7 @@
                 {
                   "id": "coupons.schema.redemption.model",
                   "name": "CouponRedemption model",
-                  "status": "to-build",
+                  "status": "designed",
                   "priority": 2,
                   "description": "Fields: id, coupon_id, customer_id, order_id, redeemed_at, amount_cents, was_first_order, order_count_at_redemption. Unique constraint on (coupon_id, order_id).",
                   "tech": {
@@ -5836,7 +5846,8 @@
                   "tags": [
                     "schema",
                     "foundation"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): Migration 5 did not create a separate CouponRedemption table. Instead, redemption data lives on the existing CustomerCoupon model: amount_discounted (savings snapshot), redeemed_order_id (FK to CustomerOrder), redeemed_at (timestamp), plus the new UTM-style attribution fields source_channel, source_campaign, source_content, referrer_url. Different architecture than originally planned but covers the same reporting needs. See backend/prisma/commerce/migrations/20260409060452_coupon_power_up/ in the culinary-ops repo."
                 }
               ]
             }
