@@ -2,7 +2,7 @@
   "meta": {
     "title": "BetterDay Platform \u2014 Project Scope",
     "subtitle": "By-category module tree for the D2C storefront, subscription engine, and admin console",
-    "last_updated": "2026-04-09T03:04:11-06:00",
+    "last_updated": "2026-04-09T03:04:20-06:00",
     "updated_by": "Claude (Conner)",
     "version": 1,
     "session": 1
@@ -6212,7 +6212,7 @@
                 {
                   "id": "coupons.ui.checkout.clippable",
                   "name": "Clippable coupon cards",
-                  "status": "to-build",
+                  "status": "designed",
                   "priority": 3,
                   "description": "Suggested coupons displayed as clippable cards in the cart area.",
                   "tech": {
@@ -6220,7 +6220,8 @@
                   },
                   "tags": [
                     "ui"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): show_as_clippable boolean added to Coupon in Migration 5. Opt-in flag that tells the cart UI to render a coupon as a clip-me card instead of requiring a code. UX still needs to be designed in the cart and meal card contexts, but the schema field is ready."
                 }
               ]
             },
@@ -6252,7 +6253,7 @@
                 {
                   "id": "coupons.ui.admin.list",
                   "name": "Coupon list",
-                  "status": "to-build",
+                  "status": "designed",
                   "priority": 2,
                   "description": "Searchable list with status, uses, expiry columns.",
                   "tech": {
@@ -6261,12 +6262,13 @@
                   "tags": [
                     "ui",
                     "admin"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): HTML prototype exists at conner/coupon-features-picker.html in the culinary-ops repo. 74 coupon features across 21 sections with toggle controls, tier badges, help tooltips, and a JSON export. Effectively the design artifact for the admin coupon list and form. Still needs to be wired up to a real React/Next.js component reading from the Coupon table."
                 },
                 {
                   "id": "coupons.ui.admin.form",
                   "name": "Coupon form",
-                  "status": "to-build",
+                  "status": "designed",
                   "priority": 2,
                   "description": "The huge form: code, discount, validity, restrictions, products, categories, zones, emails, payment methods, attached products. Full CRUD.",
                   "tech": {
@@ -6276,7 +6278,8 @@
                   "tags": [
                     "ui",
                     "admin"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): Design artifact lives in the same feature picker prototype at conner/coupon-features-picker.html. Every field toggle in the picker maps directly to a Coupon schema field and is grouped by the form sections the real admin form will need: identity, discount engine, order thresholds, dates, restriction flags, subscription rules, email targeting, product targeting, category targeting, segment targeting, BOGO, referral, reporting."
                 },
                 {
                   "id": "coupons.ui.admin.stats",
