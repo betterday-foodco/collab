@@ -2,7 +2,7 @@
   "meta": {
     "title": "BetterDay Platform \u2014 Project Scope",
     "subtitle": "By-category module tree for the D2C storefront, subscription engine, and admin console",
-    "last_updated": "2026-04-09T03:04:20-06:00",
+    "last_updated": "2026-04-09T03:10:00-06:00",
     "updated_by": "Claude (Conner)",
     "version": 1,
     "session": 1
@@ -1522,9 +1522,9 @@
                 {
                   "id": "auth.recovery.forgot.request",
                   "name": "POST /api/auth/forgot-password",
-                  "status": "to-build",
+                  "status": "skipped",
                   "priority": 2,
-                  "description": "Accept email, send reset link via Resend. Always respond 200 even if email doesn't exist (no user enumeration).",
+                  "description": "Accept email, send reset link via Resend. SKIPPED - commerce auth is 100% passwordless, no forgot-password flow ever.",
                   "tech": {
                     "vendor": "Resend",
                     "endpoints": [
@@ -1536,14 +1536,15 @@
                   ],
                   "tags": [
                     "recovery"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): SKIPPED by architectural decision. BetterDay D2C customer auth is 100% passwordless - magic link + phone OTP + Apple/Google OAuth only. There are no passwords, so there is nothing to reset. If a customer loses access to their email, they use phone OTP as an alternate recovery path. If they lose both, CS support handles account recovery manually. Locked decision - see memory: project_betterday_passwordless_auth."
                 },
                 {
                   "id": "auth.recovery.forgot.reset",
                   "name": "POST /api/auth/reset-password",
-                  "status": "to-build",
+                  "status": "skipped",
                   "priority": 2,
-                  "description": "Accept token + new password, verify, update hash, revoke all existing sessions.",
+                  "description": "Accept token + new password, verify, update hash, revoke all existing sessions. SKIPPED - commerce auth is 100% passwordless, no password to reset.",
                   "tech": {
                     "endpoints": [
                       "POST /api/auth/reset-password"
@@ -1558,7 +1559,8 @@
                   ],
                   "tags": [
                     "recovery"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): SKIPPED alongside auth.recovery.forgot.request. No password_hash field exists on the Customer table in the commerce schema, so there's nothing for this endpoint to reset. Locked decision - see memory: project_betterday_passwordless_auth."
                 }
               ]
             }
@@ -1587,16 +1589,16 @@
                 {
                   "id": "profile.schema.customer.model",
                   "name": "Customer Prisma model",
-                  "status": "to-build",
+                  "status": "done",
                   "priority": 1,
-                  "description": "One-to-one with AuthIdentity. Fields: id, identity_id, first_name, last_name, display_name, marketing_opt_in, lifecycle_stage, hmp_customer_id, created_at, notes.",
+                  "description": "Core customer identity + profile + auth state, all on one table. See notes for architectural divergence from the original AuthIdentity-linked design.",
                   "tech": {
                     "language": "Prisma",
-                    "database": "Prisma + Postgres (Neon)",
+                    "database": "Prisma + Postgres (Neon, betterday-commerce project - SEPARATE from culinary-ops DB)",
                     "tables": [
                       "Customer"
                     ],
-                    "notes": "hmp_customer_id exists only for migration traceability."
+                    "notes": "Lives in backend/prisma/commerce/schema.prisma in a dedicated Neon project (spring-fire-44871408) under Conner's BetterDay Food Co org. Fields include display_id, email (unique), phone, first_name, last_name, birthday, member_since, status enum, source enum, apple_id_sub, google_id_sub, helcim_customer_id, email_verified + email_verified_at, phone_verified + phone_verified_at, sms_opt_in, email_opt_in, allergens[], diet_tags[], disliked_meals[], favorite_meals[], points_balance, internal_notes, tags[], flagged, timestamps."
                   },
                   "dependencies": [
                     "auth.foundation.schema.identity"
@@ -1604,7 +1606,9 @@
                   "tags": [
                     "schema",
                     "foundation"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): Shipped in Migration 1 (20260408234132_init) on culinary-ops conner/universal-brand-folder. ARCHITECTURAL DIVERGENCE from this scope board's AuthIdentity-linked design: auth fields live DIRECTLY on Customer (no separate AuthIdentity table), because commerce auth is 100% passwordless. No password_hash field by design - magic link + phone OTP + Apple/Google OAuth only. See memory: project_betterday_passwordless_auth. The auth.foundation.schema.* nodes in this scope board still describe the old AuthIdentity design and need to be reconciled in a dedicated future pass.",
+                  "completed_at": "2026-04-09T03:10:00-06:00"
                 },
                 {
                   "id": "profile.schema.customer.lifecycle",
@@ -1632,23 +1636,25 @@
                 {
                   "id": "profile.schema.address.model",
                   "name": "CustomerAddress Prisma model",
-                  "status": "to-build",
+                  "status": "done",
                   "priority": 1,
-                  "description": "Fields: id, customer_id, label, line1, line2, city, province, postal_code, country, delivery_notes, is_default_delivery, is_default_billing, created_at, archived_at.",
+                  "description": "Delivery or pickup address. Recipient contact fields are distinct from the customer's own profile - supports gift addresses where Jose stores Mom's address with Mom's contact details.",
                   "tech": {
                     "language": "Prisma",
-                    "database": "Prisma + Postgres (Neon)",
+                    "database": "Prisma + Postgres (Neon, betterday-commerce project)",
                     "tables": [
                       "CustomerAddress"
                     ],
-                    "notes": "Soft delete via archived_at so old orders still resolve."
+                    "notes": "Fields: id, customer_id, label, type (AddressType enum), recipient_first_name, recipient_last_name, recipient_email, recipient_phone (all required), company, street, street2, city, state, zip, delivery_instructions, is_default, timestamps. Hard delete, not soft delete - orders keep their shipping_address_id via onDelete SetNull so the order row survives."
                   },
                   "dependencies": [
                     "profile.schema.customer.model"
                   ],
                   "tags": [
                     "schema"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): Shipped in Migration 1 and refined in Migration 2 (20260409033641_add_points_coupons_address_contact) which split recipient_name into first/last/email/phone to match the subscriber-hub-2.0 Edit Address form. DIVERGENCE from the original spec: no is_default_delivery + is_default_billing split - just one is_default per address, scoped by type via composite index. No archived_at soft delete - onDelete SetNull on the FK from CustomerOrder preserves order history.",
+                  "completed_at": "2026-04-09T03:10:00-06:00"
                 }
               ]
             },
@@ -1660,22 +1666,25 @@
                 {
                   "id": "profile.schema.preferences.model",
                   "name": "CustomerPreference model",
-                  "status": "to-build",
+                  "status": "done",
                   "priority": 2,
-                  "description": "Dietary restrictions, allergens, portion size, flavour dislikes. Feeds menu filtering and auto-swap rules.",
+                  "description": "Dietary restrictions, allergens, diet tags, disliked meals, favorite meals. Implemented as array columns on Customer rather than a separate table - see notes.",
                   "tech": {
                     "language": "Prisma",
-                    "database": "Prisma + Postgres (Neon)",
+                    "database": "Prisma + Postgres (Neon, betterday-commerce project)",
                     "tables": [
-                      "CustomerPreference"
-                    ]
+                      "Customer (array fields)"
+                    ],
+                    "notes": "Implemented as String[] columns on Customer: allergens, diet_tags, disliked_meals, favorite_meals. No separate CustomerPreference table. This is a v1 simplification - if we ever need weighted preferences or preference history, we'd promote to a real table."
                   },
                   "dependencies": [
                     "profile.schema.customer.model"
                   ],
                   "tags": [
                     "schema"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): Shipped as array fields on Customer in Migration 1. Design choice: simpler than a separate table for the current flat-list preference model. The PATCH /api/commerce/customers/me/preferences endpoint REPLACES the full array on each write (not merge). If future work needs richer preference semantics (weights, history, scoped-to-week), we'd promote to a dedicated CustomerPreference table - not yet needed.",
+                  "completed_at": "2026-04-09T03:10:00-06:00"
                 }
               ]
             }
@@ -1694,15 +1703,16 @@
               "components": [
                 {
                   "id": "profile.api.read.me",
-                  "name": "GET /api/account/me",
-                  "status": "to-build",
+                  "name": "GET /api/commerce/customers/me",
+                  "status": "done",
                   "priority": 2,
-                  "description": "Returns current customer + addresses + preferences + lifecycle summary.",
+                  "description": "Returns current customer + addresses + payment_methods + subscription. Admin-only fields (internal_notes, tags, flagged, last_contacted_at) stripped before response.",
                   "tech": {
                     "framework": "NestJS + TypeScript",
                     "endpoints": [
-                      "GET /api/account/me"
-                    ]
+                      "GET /api/commerce/customers/me"
+                    ],
+                    "notes": "URL path diverges from the original GET /api/account/me spec because all commerce endpoints are namespaced under /api/commerce/ to keep them cleanly separated from Gurleen's culinary-side /api/ routes."
                   },
                   "dependencies": [
                     "profile.schema.customer.model",
@@ -1710,7 +1720,9 @@
                   ],
                   "tags": [
                     "api"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): Shipped as part of commerce-customers NestJS module in backend/src/modules/commerce-customers/ on culinary-ops conner/universal-brand-folder. Uses a dev-stub @CurrentCustomer() decorator that reads x-dev-customer-id header - MUST be replaced with a real CustomerAuthGuard before production.",
+                  "completed_at": "2026-04-09T03:10:00-06:00"
                 }
               ]
             },
@@ -1721,43 +1733,53 @@
               "components": [
                 {
                   "id": "profile.api.write.profile",
-                  "name": "PUT /api/account/profile",
-                  "status": "to-build",
+                  "name": "PATCH /api/commerce/customers/me",
+                  "status": "done",
                   "priority": 2,
-                  "description": "Update name, display name, phone, marketing opt-in.",
+                  "description": "Update first_name, last_name, phone, birthday. Also ships PATCH me/preferences (allergens, diet_tags, disliked_meals, favorite_meals) and PATCH me/notifications (sms_opt_in, email_opt_in) as sibling endpoints.",
                   "tech": {
                     "framework": "NestJS + TypeScript",
                     "endpoints": [
-                      "PUT /api/account/profile"
-                    ]
+                      "PATCH /api/commerce/customers/me",
+                      "PATCH /api/commerce/customers/me/preferences",
+                      "PATCH /api/commerce/customers/me/notifications"
+                    ],
+                    "notes": "Uses PATCH semantics (omitted fields left unchanged) instead of PUT. Validated via class-validator DTOs. Email and phone changes are NOT in this endpoint - those require CustomerAuthToken round-trips and belong in a future commerce-auth module."
                   },
                   "dependencies": [
                     "profile.api.read.me"
                   ],
                   "tags": [
                     "api"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): Shipped in commerce-customers module. URL path diverges from original PUT /api/account/profile - namespaced under /api/commerce/customers/ and uses PATCH verb.",
+                  "completed_at": "2026-04-09T03:10:00-06:00"
                 },
                 {
                   "id": "profile.api.write.addresses",
                   "name": "Address CRUD",
-                  "status": "to-build",
+                  "status": "done",
                   "priority": 2,
-                  "description": "POST/PUT/DELETE /api/account/addresses. Sets default_delivery / default_billing flags atomically.",
+                  "description": "Full address management: list, create, update, delete, set-as-default. Default invariant enforced atomically via transaction (at most one is_default per customer per type).",
                   "tech": {
                     "framework": "NestJS + TypeScript",
                     "endpoints": [
-                      "POST /api/account/addresses",
-                      "PUT /api/account/addresses/:id",
-                      "DELETE /api/account/addresses/:id"
-                    ]
+                      "GET /api/commerce/customers/me/addresses",
+                      "POST /api/commerce/customers/me/addresses",
+                      "PATCH /api/commerce/customers/me/addresses/:id",
+                      "DELETE /api/commerce/customers/me/addresses/:id",
+                      "POST /api/commerce/customers/me/addresses/:id/default"
+                    ],
+                    "notes": "Each mutation asserts the address belongs to the current customer via assertAddressOwnedBy() before proceeding - returns 403 if another customer's UUID is probed. setDefaultAddress uses $transaction to unset any existing default of the same type before setting the new one."
                   },
                   "dependencies": [
                     "profile.schema.address.model"
                   ],
                   "tags": [
                     "api"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): Shipped 5 endpoints (not 3 as spec'd) - added list + set-default as separate routes. Uses PATCH instead of PUT for updates, namespaced under /api/commerce/customers/.",
+                  "completed_at": "2026-04-09T03:10:00-06:00"
                 },
                 {
                   "id": "profile.api.write.preferences",
