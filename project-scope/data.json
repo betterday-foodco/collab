@@ -1,13 +1,13 @@
 {
   "meta": {
-    "title": "BetterDay Platform \u2014 Project Scope",
+    "title": "BetterDay Platform — Project Scope",
     "subtitle": "By-category module tree for the D2C storefront, subscription engine, and admin console",
-    "last_updated": "2026-04-09T03:13:01-06:00",
+    "last_updated": "2026-04-09T03:18:12-06:00",
     "updated_by": "Claude (Conner)",
     "version": 1,
     "session": 1,
     "next_up": {
-      "focus": "coupons.engine (Phase 1 \u2014 validate + apply + remove at checkout)",
+      "focus": "coupons.engine (Phase 1 — validate + apply + remove at checkout)",
       "summary": "After Migration 5 (coupon_power_up) the schema is complete but nothing validates coupons at checkout yet. Phase 1 targets 4 backend leaves: coupons.engine.validate.service, coupons.dotw.engine.validate-week-match, coupons.engine.apply.endpoint, coupons.engine.apply.remove. Parallel track: customer-facing error message catalog.",
       "phase_1_leaves": [
         "coupons.engine.validate.service",
@@ -17,33 +17,33 @@
       ],
       "detail_file": "project-scope/NEXT_UP.md",
       "generated_at": "2026-04-09T03:13:01-06:00",
-      "generated_by": "Claude (Conner) \u2014 coupons chat"
+      "generated_by": "Claude (Conner) — coupons chat"
     }
   },
   "legend": {
     "priorities": {
       "1": {
-        "label": "P1 \u2014 Foundation",
+        "label": "P1 — Foundation",
         "color": "#003141",
         "description": "Immediate. Must exist before any other work happens."
       },
       "2": {
-        "label": "P2 \u2014 Core",
+        "label": "P2 — Core",
         "color": "#4EA2FD",
         "description": "Next layer. Built on P1, required for a functional platform."
       },
       "3": {
-        "label": "P3 \u2014 Launch polish",
+        "label": "P3 — Launch polish",
         "color": "#C8A4F5",
         "description": "Required for a credible launch."
       },
       "4": {
-        "label": "P4 \u2014 Post-launch soon",
+        "label": "P4 — Post-launch soon",
         "color": "#FFC600",
         "description": "Not needed day one but wanted within a month."
       },
       "5": {
-        "label": "P5 \u2014 Future",
+        "label": "P5 — Future",
         "color": "#9ca3af",
         "description": "Out of scope for 2026. Explore later."
       }
@@ -103,7 +103,7 @@
                 {
                   "id": "marketing.pages.homepage.hero",
                   "name": "Hero section",
-                  "status": "to-build",
+                  "status": "designed",
                   "priority": 2,
                   "description": "Above-the-fold: headline, sub, primary CTA, hero image, price anchor pill, location pill.",
                   "tech": {
@@ -113,12 +113,13 @@
                   "tags": [
                     "ui",
                     "ported"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): HTML prototype ported to conner/client-website/index.html (v2_81 rebuild using brand/tokens.css, shared shell, external assets — 16MB → 226KB). Next.js implementation still pending."
                 },
                 {
                   "id": "marketing.pages.homepage.how-it-works",
                   "name": "How It Works",
-                  "status": "to-build",
+                  "status": "designed",
                   "priority": 2,
                   "description": "Three-step explainer. Cards with icons, subtle brand colour blocks.",
                   "tech": {
@@ -128,12 +129,13 @@
                   "tags": [
                     "ui",
                     "ported"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): HTML prototype ported to conner/client-website/index.html §how-it-works. 3-step card grid with icons + brand tokens. Next.js implementation still pending."
                 },
                 {
                   "id": "marketing.pages.homepage.menu-teaser",
                   "name": "Menu teaser",
-                  "status": "to-build",
+                  "status": "designed",
                   "priority": 2,
                   "description": "Shows 6-8 meals from current week with 'See full menu' CTA.",
                   "tech": {
@@ -145,12 +147,13 @@
                   ],
                   "tags": [
                     "ui"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): HTML prototype ported to conner/client-website/index.html §menu. Currently uses hardcoded meal data — will switch to menu.api.public once the API ships (existing dependency satisfied)."
                 },
                 {
                   "id": "marketing.pages.homepage.why-betterday-race",
                   "name": "Why BetterDay race",
-                  "status": "to-build",
+                  "status": "designed",
                   "priority": 2,
                   "description": "Interactive race animation comparing BetterDay vs takeout vs groceries.",
                   "tech": {
@@ -160,12 +163,13 @@
                   "tags": [
                     "ui",
                     "animation"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): HTML prototype ported to conner/client-website/index.html §why-betterday with full van-race animation (vanRoll/vanIdle/vanWiggle/burnShake keyframes + IntersectionObserver auto-start + confetti). Next.js implementation still pending."
                 },
                 {
                   "id": "marketing.pages.homepage.order-types",
                   "name": "Order Types card",
-                  "status": "to-build",
+                  "status": "designed",
                   "priority": 2,
                   "description": "Side-by-side subscribe vs one-time cards with price pills.",
                   "tech": {
@@ -173,12 +177,13 @@
                   },
                   "tags": [
                     "ui"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): HTML prototype ported to conner/client-website/index.html §order-types. Side-by-side subscribe vs one-time cards with price pills. Next.js implementation still pending."
                 },
                 {
                   "id": "marketing.pages.homepage.savings-slider",
                   "name": "Savings slider",
-                  "status": "to-build",
+                  "status": "designed",
                   "priority": 2,
                   "description": "Interactive slider showing savings as cart grows.",
                   "tech": {
@@ -188,12 +193,13 @@
                   "tags": [
                     "ui",
                     "animation"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): HTML prototype ported to conner/client-website/index.html §plans. Savings slider auto-animates on scroll + confetti at free-delivery threshold. Next.js implementation still pending."
                 },
                 {
                   "id": "marketing.pages.homepage.social-proof",
                   "name": "Social proof section",
-                  "status": "to-build",
+                  "status": "designed",
                   "priority": 2,
                   "description": "Calgary testimonials carousel.",
                   "tech": {
@@ -201,12 +207,13 @@
                   },
                   "tags": [
                     "ui"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): HTML prototype ported to conner/client-website/index.html §social-proof. Calgary testimonials carousel. Next.js implementation still pending."
                 },
                 {
                   "id": "marketing.pages.homepage.our-story",
                   "name": "Our Story (Amy & Conner)",
-                  "status": "to-build",
+                  "status": "designed",
                   "priority": 3,
                   "description": "Founder story section with photo. Positioned before final CTA.",
                   "tech": {
@@ -216,12 +223,13 @@
                   "tags": [
                     "ui",
                     "content"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): HTML prototype ported to conner/client-website/index.html §our-story. Amy & Conner founder story with Fastpen signature (now first-class --font-accent in brand/tokens.css). Next.js implementation still pending."
                 },
                 {
                   "id": "marketing.pages.homepage.final-cta",
                   "name": "Final CTA",
-                  "status": "to-build",
+                  "status": "designed",
                   "priority": 2,
                   "description": "Bottom-of-page conversion card with risk-reversal copy.",
                   "tech": {
@@ -229,7 +237,8 @@
                   },
                   "tags": [
                     "ui"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): HTML prototype ported to conner/client-website/index.html §final-cta. Bottom conversion card with risk-reversal copy. Next.js implementation still pending."
                 }
               ]
             },
@@ -733,7 +742,7 @@
                   "tags": [
                     "brand"
                   ],
-                  "notes": "2026-04-09 (Conner): Shipped 5 font files in brand/fonts/ (BDSupperBold.otf, Gaya.otf, SofiaProSoftRegular.otf, SofiaProSoftBold.otf, Fastpen.otf). Fastpen added as a signature/accent face. Inter dropped in favor of Sofia Pro Soft as body face. Not converted to WOFF2 yet \u2014 still .otf.",
+                  "notes": "2026-04-09 (Conner): Shipped 5 font files in brand/fonts/ (BDSupperBold.otf, Gaya.otf, SofiaProSoftRegular.otf, SofiaProSoftBold.otf, Fastpen.otf). Fastpen added as a signature/accent face. Inter dropped in favor of Sofia Pro Soft as body face. Not converted to WOFF2 yet — still .otf.",
                   "completed_at": "2026-04-09T03:00:00-06:00"
                 },
                 {
@@ -815,7 +824,7 @@
                 {
                   "id": "marketing.brand.components.nav",
                   "name": "Nav bar",
-                  "status": "to-build",
+                  "status": "designed",
                   "priority": 2,
                   "description": "Sticky sky-blue header with logo + nav links + cart icon + login/account.",
                   "tech": {
@@ -823,12 +832,13 @@
                   },
                   "tags": [
                     "ui"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): Reusable HTML fragment at conner/client-website/shared/marketing-header.html. Uses var(--brand-*) tokens, {{contact.*}} placeholders from /brand/site-info.seed.json, and is injected on every page via the site-shell.js loader. Not yet a shadcn/ui React component."
                 },
                 {
                   "id": "marketing.brand.components.footer",
                   "name": "Footer",
-                  "status": "to-build",
+                  "status": "designed",
                   "priority": 2,
                   "description": "Navy footer with navigation, subscribe form, social links, contact.",
                   "tech": {
@@ -836,7 +846,8 @@
                   },
                   "tags": [
                     "ui"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): Reusable HTML fragment at conner/client-website/shared/marketing-footer.html. Uses var(--brand-*) tokens + {{contact.*}} + {{social.*}} + {{legal.*}} placeholders. Not yet a shadcn/ui React component."
                 }
               ]
             },
@@ -852,12 +863,12 @@
                   "priority": 2,
                   "description": "PNG wordmark variants (Centered + Left Justified, Cream/Blue/Navy fills).",
                   "tech": {
-                    "notes": "Committed to brand/logos/ in culinary-ops repo. 6 PNG files across two subfolders. SVG variants still pending \u2014 not a blocker."
+                    "notes": "Committed to brand/logos/ in culinary-ops repo. 6 PNG files across two subfolders. SVG variants still pending — not a blocker."
                   },
                   "tags": [
                     "brand"
                   ],
-                  "notes": "2026-04-09 (Conner): Shipped 6 PNG files under brand/logos/Logo (Centered)/ and brand/logos/Logo (Left Justified)/ \u2014 Blue, Cream, Navy variants in each layout. SVG versions still to-do but don't block anything today.",
+                  "notes": "2026-04-09 (Conner): Shipped 6 PNG files under brand/logos/Logo (Centered)/ and brand/logos/Logo (Left Justified)/ — Blue, Cream, Navy variants in each layout. SVG versions still to-do but don't block anything today.",
                   "completed_at": "2026-04-09T03:00:00-06:00"
                 },
                 {
@@ -908,7 +919,7 @@
           "submodules": [
             {
               "id": "auth.foundation.schema",
-              "name": "Prisma schema \u2014 auth tables",
+              "name": "Prisma schema — auth tables",
               "priority": 1,
               "components": [
                 {
@@ -1080,7 +1091,7 @@
                   "name": "Send OTP endpoint",
                   "status": "to-build",
                   "priority": 1,
-                  "description": "POST /api/auth/phone/start \u2014 normalizes phone, looks up or creates AuthIdentity, triggers Twilio Verify send, returns otp_id.",
+                  "description": "POST /api/auth/phone/start — normalizes phone, looks up or creates AuthIdentity, triggers Twilio Verify send, returns otp_id.",
                   "tech": {
                     "language": "TypeScript",
                     "framework": "NestJS",
@@ -1092,7 +1103,7 @@
                       "AuthIdentity",
                       "OtpCode"
                     ],
-                    "notes": "Twilio Verify SID in env. Uses their service \u2014 we don't manage code generation or storage ourselves."
+                    "notes": "Twilio Verify SID in env. Uses their service — we don't manage code generation or storage ourselves."
                   },
                   "dependencies": [
                     "auth.foundation.schema.identity",
@@ -1107,7 +1118,7 @@
                   "name": "Verify OTP endpoint",
                   "status": "to-build",
                   "priority": 1,
-                  "description": "POST /api/auth/phone/verify \u2014 checks code with Twilio, marks phone verified, creates session, returns JWT + refresh token.",
+                  "description": "POST /api/auth/phone/verify — checks code with Twilio, marks phone verified, creates session, returns JWT + refresh token.",
                   "tech": {
                     "language": "TypeScript",
                     "framework": "NestJS",
@@ -1325,7 +1336,7 @@
                   "name": "Register Google OAuth app",
                   "status": "to-build",
                   "priority": 2,
-                  "description": "Create BetterDay OAuth client in Google Cloud Console. Redirect URI \u2192 /api/auth/oauth/google/callback.",
+                  "description": "Create BetterDay OAuth client in Google Cloud Console. Redirect URI → /api/auth/oauth/google/callback.",
                   "tech": {
                     "vendor": "Google Cloud",
                     "notes": "One-time setup. Consent screen branding review if we need production access."
@@ -1341,7 +1352,7 @@
                   "name": "Callback endpoint",
                   "status": "to-build",
                   "priority": 2,
-                  "description": "Exchange code \u2192 token \u2192 profile. Upsert OAuthLink, AuthIdentity. Create session.",
+                  "description": "Exchange code → token → profile. Upsert OAuthLink, AuthIdentity. Create session.",
                   "tech": {
                     "language": "TypeScript",
                     "framework": "NestJS",
@@ -1374,7 +1385,7 @@
                   "name": "Register Facebook app",
                   "status": "to-build",
                   "priority": 3,
-                  "description": "Facebook for Developers \u2192 new app. Review required for production email scope.",
+                  "description": "Facebook for Developers → new app. Review required for production email scope.",
                   "tech": {
                     "vendor": "Meta",
                     "notes": "App review is slower than Google. Start early."
@@ -1433,7 +1444,7 @@
                     "tables": [
                       "Session"
                     ],
-                    "notes": "Refresh stored as httpOnly cookie. Rotation detects replay \u2014 if old token used after rotation, revoke entire session chain."
+                    "notes": "Refresh stored as httpOnly cookie. Rotation detects replay — if old token used after rotation, revoke entire session chain."
                   },
                   "dependencies": [
                     "auth.foundation.middleware.jwt"
@@ -2001,7 +2012,7 @@
       "name": "Menu & Catalog",
       "priority": 2,
       "description": "Public and logged-in browsing of the weekly menu. Meal detail pages, filters, allergens, macros.",
-      "tech_notes": "Reads from culinary-ops MealRecipe/MealComponent tables. No duplicate data \u2014 the kitchen ops schema is the source of truth for meals.",
+      "tech_notes": "Reads from culinary-ops MealRecipe/MealComponent tables. No duplicate data — the kitchen ops schema is the source of truth for meals.",
       "modules": [
         {
           "id": "menu.source",
@@ -2079,7 +2090,7 @@
                   "tech": {
                     "framework": "NestJS + TypeScript",
                     "crons": [
-                      "0 23 * * 0 \u2014 weekly menu advance"
+                      "0 23 * * 0 — weekly menu advance"
                     ]
                   },
                   "dependencies": [
@@ -2405,7 +2416,7 @@
       "name": "Cart & Build-a-Cart",
       "priority": 2,
       "description": "The signature BetterDay feature. Dynamic cart replaces rigid plan tiers. Customer builds any cart size; savings scale with cart, not commitment length.",
-      "tech_notes": "Cart / CartItem tables in culinary-ops Postgres. Prior design: subscriber-hub.html, menu-overlay.html, swap panel demo. Savings tiers: 4\u21925%, 5\u21928%, 7\u219211%, 8\u2192Free Delivery, 9\u219214%, 11\u219217%, 13\u219220%.",
+      "tech_notes": "Cart / CartItem tables in culinary-ops Postgres. Prior design: subscriber-hub.html, menu-overlay.html, swap panel demo. Savings tiers: 4→5%, 5→8%, 7→11%, 8→Free Delivery, 9→14%, 11→17%, 13→20%.",
       "modules": [
         {
           "id": "cart.model",
@@ -2415,7 +2426,7 @@
           "submodules": [
             {
               "id": "cart.model.schema",
-              "name": "Prisma schema \u2014 cart tables",
+              "name": "Prisma schema — cart tables",
               "priority": 1,
               "components": [
                 {
@@ -2484,7 +2495,7 @@
                 },
                 {
                   "id": "cart.model.state.sync",
-                  "name": "Client \u2194 server sync",
+                  "name": "Client ↔ server sync",
                   "status": "to-build",
                   "priority": 1,
                   "description": "Debounced PATCH to backend whenever cart changes. Resolves conflicts by last-write-wins on the server.",
@@ -2510,7 +2521,7 @@
           "id": "cart.ui",
           "name": "Cart UI",
           "priority": 1,
-          "description": "The visible shopping surface. Exists as demo HTML \u2014 needs port to React components.",
+          "description": "The visible shopping surface. Exists as demo HTML — needs port to React components.",
           "submodules": [
             {
               "id": "cart.ui.sidebar",
@@ -2522,7 +2533,7 @@
                   "name": "Grouped line items",
                   "status": "designed",
                   "priority": 1,
-                  "description": "Gaya-font category headers ('Entr\u00e9es | 7 Total'), 46px thumbnails, stacked qty/swap actions, trash-at-qty-1.",
+                  "description": "Gaya-font category headers ('Entrées | 7 Total'), 46px thumbnails, stacked qty/swap actions, trash-at-qty-1.",
                   "tech": {
                     "framework": "Next.js 14",
                     "notes": "Design tokens in design-tokens.md. Demo lives in subscriber-hub.html cart sidebar."
@@ -2542,7 +2553,7 @@
                   "priority": 1,
                   "description": "Top-of-sidebar progress bar toward next tier. Free-delivery badge at 8 items.",
                   "tech": {
-                    "notes": "Tier thresholds: 4\u21925%, 5\u21928%, 7\u219211%, 8\u2192Free Delivery, 9\u219214%, 11\u219217%, 13\u219220%. Documented in project_betterday_subscription_current.md."
+                    "notes": "Tier thresholds: 4→5%, 5→8%, 7→11%, 8→Free Delivery, 9→14%, 11→17%, 13→20%. Documented in project_betterday_subscription_current.md."
                   },
                   "dependencies": [
                     "cart.ui.sidebar.items"
@@ -2698,7 +2709,7 @@
       "name": "Checkout",
       "priority": 2,
       "description": "The path from 'I want to order' to 'order placed'. Express checkout, guest path, logged-in path, address, delivery window, coupons, tips, review, place.",
-      "tech_notes": "Stripe Elements for card entry. Stripe Payment Request API for Apple Pay / Google Pay. Own Checkout flow in Next.js \u2014 no redirect to Stripe Checkout (we want full brand control).",
+      "tech_notes": "Stripe Elements for card entry. Stripe Payment Request API for Apple Pay / Google Pay. Own Checkout flow in Next.js — no redirect to Stripe Checkout (we want full brand control).",
       "modules": [
         {
           "id": "checkout.express",
@@ -2806,7 +2817,7 @@
                   "name": "Evaluate Shop Pay feasibility",
                   "status": "to-build",
                   "priority": 4,
-                  "description": "Shop Pay is Shopify's express checkout. Requires a Shopify-adjacent integration path \u2014 may not be feasible without a Shopify storefront. Investigate before committing.",
+                  "description": "Shop Pay is Shopify's express checkout. Requires a Shopify-adjacent integration path — may not be feasible without a Shopify storefront. Investigate before committing.",
                   "tech": {
                     "vendor": "Shopify",
                     "notes": "Open question: does this require Shop Pay Checkout Sheet Kit or a full Shopify storefront?"
@@ -2967,7 +2978,7 @@
                   "name": "Place order action",
                   "status": "to-build",
                   "priority": 2,
-                  "description": "POST /api/orders \u2014 validates cart, charges Stripe, creates Order + OrderItems + Payment, returns order ID.",
+                  "description": "POST /api/orders — validates cart, charges Stripe, creates Order + OrderItems + Payment, returns order ID.",
                   "tech": {
                     "endpoints": [
                       "POST /api/orders"
@@ -3006,7 +3017,7 @@
                   "name": "Validate coupon endpoint",
                   "status": "to-build",
                   "priority": 2,
-                  "description": "POST /api/cart/apply-coupon \u2014 checks coupon rules against the current cart and customer (including order history).",
+                  "description": "POST /api/cart/apply-coupon — checks coupon rules against the current cart and customer (including order history).",
                   "tech": {
                     "endpoints": [
                       "POST /api/cart/apply-coupon"
@@ -3129,7 +3140,7 @@
       "name": "Payments",
       "priority": 2,
       "description": "Stripe Elements for card entry. Stripe Subscriptions for recurring. Tax, tips, refunds, failed-payment retry, payment method management.",
-      "tech_notes": "All money as integer cents. Use Stripe Customer ID as our reference. Stripe Tax for CAN GST. Never store card data ourselves \u2014 Stripe holds everything.",
+      "tech_notes": "All money as integer cents. Use Stripe Customer ID as our reference. Stripe Tax for CAN GST. Never store card data ourselves — Stripe holds everything.",
       "modules": [
         {
           "id": "payments.stripe",
@@ -3243,7 +3254,7 @@
                   "name": "Create PaymentIntent",
                   "status": "to-build",
                   "priority": 1,
-                  "description": "POST /api/payments/intent \u2014 creates intent with amount + currency, returns client_secret.",
+                  "description": "POST /api/payments/intent — creates intent with amount + currency, returns client_secret.",
                   "tech": {
                     "framework": "NestJS + TypeScript",
                     "endpoints": [
@@ -3716,7 +3727,7 @@
       "name": "Orders (One-Time)",
       "priority": 2,
       "description": "Creating, viewing, tracking, and reordering one-time orders. History, detail, status updates.",
-      "tech_notes": "Order and OrderItem tables. Status lifecycle: pending \u2192 confirmed \u2192 in_production \u2192 out_for_delivery \u2192 delivered. Snapshots meal data at order time.",
+      "tech_notes": "Order and OrderItem tables. Status lifecycle: pending → confirmed → in_production → out_for_delivery → delivered. Snapshots meal data at order time.",
       "modules": [
         {
           "id": "orders.schema",
@@ -4668,7 +4679,7 @@
                 {
                   "id": "subscriptions.signup.onboarding.dietary",
                   "name": "Dietary preferences wizard",
-                  "status": "to-build",
+                  "status": "designed",
                   "priority": 3,
                   "description": "First-time subscription asks for dietary preferences to power auto-swap.",
                   "tech": {
@@ -4679,7 +4690,8 @@
                   ],
                   "tags": [
                     "ui"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): HTML prototype ported to conner/client-website/onboarding/index.html using SystemTag slugs \"omnivore\" and \"vegan\" (matching /settings/tags admin values). Two cards, real images at /brand/photos/diet-omnivore.jpg and /brand/photos/diet-vegan.jpg, clicks redirect to /menu/?diet=<slug>. Decision captured in ADR 2026-04-08-diet-as-preference-not-product.md (rejected HMP rich meal-plan model in favor of simple customer.diet_preference enum with universal subscription settings). Next.js implementation still pending."
                 },
                 {
                   "id": "subscriptions.signup.onboarding.delivery-pref",
@@ -5844,7 +5856,7 @@
                   "tags": [
                     "schema"
                   ],
-                  "notes": "2026-04-09 (Conner): Explicitly disabled in the coupon feature picker. Per the coupon stacking policy, coupons deliberately stack on subscription discounts to incentivize first-time subscription sign-ups \u2014 payment-method restriction is over-engineering for the current scope and not part of Migration 5 (coupon_power_up). Keep as skipped until there's a clear business case."
+                  "notes": "2026-04-09 (Conner): Explicitly disabled in the coupon feature picker. Per the coupon stacking policy, coupons deliberately stack on subscription discounts to incentivize first-time subscription sign-ups — payment-method restriction is over-engineering for the current scope and not part of Migration 5 (coupon_power_up). Keep as skipped until there's a clear business case."
                 }
               ]
             },
@@ -6401,7 +6413,7 @@
           "id": "coupons.dotw",
           "name": "Deal of the Week",
           "priority": 2,
-          "description": "Scheduled weekly featured discounts on specific meals. Thin wrapper over the coupon engine \u2014 most fields are preset (purpose=deal_of_the_week, auto_apply=true, show_as_clippable=true), admin only picks the dish(es), delivery week, and discount amount. See conner/dotw-scheduler-mockup.html in culinary-ops for the scheduler UI prototype.",
+          "description": "Scheduled weekly featured discounts on specific meals. Thin wrapper over the coupon engine — most fields are preset (purpose=deal_of_the_week, auto_apply=true, show_as_clippable=true), admin only picks the dish(es), delivery week, and discount amount. See conner/dotw-scheduler-mockup.html in culinary-ops for the scheduler UI prototype.",
           "tech_notes": "Implemented as a subset of the Coupon table using the new purpose enum and delivery_week_sunday column added in Migration 5. No separate DOTW table. Validation rule: at checkout, if coupon.purpose == deal_of_the_week then order.delivery_week_sunday must match coupon.delivery_week_sunday. See project_dotw_preorder_rules memory for the three governing rules (week binding, pre-order visibility filter, cart price ceiling).",
           "submodules": [
             {
@@ -7198,7 +7210,7 @@
       "id": "referrals",
       "name": "Referrals",
       "priority": 3,
-      "description": "Share link, track referrer \u2192 referee, both sides get coupons on successful conversion.",
+      "description": "Share link, track referrer → referee, both sides get coupons on successful conversion.",
       "tech_notes": "Referral, ReferralReward tables. Coupon engine handles the reward codes.",
       "modules": [
         {
@@ -9715,7 +9727,7 @@
                   "tech": {
                     "framework": "NestJS + TypeScript",
                     "crons": [
-                      "0 6 * * 5 \u2014 Friday rollover"
+                      "0 6 * * 5 — Friday rollover"
                     ]
                   },
                   "dependencies": [
@@ -9735,7 +9747,7 @@
                   "tech": {
                     "framework": "NestJS + TypeScript",
                     "crons": [
-                      "59 23 * * 4 \u2014 Thursday cutoff"
+                      "59 23 * * 4 — Thursday cutoff"
                     ]
                   },
                   "dependencies": [
@@ -9755,7 +9767,7 @@
                   "tech": {
                     "framework": "NestJS + TypeScript",
                     "crons": [
-                      "0 9 * * * \u2014 daily payment retry"
+                      "0 9 * * * — daily payment retry"
                     ]
                   },
                   "dependencies": [
@@ -9774,7 +9786,7 @@
                   "tech": {
                     "framework": "NestJS + TypeScript",
                     "crons": [
-                      "0 23 * * 0 \u2014 menu advance"
+                      "0 23 * * 0 — menu advance"
                     ]
                   },
                   "dependencies": [
@@ -9793,7 +9805,7 @@
                   "tech": {
                     "framework": "NestJS + TypeScript",
                     "crons": [
-                      "0 4 * * * \u2014 session cleanup"
+                      "0 4 * * * — session cleanup"
                     ]
                   },
                   "tags": [
@@ -9974,7 +9986,7 @@
                   "description": "Cron that dumps to R2 for independent off-platform backup.",
                   "tech": {
                     "crons": [
-                      "0 2 * * 0 \u2014 weekly DB export"
+                      "0 2 * * 0 — weekly DB export"
                     ]
                   },
                   "tags": [
@@ -10010,14 +10022,14 @@
     },
     {
       "id": "flask-migration",
-      "name": "Flask \u2192 Culinary-Ops Migration",
+      "name": "Flask → Culinary-Ops Migration",
       "priority": 2,
       "description": "Migrate the corporate manager Flask app (betterday-foodco/betterday-app) backend from Google Apps Script to Gurleen's culinary-ops NestJS API. Active project owned by Conner + Gurleen; phased rollout. This is distinct from the D2C storefront build (betterday-webapp) and from the future 'Corporate B2B' 2.0 integration.",
       "tech_notes": "Two repos involved: betterday-foodco/culinary-ops (new NestJS API with CorpManagerController + CorpBdAdminController + CorpPortalController) and betterday-foodco/betterday-app (Flask app with culinary_ops_client.py helper behind feature flag). Migration uses dual-read verification before cutover per phase. Archived from the old collab board proj-001 on 2026-04-08.",
       "modules": [
         {
           "id": "flask-migration.pr7",
-          "name": "PR #7 \u2014 Corporate manager API",
+          "name": "PR #7 — Corporate manager API",
           "priority": 2,
           "description": "Initial PR landing ~25 CorpManager routes + 7 CorpBdAdmin routes plus Flask-side client and feature flag. Review complete; deployment pending.",
           "submodules": [
@@ -10071,7 +10083,7 @@
                   "name": "Document corporate app connection map",
                   "status": "done",
                   "priority": 3,
-                  "description": "24-connection-point mapping across all systems: Flask \u2192 culinary-ops \u2192 GAS integration points.",
+                  "description": "24-connection-point mapping across all systems: Flask → culinary-ops → GAS integration points.",
                   "tech": {
                     "notes": "GAS_to_CulinaryOps_Integration_Map.md in betterday-app repo."
                   },
@@ -10151,7 +10163,7 @@
                 },
                 {
                   "id": "flask-migration.pr7.deploy.update-integration-map",
-                  "name": "Update GAS \u2192 culinary-ops integration map",
+                  "name": "Update GAS → culinary-ops integration map",
                   "status": "to-build",
                   "priority": 3,
                   "description": "Mark meal-change-log GAP as READY in GAS_to_CulinaryOps_Integration_Map.md now that CorporateMealAllowanceLog is schema-confirmed.",
@@ -10173,7 +10185,7 @@
         },
         {
           "id": "flask-migration.phase1",
-          "name": "Phase 1 \u2014 Read-only routes to culinary-ops",
+          "name": "Phase 1 — Read-only routes to culinary-ops",
           "priority": 2,
           "description": "Switch /manager/dashboard read-only endpoints from GAS to culinary-ops. Dual-read verification before cutover. Lowest-risk phase.",
           "submodules": [
@@ -10227,7 +10239,7 @@
         },
         {
           "id": "flask-migration.phase2",
-          "name": "Phase 2 \u2014 Auth migration",
+          "name": "Phase 2 — Auth migration",
           "priority": 3,
           "description": "Replace GAS magic-token + PIN flows with culinary-ops JWT-based auth.",
           "submodules": [
@@ -10262,7 +10274,7 @@
         },
         {
           "id": "flask-migration.phase3",
-          "name": "Phase 3 \u2014 Employee + benefit CRUD",
+          "name": "Phase 3 — Employee + benefit CRUD",
           "priority": 3,
           "description": "Rewire employee and benefit-level CRUD operations to culinary-ops.",
           "submodules": [
@@ -10295,7 +10307,7 @@
         },
         {
           "id": "flask-migration.phase4",
-          "name": "Phase 4 \u2014 Orders + par writes",
+          "name": "Phase 4 — Orders + par writes",
           "priority": 3,
           "description": "Migrate order submission and par-level write paths (the highest-risk writes).",
           "submodules": [
@@ -10332,7 +10344,7 @@
         },
         {
           "id": "flask-migration.phase5",
-          "name": "Phase 5 \u2014 Invoicing + financials",
+          "name": "Phase 5 — Invoicing + financials",
           "priority": 4,
           "description": "Build invoicing and financials pipeline in culinary-ops (CompanyInvoice, CorporateCreditNote, CorporateMonthlyStatement generation).",
           "submodules": [
@@ -10377,7 +10389,7 @@
         },
         {
           "id": "flask-migration.phase6",
-          "name": "Phase 6 \u2014 Retire GAS",
+          "name": "Phase 6 — Retire GAS",
           "priority": 4,
           "description": "Remove all GAS code paths, archive backend.gs, drop the buffer sheet.",
           "submodules": [
@@ -10388,12 +10400,12 @@
               "components": [
                 {
                   "id": "flask-migration.phase6.cutover.shutoff",
-                  "name": "Retire GAS \u2014 remove _gas_post(), archive backend.gs, drop buffer sheet",
+                  "name": "Retire GAS — remove _gas_post(), archive backend.gs, drop buffer sheet",
                   "status": "to-build",
                   "priority": 4,
                   "description": "Final teardown of the old GAS system. No more GAS API calls, no more Google Sheet buffer, backend.gs committed to history and removed.",
                   "tech": {
-                    "notes": "Point of no return \u2014 ensure dual-read has been off for at least two weeks and all writes have been stable on culinary-ops."
+                    "notes": "Point of no return — ensure dual-read has been off for at least two weeks and all writes have been stable on culinary-ops."
                   },
                   "dependencies": [
                     "flask-migration.phase5.cutover.financials"
