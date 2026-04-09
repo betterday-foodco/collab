@@ -2,10 +2,23 @@
   "meta": {
     "title": "BetterDay Platform \u2014 Project Scope",
     "subtitle": "By-category module tree for the D2C storefront, subscription engine, and admin console",
-    "last_updated": "2026-04-09T03:10:00-06:00",
+    "last_updated": "2026-04-09T03:13:01-06:00",
     "updated_by": "Claude (Conner)",
     "version": 1,
-    "session": 1
+    "session": 1,
+    "next_up": {
+      "focus": "coupons.engine (Phase 1 \u2014 validate + apply + remove at checkout)",
+      "summary": "After Migration 5 (coupon_power_up) the schema is complete but nothing validates coupons at checkout yet. Phase 1 targets 4 backend leaves: coupons.engine.validate.service, coupons.dotw.engine.validate-week-match, coupons.engine.apply.endpoint, coupons.engine.apply.remove. Parallel track: customer-facing error message catalog.",
+      "phase_1_leaves": [
+        "coupons.engine.validate.service",
+        "coupons.dotw.engine.validate-week-match",
+        "coupons.engine.apply.endpoint",
+        "coupons.engine.apply.remove"
+      ],
+      "detail_file": "project-scope/NEXT_UP.md",
+      "generated_at": "2026-04-09T03:13:01-06:00",
+      "generated_by": "Claude (Conner) \u2014 coupons chat"
+    }
   },
   "legend": {
     "priorities": {
@@ -5654,7 +5667,7 @@
       "name": "Coupons & Discounts",
       "priority": 2,
       "description": "The coupon engine HMP can't ship. Full restriction set: first-order, after-N-orders, category, zone, email allow/deny, stacking rules.",
-      "tech_notes": "Coupon, CouponRedemption tables. CustomerMirror.orders_completed_count for live-verify at redemption.",
+      "tech_notes": "Coupon, CouponRedemption tables. CustomerMirror.orders_completed_count for live-verify at redemption.\n\n2026-04-09 (Conner): Phase 1 focus is the validation + apply + remove engine. Schema is complete after Migration 5. Next-up targets (in order): coupons.engine.validate.service, coupons.dotw.engine.validate-week-match, coupons.engine.apply.endpoint, coupons.engine.apply.remove. See project-scope/NEXT_UP.md for the detailed roadmap.",
       "modules": [
         {
           "id": "coupons.schema",
@@ -6032,7 +6045,8 @@
                   "tags": [
                     "logic",
                     "foundation"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): Phase 1 next-up target. The coupon schema (Migration 5) is complete and this leaf is unblocked. See project-scope/NEXT_UP.md for the detailed Phase 1 plan and the order these four leaves should be built in."
                 },
                 {
                   "id": "coupons.engine.validate.order-count",
@@ -6098,7 +6112,8 @@
                   ],
                   "tags": [
                     "api"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): Phase 1 next-up target. The coupon schema (Migration 5) is complete and this leaf is unblocked. See project-scope/NEXT_UP.md for the detailed Phase 1 plan and the order these four leaves should be built in."
                 },
                 {
                   "id": "coupons.engine.apply.remove",
@@ -6114,7 +6129,8 @@
                   },
                   "tags": [
                     "api"
-                  ]
+                  ],
+                  "notes": "2026-04-09 (Conner): Phase 1 next-up target. The coupon schema (Migration 5) is complete and this leaf is unblocked. See project-scope/NEXT_UP.md for the detailed Phase 1 plan and the order these four leaves should be built in."
                 }
               ]
             },
@@ -6419,7 +6435,8 @@
                   "name": "Delivery week matching rule",
                   "status": "to-build",
                   "priority": 2,
-                  "description": "Backend validator check: if coupon.purpose == deal_of_the_week, require order.delivery_week_sunday == coupon.delivery_week_sunday, else reject with a WRONG_DELIVERY_WEEK error. Prevents current-week DOTWs from applying to future-week pre-orders."
+                  "description": "Backend validator check: if coupon.purpose == deal_of_the_week, require order.delivery_week_sunday == coupon.delivery_week_sunday, else reject with a WRONG_DELIVERY_WEEK error. Prevents current-week DOTWs from applying to future-week pre-orders.",
+                  "notes": "2026-04-09 (Conner): Phase 1 next-up target. The coupon schema (Migration 5) is complete and this leaf is unblocked. See project-scope/NEXT_UP.md for the detailed Phase 1 plan and the order these four leaves should be built in."
                 }
               ]
             },
